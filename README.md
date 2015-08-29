@@ -4,7 +4,7 @@ a 2D, C++ game engine developed jointly by Will Nations, Hailee Ammons, and Kevi
 # Developers
 ## Installation
 
-This installation guide will assume a build for Visual Studio 2015, built for a Windows x64 platform. As a team, we wished to develop for VS, and the only edition of the VC++ compiler that would work with the EntityX library was that of VS2015. Both of the main libraries used for this game engine are usable for Windows, Mac OSX, and Linux platforms, but as we only have explicit experience in installing for Windows' Visual Studio, that is the only one we will be creating a direct guide for. If you wish to develop on a different platform or using a different IDE, I suggest you visit the documentation for the two libraries listed below.
+This installation guide will assume a build for Visual Studio 2015, built for a Windows x64 platform. As a team, we wished to develop for VS, and the only edition of the VC++ compiler that would work with the EntityX library was that of VS2015. Both of the main libraries used for this game engine are usable for Windows, Mac OSX, and Linux platforms, but as we only have explicit experience in installing for Windows' Visual Studio, that is the only one we will be creating a direct guide for. If you wish to develop on a different platform or use a different IDE, I suggest you visit the documentation for the two libraries listed below.
 
 1. Ensure that Visual Studio 2015 is installed on your computer. Any edition of the actual IDE will be fine.
 
