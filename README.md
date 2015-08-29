@@ -27,6 +27,6 @@ This installation guide will assume a build for Visual Studio 2015, built for a 
 
 7. Afterwards, switch the configuration to "Release" and do the exact same thing as the previous step except omit the "-d" portion of each of the statements. So instead of using "sfml-graphics-d.lib", you'll use "sfml-graphics.lib".
 
-8. Go to Linker->Advanced and ensure that the "Target Machine" property is set to an x64 machine.
+8. Go to Linker->Advanced and ensure that the "Target Machine" property is set to an x64 machine. Finally, hit "OK".
 
 9. After setting your solution configuration to x64 (at the top of your main editor window), build the project and attempt to run it. It -should- compile and link just fine.
