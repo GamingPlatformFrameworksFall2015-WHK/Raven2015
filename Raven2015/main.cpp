@@ -14,13 +14,13 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-//#include <entityx/entityx.h>
+#include "entityx/entityx.h"
 
 using std::cout;
 using std::cerr;
 using std::endl;
 
-//namespace ex = entityx;
+namespace ex = entityx;
 
 int main() {
 
