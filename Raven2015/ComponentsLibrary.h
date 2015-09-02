@@ -77,7 +77,7 @@ struct Rigidbody : public ex::Component<Rigidbody> {
 };
 
 /*
- * An abstract component to track the names of playable sound files.
+ * An abstract component to track the names of playable audio files.
  */
 struct BaseAudioMaker : public ex::Component<BaseAudioMaker> {
 
