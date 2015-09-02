@@ -16,6 +16,7 @@
 #include "ComponentsLibrary.h"
 #include "entityx\Entity.h"
 
+
 void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) {
 
     // Acquire each entity containing a transform and a rigidbody

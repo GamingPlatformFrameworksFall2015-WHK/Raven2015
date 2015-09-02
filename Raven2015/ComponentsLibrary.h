@@ -77,37 +77,46 @@ struct Rigidbody : public ex::Component<Rigidbody> {
 };
 
 /*
- * A lightweight component allowing for a single sound to be played.
- * sf::Sound is optimized for small audio tracks (a few seconds).
+ * An abstract component to track the names of playable sound files.
  */
-struct SimpleSoundMaker : public ex::Component<SimpleSoundMaker> {
+struct BaseAudioMaker : public ex::Component<BaseAudioMaker> {
 
     // Default constructor
-    SimpleSoundMaker() {};
+    BaseAudioMaker(int numFiles = 0) {
+        if (numFiles > 0) {
+            files.resize(numFiles);
+        }
+    };
 
-    // Custom constructor requiring an sf::Sound for initialization.
-    SimpleSoundMaker(const sf::Sound &sound) : sound(sound) {}
-    
-    // The sound playable by the owning entity.
-    sf::Sound sound;
+    // Custom constructor requiring an sf::String with an optional start size.
+    BaseAudioMaker(sf::String &soundFile, int numFiles = 1) {
+        files.push_back(soundFile);
+        if (numFiles > 1) {
+            files.resize(numFiles);
+        }
+    }
+
+    virtual ~BaseAudioMaker() = 0;
+
+    // A list of the names of the playable audio files. 
+    std::vector<sf::String> files;
 };
 
 /*
- * A lightweight component allowing for a single song to be played.
- * sf::Music is optimized for large audio tracks (~30 seconds+).
+ * A component that stores the names of tracks for sf::Sound.
+ * sf::Sound is optimized for small audio tracks (a few seconds).
+ *
+ * TODO: Restrict types playable with these filenames to sf::Sound objects.
  */
-struct SimpleMusicMaker : public ex::Component<SimpleMusicMaker> {
+struct SimpleSoundMaker : public BaseAudioMaker { SimpleSoundMaker() {} };
 
-    // Default constructor
-    SimpleMusicMaker() {};
-
-    /* copy constructor for sf::Music is deleted, so there is no comparative
-     * custom constructor for sf::Music based components.
-     */
-
-    // The music playable by the owning entity.
-    sf::Music music;
-};
+/*
+ * A component that stores the names of tracks for sf::Music.
+ * sf::Music is optimized for large audio tracks (~30 seconds+).
+ *
+ * TODO: Restrict types playable with these filenames to sf::Music objects.
+ */
+struct SimpleMusicMaker : public BaseAudioMaker { SimpleMusicMaker() {} };
 
 /*
  * A heavyweight component allowing for several sounds to be maintained.
