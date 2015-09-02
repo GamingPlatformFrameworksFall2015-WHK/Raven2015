@@ -108,7 +108,7 @@ struct BaseAudioMaker : public ex::Component<BaseAudioMaker> {
  *
  * TODO: Restrict types playable with these filenames to sf::Sound objects.
  */
-struct SimpleSoundMaker : public BaseAudioMaker { SimpleSoundMaker() {} };
+struct SoundMaker : public BaseAudioMaker { SoundMaker() {} };
 
 /*
  * A component that stores the names of tracks for sf::Music.
@@ -116,37 +116,4 @@ struct SimpleSoundMaker : public BaseAudioMaker { SimpleSoundMaker() {} };
  *
  * TODO: Restrict types playable with these filenames to sf::Music objects.
  */
-struct SimpleMusicMaker : public BaseAudioMaker { SimpleMusicMaker() {} };
-
-/*
- * A heavyweight component allowing for several sounds to be maintained.
- * sf::Sound is optimized for small audio tracks (a few seconds).
- */
-struct MultiSoundMaker : public ex::Component<MultiSoundMaker> {
-
-    // Default constructor
-    MultiSoundMaker() {}
-
-    // Custom constructor requiring an std::map<sf::String, sf::Sound> for initialization
-    MultiSoundMaker(std::map<sf::String, sf::Sound> aMap) : musicMap(aMap) {}
-    
-    // A map of the sounds playable by the owning entity.
-    std::map<sf::String,sf::Sound> musicMap;
-};
-
-/*
- * A heavyweight component allowing for several songs to be maintained.
- * sf::Music is optimized for large audio tracks (~30 seconds+).
- */
-struct MultiMusicMaker : public ex::Component<MultiMusicMaker> {
-
-    // Default constructor
-    MultiMusicMaker() {}
-
-    /* copy constructor for sf::Music is deleted, so there is no comparative
-     * custom constructor for sf::Music based components.
-     */
-
-    // A map of the music playable by the owning entity.
-    std::map<sf::String,sf::Music> musicMap;
-};
+struct MusicMaker : public BaseAudioMaker { MusicMaker() {} };
