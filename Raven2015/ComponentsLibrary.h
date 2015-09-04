@@ -28,6 +28,14 @@ namespace ex = entityx;
  */
 struct Transform : public ex::Component<Transform> {
 
+    // Defaut constructor
+    Transform(const float transformX = 0.0f, const float transformY = 0.0f,
+        const float rotation = 0.0f) : rotation(rotation) {
+
+        transform.x = transformX;
+        transform.y = transformY;
+    }
+
     // Primary custom constructor. Requires placement with optional rotation.
     Transform(const sf::Vector2f &transform, float rotation = 0.0)
         : transform(transform), rotation(rotation) {}
