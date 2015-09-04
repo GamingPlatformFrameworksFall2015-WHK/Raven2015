@@ -16,7 +16,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "entityx/entityx.h"
-#include "ComponentsLibrary.h"
+#include "ComponentLibrary.h"
 #include "MovementSystem.h"
 #include "entityx/deps/Dependencies.h"
 

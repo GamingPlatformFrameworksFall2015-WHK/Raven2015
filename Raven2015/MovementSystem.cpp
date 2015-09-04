@@ -13,7 +13,7 @@
 
 
 #include "MovementSystem.h"
-#include "ComponentsLibrary.h"
+#include "ComponentLibrary.h"
 #include "entityx\Entity.h"
 
 

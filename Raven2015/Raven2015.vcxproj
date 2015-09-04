@@ -163,6 +163,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
@@ -172,7 +174,10 @@
     <ClCompile Include="MovementSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComponentsLibrary.h" />
+    <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="ComponentLibrary.h" />
     <ClInclude Include="entityx-master\entityx\3rdparty\catch.hpp" />
     <ClInclude Include="entityx-master\entityx\3rdparty\simplesignal.h" />
     <ClInclude Include="entityx-master\entityx\config.h" />
@@ -185,6 +190,7 @@
     <ClInclude Include="entityx-master\entityx\quick.h" />
     <ClInclude Include="entityx-master\entityx\System.h" />
     <ClInclude Include="entityx-master\entityx\tags\TagsComponent.h" />
+    <ClInclude Include="EventLibrary.h" />
     <ClInclude Include="MovementSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

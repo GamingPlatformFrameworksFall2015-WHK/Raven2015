@@ -75,11 +75,14 @@
     <ClCompile Include="entityx-master\entityx\help\Timer.cc">
       <Filter>Source Files\entityx\help</Filter>
     </ClCompile>
+    <ClCompile Include="AudioSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComponentsLibrary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MovementSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -118,6 +121,21 @@
     </ClInclude>
     <ClInclude Include="entityx-master\entityx\3rdparty\simplesignal.h">
       <Filter>Header Files\entityx\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="EventLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
