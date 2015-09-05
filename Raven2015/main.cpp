@@ -18,6 +18,8 @@
 #include "entityx/entityx.h"
 #include "ComponentLibrary.h"
 #include "MovementSystem.h"
+#include "AudioSystem.h"
+#include "CollisionSystem.h"
 #include "entityx/deps/Dependencies.h"
 
 using std::cout;
@@ -30,11 +32,15 @@ class Game : public ex::EntityX {
 public:
     explicit Game(sf::RenderTarget &target) {
         systems.add<MovementSystem>();
+        systems.add<AudioSystem>();
+        systems.add<CollisionSystem>();
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
         systems.update<MovementSystem>(dt);
+        systems.update<AudioSystem>(dt);
+        systems.update<CollisionSystem>(dt);
     }
 };
 
