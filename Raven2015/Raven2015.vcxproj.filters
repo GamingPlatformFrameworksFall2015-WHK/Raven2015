@@ -13,19 +13,129 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\Sprites">
-      <UniqueIdentifier>{d7a4cd1f-dfff-421f-907c-6aadcbe94fcb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Textures">
-      <UniqueIdentifier>{17b7ad93-a9c5-4a53-9420-290934063ff5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Audio">
       <UniqueIdentifier>{89d39faa-8e01-4965-b42d-3d55fb08e1a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{2afd8314-e73c-4766-958c-49212f652ac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{379c3151-14f2-4e57-a9ea-4f7d52233b9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\entityx">
+      <UniqueIdentifier>{e89ea033-9d6b-44a7-b0d8-19657f3b1066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\entityx\help">
+      <UniqueIdentifier>{509c3255-7388-4538-9319-2156197bd1db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\entityx">
+      <UniqueIdentifier>{7d1ec077-d512-4c0c-9bb0-526c24643353}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\entityx\help">
+      <UniqueIdentifier>{411c6774-d7e9-4e58-a1fe-c1509293464c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\entityx\tags">
+      <UniqueIdentifier>{e9e7d7db-b62e-4461-8d4d-d36e80fbbb75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\entityx\deps">
+      <UniqueIdentifier>{0dd889c4-222c-45c8-8d69-e48e698b8c7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\entityx\3rdparty">
+      <UniqueIdentifier>{27a82abc-f830-48ea-822d-f2295a54178f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Images">
+      <UniqueIdentifier>{3b923448-0001-401a-9ce4-6bdcd4c90856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Images\Sprites">
+      <UniqueIdentifier>{d7a4cd1f-dfff-421f-907c-6aadcbe94fcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Images\Textures">
+      <UniqueIdentifier>{17b7ad93-a9c5-4a53-9420-290934063ff5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MovementSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="entityx-master\entityx\Entity.cc">
+      <Filter>Source Files\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="entityx-master\entityx\Event.cc">
+      <Filter>Source Files\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="entityx-master\entityx\System.cc">
+      <Filter>Source Files\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="entityx-master\entityx\help\Pool.cc">
+      <Filter>Source Files\entityx\help</Filter>
+    </ClCompile>
+    <ClCompile Include="entityx-master\entityx\help\Timer.cc">
+      <Filter>Source Files\entityx\help</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MovementSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\help\Pool.h">
+      <Filter>Header Files\entityx\help</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\help\Timer.h">
+      <Filter>Header Files\entityx\help</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\config.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\Entity.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\entityx.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\Event.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\quick.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\System.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\tags\TagsComponent.h">
+      <Filter>Header Files\entityx\tags</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\deps\Dependencies.h">
+      <Filter>Header Files\entityx\deps</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\3rdparty\catch.hpp">
+      <Filter>Header Files\entityx\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx-master\entityx\3rdparty\simplesignal.h">
+      <Filter>Header Files\entityx\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="EventLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
