@@ -17,6 +17,7 @@
 class CollisionSystem : public ex::System<CollisionSystem>,
     public ex::Receiver<CollisionEvent> {
 
+public:
     /*
      *
      */
