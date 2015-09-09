@@ -54,7 +54,7 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
     float yDiff = rightBoxCollider.get()->origin.y -
         leftBoxCollider.get()->origin.y;
 
-    //Acquire one half the length/height "reach" of each collider's origin
+    //Acquire one-half the length/height "reach" from each collider's origin
     float xlReach = leftBoxCollider.get()->length*0.5f;  // x-axis left reach
     float ylReach = leftBoxCollider.get()->height*0.5f;  // y-axis left reach
     float xrReach = rightBoxCollider.get()->length*0.5f; // x-axis right reach
@@ -82,7 +82,7 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
             collided = true;
         }
     }
-    else { // left collider is (probably) further right than right collider
+    else if(xDiff < 0) { // left collider is further right than right collider
 
         //step inward toward each other using the "reach" values
         float xOverlap = (leftBoxCollider.get()->origin.x - xlReach) -
@@ -95,6 +95,10 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
             collided = true;
         }
 
+    }
+    else {
+        collided = true;
+        collisionPointX = leftBoxCollider.get()->origin.x;
     }
 
     if (yDiff > 0) { // right collider is further right than left collider
@@ -110,7 +114,7 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
             collided = true;
         }
     }
-    else { // left collider is (probably) further right than right collider
+    else if (yDiff < 0) { // left collider is further right than right collider
 
         //step inward toward each other using the "reach" values
         float yOverlap = (leftBoxCollider.get()->origin.y - ylReach) -
@@ -123,6 +127,10 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
             collided = true;
         }
 
+    }
+    else {
+        collided = true;
+        collisionPointY = leftBoxCollider.get()->origin.y;
     }
 
     // If a collisionPoint value was evaluated, emit an event

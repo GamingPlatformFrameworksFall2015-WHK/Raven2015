@@ -15,7 +15,7 @@
 #include "EventLibrary.h"
 
 class CollisionSystem : public ex::System<CollisionSystem>,
-    public ex::Receiver<CollisionEvent> {
+    public ex::Receiver<CollisionSystem> {
 
 public:
     /*
@@ -23,6 +23,13 @@ public:
      */
     explicit CollisionSystem() {
 
+    }
+
+    /*
+     * Setup necessary static information
+     */
+    void configure(entityx::EventManager &event_manager) {
+        event_manager.subscribe<CollisionEvent>(*this);
     }
 
     /*

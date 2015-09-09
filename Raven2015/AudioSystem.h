@@ -43,7 +43,7 @@
  * 
  */
 class AudioSystem : public ex::System<AudioSystem>,
-    ex::Receiver<AudioEvent> {
+    public ex::Receiver<AudioSystem> {
 
 public:
     /*
@@ -51,6 +51,13 @@ public:
      */
     explicit AudioSystem() {
 
+    }
+
+    /*
+     * Setup necessary static information
+     */
+    void configure(entityx::EventManager &event_manager) {
+        event_manager.subscribe<AudioEvent>(*this);
     }
 
     /*

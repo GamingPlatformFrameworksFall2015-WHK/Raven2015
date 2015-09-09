@@ -54,7 +54,7 @@ int main() {
     game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
     game.systems.configure();
 
-    // Dependencies Verification
+    // Dependencies Verification + Create 2 Entities with colliders
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
     if (entity1.has_component<Transform>()) {
@@ -63,10 +63,17 @@ int main() {
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
 
-    entity1.component<Transform>().get()->transform.x = 1.0f;
-    entity1.component<Transform>().get()->transform.y = 1.0f;
-    entity2.component<Transform>().get()->transform.x = 1.0f;
-    entity2.component<Transform>().get()->transform.y = 1.0f;
+    // Verify both are at origin.
+    cout << entity1.component<BoxCollider>().get()->origin.x << "," <<
+        entity1.component<BoxCollider>().get()->origin.y << endl <<
+        entity2.component<BoxCollider>().get()->origin.x << "," <<
+        entity2.component<BoxCollider>().get()->origin.y << endl;
+
+    // Verify both have collision areas
+    cout << entity1.component<BoxCollider>().get()->length << "," <<
+        entity1.component<BoxCollider>().get()->height << endl <<
+        entity2.component<BoxCollider>().get()->length << "," <<
+        entity2.component<BoxCollider>().get()->height << endl;
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
