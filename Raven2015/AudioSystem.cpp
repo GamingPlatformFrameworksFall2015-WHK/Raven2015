@@ -17,14 +17,14 @@ void AudioSystem::receive(const AudioEvent &event) {
     
     // Accessor for map data structures tracking audio resources
     std::pair<ex::Entity, std::string> key = 
-        std::make_pair(event.owner, event.audioFileName);
+        std::make_pair(*event.owner, event.audioFileName);
 
     // Deal with the "Sound" case
     if (event.audioType == cmn::EAudioType::SOUND) {
 
         // Determine whether we already have this sound file on record.
         SOUNDMAP_T::const_iterator it = soundMap.find(
-            std::make_pair(event.owner, event.audioFileName));
+            std::make_pair(*event.owner, event.audioFileName));
 
         // If it isn't on record and we aren't loading a new file, do nothing.
         if (soundMap.cend() == it &&
@@ -77,7 +77,7 @@ void AudioSystem::receive(const AudioEvent &event) {
 
         // Determine whether we already have this music file on record.
         MUSICMAP_T::const_iterator it = musicMap.find(
-            std::make_pair(event.owner, event.audioFileName));
+            std::make_pair(*event.owner, event.audioFileName));
 
         // If it isn't on record and we aren't loading a new file, do nothing.
         if (musicMap.cend() == it &&

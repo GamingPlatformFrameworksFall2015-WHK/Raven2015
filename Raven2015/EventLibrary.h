@@ -3,6 +3,8 @@
 #include "Common.h"         // For Common::EAudioType
 #include "entityx\Event.h"  // For entityx::Event
 #include "entityx\Entity.h" // For entityx::Entity
+#include "SFML/System.hpp"
+#include "ComponentLibrary.h"
 
 #pragma region AudioEvents
 /*
@@ -79,13 +81,39 @@ struct MusicEvent : public AudioEvent {
  */
 struct CollisionEvent : public ex::Event<CollisionEvent> {
 
-    // Default constructor. Accepts to entities assumed to be colliding.
-    CollisionEvent(ex::Entity &left, ex::Entity &right)
-        : leftEntity(left), rightEntity(right) {}
+    /* 
+     * Default constructor. Accepts two entities assumed to be colliding and
+     * their point of impact.
+     */
+    CollisionEvent(ex::Entity leftEntity, ex::Entity rightEntity,
+        sf::Vector2f collisionPoint)
+        : leftEntity(leftEntity), rightEntity(rightEntity),
+        collisionPoint(collisionPoint) {
 
-    // The entity on the former side of the collision
+        leftTransform = leftEntity.component<Transform>();
+        leftRigidbody = leftEntity.component<Rigidbody>();
+        rightTransform = rightEntity.component<Transform>();
+        rightRigidbody = rightEntity.component<Rigidbody>();
+    }
+
+    // The transform of the "left" entity in the collision.
+    ex::ComponentHandle<Transform> leftTransform;
+
+    // The rigidbody of the "left" entity in the collision.
+    ex::ComponentHandle<Rigidbody> leftRigidbody;
+
+    // The transform of the "right" entity in the collision.
+    ex::ComponentHandle<Transform> rightTransform;
+
+    // The rigidbody of the "right" entity in the collision.
+    ex::ComponentHandle<Rigidbody> rightRigidbody;
+
+    // The colliding left entity
     ex::Entity leftEntity;
 
-    // The entity on the latter side of the collision
+    // The colliding right entity
     ex::Entity rightEntity;
+
+    // The point of impact between the two colliding entities.
+    sf::Vector2f collisionPoint;
 };

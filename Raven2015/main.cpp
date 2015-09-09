@@ -14,7 +14,8 @@
 #pragma once
 
 #include <iostream>
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
+#include "SFML\System.hpp"
 #include "entityx/entityx.h"
 #include "ComponentLibrary.h"
 #include "MovementSystem.h"
@@ -49,21 +50,46 @@ int main() {
     // Add dependencies
     cout << "Adding component dependencies..." << endl;
     game.systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
-    game.systems.add < ex::deps::Dependency<Collider, Rigidbody>>();
+    game.systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
+    game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
+    game.systems.configure();
+
+    // Dependencies Verification
+    ex::Entity entity1 = game.entities.create();
+    entity1.assign<BoxCollider>();
+    if (entity1.has_component<Transform>()) {
+        cout << "TRUE" << endl;
+    }
+    ex::Entity entity2 = game.entities.create();
+    entity2.assign<BoxCollider>();
+
+    entity1.component<Transform>().get()->transform.x = 1.0f;
+    entity1.component<Transform>().get()->transform.y = 1.0f;
+    entity2.component<Transform>().get()->transform.x = 1.0f;
+    entity2.component<Transform>().get()->transform.y = 1.0f;
 
     cout << "Starting game loop..." << endl;
+    sf::Clock mainClock;
     while (window.isOpen()) {
 
         sf::Event event;
 
         while (window.pollEvent(event)) {
 
-            if (event.type == sf::Event::Closed) {
+            switch(event.type) {
+            case sf::Event::Closed:
                 window.close();
+                break;
             }
         }
 
+        /*
+         * Per iteration, clear the window, record delta time, update systems,
+         * and redisplay.
+         */
         window.clear();
+        sf::Time deltaTime = mainClock.restart();
+        game.update(deltaTime.asSeconds());
         window.display();
     }
 
