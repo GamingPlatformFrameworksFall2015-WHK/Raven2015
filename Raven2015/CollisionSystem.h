@@ -14,8 +14,6 @@
 #include "entityx\System.h"
 #include "EventLibrary.h"
 
-namespace ex = entityx;
-
 class CollisionSystem : public ex::System<CollisionSystem>,
     public ex::Receiver<CollisionEvent> {
 
@@ -27,13 +25,13 @@ class CollisionSystem : public ex::System<CollisionSystem>,
     }
 
     /*
-     *
+     * Iterate through all objects with Colliders and emit CollisionEvents.
      */
     void update(ex::EntityManager &es, ex::EventManager &events, 
         ex::TimeDelta dt) override; 
 
     /*
-     *
+     * Processes data involving the collision of two Entities with Colliders.
      */
     void receive(const CollisionEvent &event);
 

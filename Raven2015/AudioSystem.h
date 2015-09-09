@@ -13,8 +13,10 @@
 
 #include "entityx\System.h"
 #include "EventLibrary.h"
+#include "SFML/Audio/SoundBuffer.hpp"
+#include <map>
 
-namespace ex = entityx;
+#define SOUNDMAP_T std::map<std::pair<ex::Entity, std::string>, sf::SoundBuffer>
 
 class AudioSystem : public ex::System<AudioSystem>,
     ex::Receiver<AudioEvent> {
@@ -37,4 +39,7 @@ class AudioSystem : public ex::System<AudioSystem>,
      */
     void receive(const AudioEvent &event);
 
+    // maps an Entity-soundFileName combo to a SoundBuffer to store the sound.
+    SOUNDMAP_T soundMap;
+    
 };

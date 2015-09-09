@@ -5,9 +5,6 @@
 #include "entityx\Entity.h" // For entityx::Entity
 #include <string>           // For std::string
 
-namespace ex = entityx;
-namespace cmn = Common;
-
 #pragma region AudioEvents
 /*
  * An event that holds data regarding an operation involving an audio resource.
@@ -25,7 +22,7 @@ struct AudioEvent : public ex::Event<AudioEvent> {
 
     // Primary custom constructor. Initializes to zero values.
     AudioEvent(std::string audioFileName = "", 
-        cmn::EAudioType audioType = cmn::EAudioType::NONE) : 
+        cmn::EAudioType audioType = cmn::EAudioType::NO_TYPE) : 
         audioType(audioType), audioFileName(audioFileName) {}
 
     // Abstract destructor
@@ -34,9 +31,14 @@ struct AudioEvent : public ex::Event<AudioEvent> {
     // The name of the audio file to perform the operation on
     std::string audioFileName;
 
-protected:
     // The type of the audio file to be modified
     cmn::EAudioType audioType;
+
+    // The operation to be performed on the audio file
+    cmn::EAudioOperation audioOperation;
+
+    // The entity claiming ownership of the audio operation
+    ex::Entity owner;
 };
 
 // A base class for various types of sound operation events
@@ -60,46 +62,6 @@ struct MusicEvent : public AudioEvent {
         audioType = cmn::EAudioType::MUSIC;
     }
 };
-
-#pragma region SoundEvents
-// An event notifying the AudioSystem of the need to load a sound resource.
-struct SoundLoadEvent : SoundEvent {};
-
-// An event notifying the AudioSystem of the need to play a sound resource.
-struct SoundPlayEvent : SoundEvent {};
-
-// An event notifying the AudioSystem of the need to pause a sound resource.
-struct SoundPauseEvent : SoundEvent {};
-
-// An event notifying the AudioSystem of the need to stop a sound resource.
-struct SoundStopEvent : SoundEvent {};
-
-// An event notifying the AudioSystem of the need to restart a sound resource.
-struct SoundRestartEvent : SoundEvent {};
-
-// An event notifying the AudioSystem of the need to scan a sound resource.
-struct SoundScanEvent : SoundEvent {};
-#pragma endregion
-
-#pragma region MusicEvents
-// An event notifying the AudioSystem of the need to load a music resource.
-struct MusicLoadEvent : MusicEvent {};
-
-// An event notifying the AudioSystem of the need to play a music resource.
-struct MusicPlayEvent : MusicEvent {};
-
-// An event notifying the AudioSystem of the need to pause a music resource.
-struct MusicPauseEvent : MusicEvent {};
-
-// An event notifying the AudioSystem of the need to stop a music resource.
-struct MusicStopEvent : MusicEvent {};
-
-// An event notifying the AudioSystem of the need to restart a music resource.
-struct MusicRestartEvent : MusicEvent {};
-
-// An event notifying the AudioSystem of the need to scan a music resource.
-struct MusicScanEvent : MusicEvent {};
-#pragma endregion //MusicEvents
 
 #pragma endregion //AudioEvents
 

@@ -22,12 +22,6 @@
 #include "CollisionSystem.h"
 #include "entityx/deps/Dependencies.h"
 
-using std::cout;
-using std::cerr;
-using std::endl;
-
-namespace ex = entityx;
-
 class Game : public ex::EntityX {
 public:
     explicit Game(sf::RenderTarget &target) {
@@ -48,11 +42,14 @@ int main() {
 
     std::srand((unsigned int) std::time(nullptr));
 
+    // Create game window
     sf::RenderWindow window(sf::VideoMode(600,400), "Raven Test");
-    
-    cout << "Adding component dependencies..." << endl;
     Game game(window);
+
+    // Add dependencies
+    cout << "Adding component dependencies..." << endl;
     game.systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
+    game.systems.add < ex::deps::Dependency<Collider, Rigidbody>>();
 
     cout << "Starting game loop..." << endl;
     while (window.isOpen()) {

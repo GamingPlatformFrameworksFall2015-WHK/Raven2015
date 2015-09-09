@@ -21,9 +21,6 @@
 #include "entityx\Entity.h"     // For entityx::Component
 #include "Common.h"             // For EAudioType
 
-namespace ex = entityx;
-namespace cmn = Common;
-
 #pragma region Physics
 
 /*

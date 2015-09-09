@@ -13,8 +13,6 @@
 
 #include "entityx\System.h"
 
-namespace ex = entityx;
-
 class MovementSystem : public ex::System<MovementSystem> {
 
 public:
