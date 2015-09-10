@@ -61,7 +61,8 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
     float yrReach = rightBoxCollider.get()->height*0.5f; // y-axis right reach
     
     //Define variables for tracking x and y coordinates of impact point.
-    bool collided = false;
+    bool xcollided = false;
+    bool ycollided = false;
     float collisionPointX = 0.0f;
     float collisionPointY = 0.0f;
 
@@ -79,7 +80,7 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
         if (xOverlap < 0) {
             //They would have collided half way between the amount over-reached
             collisionPointX = 0.5f * abs(xOverlap);
-            collided = true;
+            xcollided = true;
         }
     }
     else if(xDiff < 0) { // left collider is further right than right collider
@@ -92,12 +93,12 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
         if (xOverlap < 0) {
             //They would have collided half way between the amount over-reached
             collisionPointX = 0.5f * abs(xOverlap);
-            collided = true;
+            xcollided = true;
         }
 
     }
     else {
-        collided = true;
+        xcollided = true;
         collisionPointX = leftBoxCollider.get()->origin.x;
     }
 
@@ -111,7 +112,7 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
         if (yOverlap < 0) {
             //They would have collided half way between the amount over-reached
             collisionPointY = 0.5f * abs(yOverlap);
-            collided = true;
+            ycollided = true;
         }
     }
     else if (yDiff < 0) { // left collider is further right than right collider
@@ -124,17 +125,17 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
         if (yOverlap < 0) {
             //They would have collided half way between the amount over-reached
             collisionPointY = 0.5f * abs(yOverlap);
-            collided = true;
+            ycollided = true;
         }
 
     }
     else {
-        collided = true;
+        ycollided = true;
         collisionPointY = leftBoxCollider.get()->origin.y;
     }
 
     // If a collisionPoint value was evaluated, emit an event
-    if (collided) {
+    if (xcollided && ycollided) {
         sf::Vector2f collisionPoint(collisionPointX, collisionPointY);
         events.emit<CollisionEvent>(leftEntity, rightEntity, collisionPoint);
     }
