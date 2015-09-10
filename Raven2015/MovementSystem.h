@@ -12,8 +12,7 @@
 #pragma once
 
 #include "entityx\System.h"
-
-namespace ex = entityx;
+#include "Common.h"
 
 class MovementSystem : public ex::System<MovementSystem> {
 

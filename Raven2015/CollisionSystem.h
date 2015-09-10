@@ -14,11 +14,10 @@
 #include "entityx\System.h"
 #include "EventLibrary.h"
 
-namespace ex = entityx;
-
 class CollisionSystem : public ex::System<CollisionSystem>,
-    public ex::Receiver<CollisionEvent> {
+    public ex::Receiver<CollisionSystem> {
 
+public:
     /*
      *
      */
@@ -27,14 +26,27 @@ class CollisionSystem : public ex::System<CollisionSystem>,
     }
 
     /*
-     *
+     * Setup necessary static information
+     */
+    void configure(entityx::EventManager &event_manager) {
+        event_manager.subscribe<CollisionEvent>(*this);
+    }
+
+    /*
+     * Iterate through all objects with Colliders and emit CollisionEvents.
      */
     void update(ex::EntityManager &es, ex::EventManager &events, 
         ex::TimeDelta dt) override; 
 
     /*
-     *
+     * Processes data involving the collision of two Entities with Colliders.
      */
     void receive(const CollisionEvent &event);
+
+    /*
+     * Tests whether two entities' colliders register a collision.
+     */
+    void CollisionSystem::testCollision(ex::Entity leftEntity,
+        ex::Entity rightEntity, ex::EventManager &events);
 
 };

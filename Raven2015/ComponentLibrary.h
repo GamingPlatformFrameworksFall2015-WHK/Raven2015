@@ -21,9 +21,6 @@
 #include "entityx\Entity.h"     // For entityx::Component
 #include "Common.h"             // For EAudioType
 
-namespace ex = entityx;
-namespace cmn = Common;
-
 #pragma region Physics
 
 /*
@@ -103,6 +100,9 @@ struct Collider : public ex::Component<Collider> {
     sf::Vector2f origin;
 };
 
+// Empty implementation of pure abstract destructor
+inline Collider::~Collider() {}
+
 /*
  * A Collider with a box-shaped collision area
  */
@@ -134,6 +134,9 @@ struct BoxCollider : Collider {
         height *= scale;
     }
 
+    // Deconstructor
+    virtual ~BoxCollider() override {}
+
     // The range of the x-axis of the collider. Origin in the middle.
     float length;
 
@@ -154,6 +157,9 @@ struct CircleCollider : Collider {
         origin.x = x;
         origin.y = y;
     }
+
+    // Deconstructor
+    virtual ~CircleCollider() override {}
 
     // The radius of the circular collision area
     float radius;
