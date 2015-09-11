@@ -16,8 +16,8 @@ Current Component list:
 - Transform - provides 2D position data
 - Rigidbody - provides physics related movement data (velocity / acceleration, etc.)
 - BoxCollider - provides physics related boundaries for collision detection
-- SoundMaker - provides the ability to play small sound files.
-- MusicMaker - provides the ability to stream large sound files.
+- SoundMaker - provides the ability to load & play small sound files.
+- MusicMaker - provides the ability to open & stream large sound files.
 
 Current System list:
 - MovementSystem - updates the positions of all objects according to their current Rigidbody stats.
