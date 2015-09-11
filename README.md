@@ -47,4 +47,4 @@ This installation guide will assume a build for Visual Studio 2015, built for a 
 
 #Players
 
-Feel free to experiment with moving around a blue dot using the WASD or up/down/left/right arrow keys. The game starts off playing an audio clip from the movie 300 to showcase Raven's ability to play audio files properly.
+Feel free to experiment with moving around a blue dot using the WASD or up/down/left/right arrow keys. The game starts off playing an audio clip from the movie 300 to showcase Raven's ability to play audio files properly. The audio clip is triggered by a collision with a red dot in the top left corner. 
