@@ -138,4 +138,9 @@
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Sounds\sample_sound.wav">
+      <Filter>Resource Files\Audio</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
 #include "CollisionSystem.h"
 #include "ComponentLibrary.h"
 #include "entityx\Entity.h"
-#include <typeinfo>
+//#include <typeinfo>
+#include "SFML\Audio.hpp"
 
 /*
  * Iterate through all objects with Colliders and emit CollisionEvents.
@@ -21,9 +22,20 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
  */
 void CollisionSystem::receive(const CollisionEvent &event) {
 
-    // Notify the user that a collision occurred via text output
-    cout << "Collision: " + std::to_string(event.leftEntity.id().id()) + " X " + 
-        std::to_string(event.rightEntity.id().id()) << endl;
+    if (!temp) {
+        // Notify the user that a collision occurred via text output
+        cout << "Collision: " + std::to_string(event.leftEntity.id().id()) + " X " +
+            std::to_string(event.rightEntity.id().id()) << endl;
+
+        
+        buffer.loadFromFile("Resources/Audio/Sounds/choose.ogg");
+        sound.setVolume(100);
+        sound.setBuffer(buffer);
+        sound.setLoop(false);
+        sound.play();
+        
+        temp = true;
+    }
 
 }
 

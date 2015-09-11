@@ -13,6 +13,7 @@
 
 #include "entityx\System.h"
 #include "EventLibrary.h"
+#include "SFML\Audio.hpp"
 
 class CollisionSystem : public ex::System<CollisionSystem>,
     public ex::Receiver<CollisionSystem> {
@@ -22,7 +23,7 @@ public:
      *
      */
     explicit CollisionSystem() {
-
+        temp = false;
     }
 
     /*
@@ -48,5 +49,10 @@ public:
      */
     void CollisionSystem::testCollision(ex::Entity leftEntity,
         ex::Entity rightEntity, ex::EventManager &events);
+
+    bool temp;
+
+    sf::SoundBuffer buffer;
+    sf::Sound sound;
 
 };
