@@ -14,6 +14,10 @@
 #pragma once
 
 #include <iostream>
+#include <map>
+#include <vector>
+#include <string>
+#include <exception>
 #include "SFML/Graphics.hpp"
 #include "SFML\System.hpp"
 #include "entityx/entityx.h"
@@ -37,6 +41,38 @@ public:
         systems.update<AudioSystem>(dt);
         systems.update<CollisionSystem>(dt);
     }
+};
+
+class InputHandler {
+public:
+	std::map<sf::Keyboard::Key, std::string> key_map{
+		{ sf::Keyboard::A,		"move_left" },
+		{ sf::Keyboard::D,		"move_right" },
+		{ sf::Keyboard::W,		"move_up" },
+		{ sf::Keyboard::S,		"move_down" },
+		{ sf::Keyboard::Left,	"move_left" },
+		{ sf::Keyboard::Right,	"move_right" },
+		{ sf::Keyboard::Up,		"move_up" },
+		{ sf::Keyboard::Down,	"move_down" }
+	};
+
+	InputHandler() {
+		//read config file
+		//remap key_map so in config: 'move_left = A' => insert_input(A, move_left);
+	}
+
+	void insert_input(sf::Keyboard::Key key, std::string action) {
+		try {
+			if (key_map.at(key) != action) {
+				key_map[key] = action;
+			}
+		}
+		catch (std::exception e) {
+			//If k does not match the key of any element in the container, the function throws an out_of_range exception.
+			key_map.insert(std::pair<sf::Keyboard::Key, std::string>(key, action));
+		}
+	}
+
 };
 
 int main() {
@@ -63,7 +99,18 @@ int main() {
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
 
-    // Verify both are at origin.
+    // Graphics for now
+	sf::CircleShape shape;
+	shape.setRadius(2.f);
+	shape.setPosition(entity1.component<BoxCollider>().get()->origin.x, entity1.component<BoxCollider>().get()->origin.y);
+	shape.setFillColor(sf::Color::Cyan);
+
+	sf::CircleShape shape2;
+	shape2.setRadius(2.f);
+	shape2.setPosition(entity2.component<BoxCollider>().get()->origin.x, entity2.component<BoxCollider>().get()->origin.y);
+	shape2.setFillColor(sf::Color::Red);
+
+	// Verify both are at origin.
     cout << entity1.component<BoxCollider>().get()->origin.x << "," <<
         entity1.component<BoxCollider>().get()->origin.y << endl <<
         entity2.component<BoxCollider>().get()->origin.x << "," <<
@@ -83,21 +130,48 @@ int main() {
 
         while (window.pollEvent(event)) {
 
-            switch(event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed:
-
-                break;
-            }
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
+			case sf::Event::KeyPressed: {
+				InputHandler i_d;
+				int speed = 10;
+				if (i_d.key_map[event.key.code] == "move_right") {
+					entity1.component<Transform>().get()->transform.x += speed;
+					entity1.component<BoxCollider>().get()->origin.x += speed;
+				}
+				else if (i_d.key_map[event.key.code] == "move_down") {
+					entity1.component<Transform>().get()->transform.y += speed;
+					entity1.component<BoxCollider>().get()->origin.y += speed;
+				}
+				else if (i_d.key_map[event.key.code] == "move_left") {
+					entity1.component<Transform>().get()->transform.x -= speed;
+					entity1.component<BoxCollider>().get()->origin.x -= speed;
+				}
+				else if (i_d.key_map[event.key.code] == "move_up") {
+					entity1.component<Transform>().get()->transform.y -= speed;
+					entity1.component<BoxCollider>().get()->origin.y -= speed;
+				}
+				break;
+			}
+			case sf::Event::MouseButtonPressed:
+				break;
+			case sf::Event::JoystickButtonPressed:
+				break;
+			case sf::Event::JoystickMoved:
+				break;
+			}
         }
+		shape.setPosition(entity1.component<BoxCollider>().get()->origin.x, entity1.component<BoxCollider>().get()->origin.y);
 
         /*
          * Per iteration, clear the window, record delta time, update systems,
          * and redisplay.
          */
         window.clear();
+		window.draw(shape); //Graphic for now
+		window.draw(shape2); //Graphic for now
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
         window.display();
