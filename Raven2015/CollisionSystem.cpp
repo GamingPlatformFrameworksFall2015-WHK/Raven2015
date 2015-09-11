@@ -12,7 +12,7 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
     es.each<BoxCollider>([&](ex::Entity leftEntity, BoxCollider &leftCollider) {
         es.each<BoxCollider>([&](ex::Entity rightEntity, BoxCollider &rightCollider) {
-            testCollision(leftEntity, rightEntity, events);
+            testCollision(&leftEntity, &rightEntity, &events);
         });
     });
 }
@@ -22,36 +22,25 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
  */
 void CollisionSystem::receive(const CollisionEvent &event) {
 
-    if (!temp) {
-        // Notify the user that a collision occurred via text output
-        cout << "Collision: " + std::to_string(event.leftEntity.id().id()) + " X " +
-            std::to_string(event.rightEntity.id().id()) << endl;
-
-        
-        buffer.loadFromFile("Resources/Audio/Sounds/choose.ogg");
-        sound.setVolume(100);
-        sound.setBuffer(buffer);
-        sound.setLoop(false);
-        sound.play();
-        
-        temp = true;
-    }
+    // Notify the user that a collision occurred via text output
+    cout << "Collision: " + std::to_string(event.leftEntity.id().id()) + " X " +
+        std::to_string(event.rightEntity.id().id()) << endl;
 
 }
 
 /*
  * Tests whether two entities' colliders register a collision.
  */
-void CollisionSystem::testCollision(ex::Entity leftEntity, 
-    ex::Entity rightEntity, ex::EventManager &events) {
+void CollisionSystem::testCollision(ex::Entity *leftEntity, 
+    ex::Entity *rightEntity, ex::EventManager *events) {
 
     // Grab relevant components (currently assuming only BoxColliders)
     ex::ComponentHandle<BoxCollider> leftBoxCollider = 
-        leftEntity.component<BoxCollider>();
+        leftEntity->component<BoxCollider>();
     /*ex::ComponentHandle<CircleCollider> leftCircleCollider = 
     leftEntity.component<CircleCollider>();*/
     ex::ComponentHandle<BoxCollider> rightBoxCollider = 
-        rightEntity.component<BoxCollider>();
+        rightEntity->component<BoxCollider>();
     /*ex::ComponentHandle<CircleCollider> rightCircleCollider = 
     leftEntity.component<CircleCollider>();*/
 
@@ -148,8 +137,9 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
 
     // If a collisionPoint value was evaluated, emit an event
     if (xcollided && ycollided) {
-        sf::Vector2f collisionPoint(collisionPointX, collisionPointY);
-        events.emit<CollisionEvent>(leftEntity, rightEntity, collisionPoint);
+        std::unique_ptr<sf::Vector2f> 
+            collisionPoint(new sf::Vector2f(collisionPointX, collisionPointY));
+        events->emit<CollisionEvent>(leftEntity, rightEntity, collisionPoint,events);
     }
 }
 

@@ -17,6 +17,8 @@
 #include "SFML/Audio/Music.hpp"
 #include <map>
 #include <vector>
+#include "ComponentLibrary.h"
+#include "EventLibrary.h"
 
 #define SOUNDMAP_T std::map<std::pair<ex::Entity, std::string>, sf::SoundBuffer>
 #define MUSICMAP_T std::map<std::pair<ex::Entity, std::string>, sf::Music>
@@ -57,7 +59,22 @@ public:
      * Setup necessary static information
      */
     void configure(entityx::EventManager &event_manager) {
-        event_manager.subscribe<AudioEvent>(*this);
+        
+        // Music Events
+        event_manager.subscribe<MusicLoadEvent>(*this);
+        event_manager.subscribe<MusicUnloadEvent>(*this);
+        event_manager.subscribe<MusicPlayEvent>(*this);
+        event_manager.subscribe<MusicPauseEvent>(*this);
+        event_manager.subscribe<MusicStopEvent>(*this);
+        event_manager.subscribe<MusicCustomEvent>(*this);
+
+        // Sound events
+        event_manager.subscribe<SoundLoadEvent>(*this);
+        event_manager.subscribe<SoundUnloadEvent>(*this);
+        event_manager.subscribe<SoundPlayEvent>(*this);
+        event_manager.subscribe<SoundPauseEvent>(*this);
+        event_manager.subscribe<SoundStopEvent>(*this);
+        event_manager.subscribe<SoundCustomEvent>(*this);
     }
 
     /*
@@ -66,21 +83,18 @@ public:
     void update(ex::EntityManager &es, ex::EventManager &events, 
         ex::TimeDelta dt) override; 
 
-    /*
-     * Responds to requests for operations regarding audio resources.
-     */
-    void receive(const AudioEvent &event);
+    // AudioEvent receptions...
+    void receive(const MusicLoadEvent &event);   // Loads music file
+    void receive(const MusicUnloadEvent &event); // Unloads music file
+    void receive(const MusicPlayEvent &event);   // Plays music file
+    void receive(const MusicPauseEvent &event);  // Pauses music file
+    void receive(const MusicStopEvent &event);   // Pauses and Scans back
+    void receive(const MusicCustomEvent &event); // User defined
+    void receive(const SoundLoadEvent &event);   // Loads sound file
+    void receive(const SoundUnloadEvent &event); // Unloads sound file
+    void receive(const SoundPlayEvent &event);   // Plays sound file
+    void receive(const SoundPauseEvent &event);  // Pauses sound file
+    void receive(const SoundStopEvent &event);   // Pauses and Scan back
+    void receive(const SoundCustomEvent &event); // User defined
 
-private:
-    /*
-     * Matches an Entity and string (for an audio file name) pair as the key
-     * to access an audio file resource: sf::SoundBuffer
-     */
-    SOUNDMAP_T soundMap;
-    
-    /*
-     * Matches an Entity and string (for an audio file name) pair as the key
-     * to access an audio file resource: sf::Music (a stream)
-     */
-    MUSICMAP_T musicMap;
 };

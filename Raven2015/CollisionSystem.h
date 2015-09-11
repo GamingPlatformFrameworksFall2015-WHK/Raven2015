@@ -23,7 +23,7 @@ public:
      *
      */
     explicit CollisionSystem() {
-        temp = false;
+
     }
 
     /*
@@ -47,12 +47,7 @@ public:
     /*
      * Tests whether two entities' colliders register a collision.
      */
-    void CollisionSystem::testCollision(ex::Entity leftEntity,
-        ex::Entity rightEntity, ex::EventManager &events);
-
-    bool temp;
-
-    sf::SoundBuffer buffer;
-    sf::Sound sound;
+    void CollisionSystem::testCollision(ex::Entity *leftEntity,
+        ex::Entity *rightEntity, ex::EventManager *events);
 
 };
