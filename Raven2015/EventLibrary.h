@@ -6,114 +6,109 @@
 #include "SFML/System.hpp"
 #include "ComponentLibrary.h"
 
+namespace Raven {
+
 #pragma region AudioEvents
-/*
- * An event that holds data regarding an operation involving an audio resource.
- * Operations include...
- * - LoadAudio      (prepare the file for usage)
- * - PlayAudio      (begin playing the audio file)
- * - PauseAudio     (stop playing. If play again, play at same location)
- * - StopAudio      (Pause / Restart combo. If play again, play at beginning)
- * - ScanAudio      (future feature? move through an audio file. rename?)
- * 
- */
-struct AudioEvent : public ex::Event<AudioEvent> {
+    /*
+     * An event that holds data regarding an operation involving an audio resource.
+     * Operations include...
+     * - LOAD      (prepare the file for usage)
+     * - PLAY      (begin playing the audio file)
+     * - PAUSE     (stop playing. If play again, play at same location)
+     * - STOP      (Pause / Restart combo. Playing starts at beginning)
+     * 
+     * For the future...
+     * - *SCAN      (future feature? move through an audio file. rename?)
+     */
+    struct SoundEvent : public ex::Event<SoundEvent> {
 
-    // Primary custom constructor. Initializes to zero values.
-    AudioEvent(ex::Entity *owner = nullptr,
-        std::string audioFileName = "",
-        cmn::EAudioType audioType = cmn::EAudioType::NO_TYPE,
-        cmn::EAudioOperation audioOperation =
-        cmn::EAudioOperation::NO_OPERATION,
-        cmn::EAudioLoop audioLoop = cmn::EAudioLoop::UNCHANGED) :
-        owner(owner), audioFileName(audioFileName), audioType(audioType),
-        audioOperation(audioOperation), audioLoop(audioLoop) {}
+        // Primary custom constructor. Initializes to zero values.
+        SoundEvent(sf::SoundBuffer &buffer,
+            cmn::EAudioOperation audioOperation =
+            cmn::EAudioOperation::NO_OPERATION,
+            cmn::EAudioLoop audioLoop = cmn::EAudioLoop::UNCHANGED) :
+            buffer(buffer), audioOperation(audioOperation), 
+            audioLoop(audioLoop) {}
 
-    // Abstract destructor
-    virtual ~AudioEvent() = 0;
+        // The sound maker responsible for the sound
+        sf::SoundBuffer buffer;
 
-    // The name of the audio file to perform the operation on.
-    std::string audioFileName;
+        // The operation to be performed on the audio file.
+        cmn::EAudioOperation audioOperation;
 
-    // The type of the audio file to be modified.
-    cmn::EAudioType audioType;
+        // Whether or not an audio resource should alter its loop behavior.
+        cmn::EAudioLoop audioLoop;
+    };
 
-    // The operation to be performed on the audio file.
-    cmn::EAudioOperation audioOperation;
+    /*
+     * A base class for various types of music operation events.
+     * Music is streamed in real time due to the stress loading a minute or
+     * more of audio would have on the memory in the system.
+     */
+    struct MusicEvent : public ex::Event<MusicEvent> {
 
-    // Whether or not an audio resource should alter its loop behavior.
-    cmn::EAudioLoop audioLoop;
+        // Primary custom constructor. Initializes to zero values.
+        MusicEvent(MusicMaker musicMaker,
+            cmn::EAudioOperation audioOperation =
+            cmn::EAudioOperation::NO_OPERATION,
+            cmn::EAudioLoop audioLoop = cmn::EAudioLoop::UNCHANGED) :
+            musicMaker(musicMaker),
+            audioOperation(audioOperation), audioLoop(audioLoop) {}
 
-    // The entity claiming ownership of the audio operation.
-    std::unique_ptr<ex::Entity> owner;
-};
+        // The sound maker responsible for the sound
+        MusicMaker musicMaker;
 
-/*
- * A base class for various types of sound operation events.
- * Sounds must be loaded into memory and are expected to be
- * well under a minute for efficiency reasons.
- */
-struct SoundEvent : public AudioEvent {
+        // The operation to be performed on the audio file.
+        cmn::EAudioOperation audioOperation;
 
-    // Default constructor
-    SoundEvent(std::string soundFileName = "") : 
-        AudioEvent(nullptr,"",cmn::EAudioType::SOUND,
-            cmn::EAudioOperation::NO_OPERATION,cmn::EAudioLoop::UNCHANGED) {}
-};
-
-/*
- * A base class for various types of music operation events.
- * Music is streamed in real time due to the stress loading a minute or more of
- * audio would have on the memory in the system.
- */
-struct MusicEvent : public AudioEvent {
-
-    // Default constructor
-    MusicEvent(std::string soundFileName = "") : 
-        AudioEvent(nullptr,"",cmn::EAudioType::MUSIC,
-            cmn::EAudioOperation::NO_OPERATION,cmn::EAudioLoop::UNCHANGED) {}
-};
+        // Whether or not an audio resource should alter its loop behavior.
+        cmn::EAudioLoop audioLoop;
+    };
 
 #pragma endregion //AudioEvents
 
-/*
- * An event that stores the identities of two colliding entities.
- */
-struct CollisionEvent : public ex::Event<CollisionEvent> {
-
-    /* 
-     * Default constructor. Accepts two entities assumed to be colliding and
-     * their point of impact.
+    /*
+     * An event that stores the identities of two colliding entities.
      */
-    CollisionEvent(ex::Entity leftEntity, ex::Entity rightEntity,
-        sf::Vector2f collisionPoint)
-        : leftEntity(leftEntity), rightEntity(rightEntity),
-        collisionPoint(collisionPoint) {
+    struct CollisionEvent : public ex::Event<CollisionEvent> {
 
-        leftTransform = leftEntity.component<Transform>();
-        leftRigidbody = leftEntity.component<Rigidbody>();
-        rightTransform = rightEntity.component<Transform>();
-        rightRigidbody = rightEntity.component<Rigidbody>();
-    }
+        /*
+         * Default constructor. Accepts two entities assumed to be colliding
+         * and their point of impact.
+         */
+        CollisionEvent(ex::Entity leftEntity, ex::Entity rightEntity,
+            sf::Vector2f collisionPoint, ex::EventManager &events)
+            : leftEntity(leftEntity), rightEntity(rightEntity),
+            collisionPoint(collisionPoint), events(&events) {
 
-    // The transform of the "left" entity in the collision.
-    ex::ComponentHandle<Transform> leftTransform;
+            leftTransform = leftEntity.component<Transform>();
+            leftRigidbody = leftEntity.component<Rigidbody>();
+            rightTransform = rightEntity.component<Transform>();
+            rightRigidbody = rightEntity.component<Rigidbody>();
+        }
 
-    // The rigidbody of the "left" entity in the collision.
-    ex::ComponentHandle<Rigidbody> leftRigidbody;
+        // The transform of the "left" entity in the collision.
+        ex::ComponentHandle<Transform> leftTransform;
 
-    // The transform of the "right" entity in the collision.
-    ex::ComponentHandle<Transform> rightTransform;
+        // The rigidbody of the "left" entity in the collision.
+        ex::ComponentHandle<Rigidbody> leftRigidbody;
 
-    // The rigidbody of the "right" entity in the collision.
-    ex::ComponentHandle<Rigidbody> rightRigidbody;
+        // The transform of the "right" entity in the collision.
+        ex::ComponentHandle<Transform> rightTransform;
 
-    // The colliding left entity
-    ex::Entity leftEntity;
+        // The rigidbody of the "right" entity in the collision.
+        ex::ComponentHandle<Rigidbody> rightRigidbody;
 
-    // The colliding right entity
-    ex::Entity rightEntity;
+        // The colliding left entity
+        ex::Entity leftEntity;
 
-    // The point of impact between the two colliding entities.
-    sf::Vector2f collisionPoint;
-};
+        // The colliding right entity
+        ex::Entity rightEntity;
+
+        // The point of impact between the two colliding entities.
+        sf::Vector2f collisionPoint;
+
+        // An EventManager reference to permit response events
+        ex::EventManager *events;
+    };
+}

@@ -3,6 +3,8 @@
 #include "entityx\Entity.h"
 #include <typeinfo>
 
+using namespace Raven;
+
 /*
  * Iterate through all objects with Colliders and emit CollisionEvents.
  */
@@ -25,6 +27,7 @@ void CollisionSystem::receive(const CollisionEvent &event) {
     cout << "Collision: " + std::to_string(event.leftEntity.id().id()) + " X " + 
         std::to_string(event.rightEntity.id().id()) << endl;
 
+    //event.events->emit<AudioEvent>(nullptr,"sample_audio_file.wav",)
 }
 
 /*
@@ -137,7 +140,8 @@ void CollisionSystem::testCollision(ex::Entity leftEntity,
     // If a collisionPoint value was evaluated, emit an event
     if (xcollided && ycollided) {
         sf::Vector2f collisionPoint(collisionPointX, collisionPointY);
-        events.emit<CollisionEvent>(leftEntity, rightEntity, collisionPoint);
+        events.emit<CollisionEvent>(leftEntity, rightEntity, collisionPoint, 
+            events);
     }
 }
 

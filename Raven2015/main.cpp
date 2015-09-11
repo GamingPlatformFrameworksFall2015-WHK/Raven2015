@@ -22,6 +22,9 @@
 #include "AudioSystem.h"
 #include "CollisionSystem.h"
 #include "entityx/deps/Dependencies.h"
+#include "Entities\Entity.h"
+
+using namespace Raven;
 
 class Game : public ex::EntityX {
 public:
@@ -35,7 +38,7 @@ public:
     void update(ex::TimeDelta dt) {
         systems.update<MovementSystem>(dt);
         systems.update<AudioSystem>(dt);
-        systems.update<CollisionSystem>(dt);
+        //systems.update<CollisionSystem>(dt);
     }
 };
 
@@ -54,26 +57,12 @@ int main() {
     game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
     game.systems.configure();
 
-    // Dependencies Verification + Create 2 Entities with colliders
-    ex::Entity entity1 = game.entities.create();
-    entity1.assign<BoxCollider>();
-    if (entity1.has_component<Transform>()) {
-        cout << "TRUE" << endl;
-    }
-    ex::Entity entity2 = game.entities.create();
-    entity2.assign<BoxCollider>();
-
-    // Verify both are at origin.
-    cout << entity1.component<BoxCollider>().get()->origin.x << "," <<
-        entity1.component<BoxCollider>().get()->origin.y << endl <<
-        entity2.component<BoxCollider>().get()->origin.x << "," <<
-        entity2.component<BoxCollider>().get()->origin.y << endl;
-
-    // Verify both have collision areas
-    cout << entity1.component<BoxCollider>().get()->length << "," <<
-        entity1.component<BoxCollider>().get()->height << endl <<
-        entity2.component<BoxCollider>().get()->length << "," <<
-        entity2.component<BoxCollider>().get()->height << endl;
+    Entity e1 = game.entities.create();
+    e1.assign<BoxCollider>();
+    Entity e2 = game.entities.create();
+    e2.assign<BoxCollider>();
+    e2.component<BoxCollider>().get()->origin.x = 350;
+    e2.assign<SoundMaker>("sample_audio_file.wav");
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;

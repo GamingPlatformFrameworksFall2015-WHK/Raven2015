@@ -16,6 +16,8 @@
 #include "ComponentLibrary.h"
 #include "entityx\Entity.h"
 
+using namespace Raven;
+
 /*
  * Iterate through each entity containing a Transform and Rigidbody,
  * calculating where it should move to. Uses C++11 Lambda function syntax.
