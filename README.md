@@ -6,28 +6,28 @@ a 2D, C++ game engine developed jointly by Will Nations, Hailee Ammons, and Kevi
 
 Raven builds primarily upon two base libraries: The Simple and Fast Multimedia Library (SFML) and EntityX, an entity-component system. For detailed instructions on how to use the systems within Raven, please consult those libraries. In essence...
 
-Principles:
-1. All objects in the game are Entities, containers with an id number.
-2. Entities contain Component objects that house DATA ONLY. No methods are permitted on entities.
-3. A set of System classes update continuously, gathering all entities matching a particular pattern and operating on them in some manner. The entirety of the logic for one's game must be stored within the System classes.
-4. Systems can communicate between one another using Event objects.
+Principles:  
+1. All objects in the game are Entities, containers with an id number.  
+2. Entities contain Component objects that house DATA ONLY. No methods are permitted on entities.  
+3. A set of System classes update continuously, gathering all entities matching a particular pattern and operating on them in some manner. The entirety of the logic for one's game must be stored within the System classes.  
+4. Systems can communicate between one another using Event objects.  
 
 Current Component list:
-Transform - provides 2D position data
-Rigidbody - provides physics related movement data (velocity / acceleration, etc.)
-BoxCollider - provides physics related boundaries for collision detection
-SoundMaker - provides the ability to play small sound files.
-MusicMaker - provides the ability to stream large sound files.
+- Transform - provides 2D position data
+- Rigidbody - provides physics related movement data (velocity / acceleration, etc.)
+- BoxCollider - provides physics related boundaries for collision detection
+- SoundMaker - provides the ability to play small sound files.
+- MusicMaker - provides the ability to stream large sound files.
 
 Current System list:
-MovementSystem - updates the positions of all objects according to their current Rigidbody stats.
-CollisionSystem - cycles through all objects and detects collisions. Emits collision events as appropriate.
-AudioSystem - Responds to Music and Sound events to perform operations on audio resource files.
+- MovementSystem - updates the positions of all objects according to their current Rigidbody stats.
+- CollisionSystem - cycles through all objects and detects collisions. Emits collision events as appropriate.
+- AudioSystem - Responds to Music and Sound events to perform operations on audio resource files.
 
 Current Event list:
-CollisionEvent - responds to a collision between two entities
-SoundEvent - performs an operation on a small audio file.
-MusicEvent - performs an operation on a large audio file.
+- CollisionEvent - responds to a collision between two entities
+- SoundEvent - performs an operation on a small audio file.
+- MusicEvent - performs an operation on a large audio file.
 
 For the sake of time, we have forgone an implementation of an InputSystem for now and have simply created an unrelated InputManager class that manages SFML events associated with detecting keyboard input. Currently, we have the arrow keys and WASD mapped to movement operations.
 
