@@ -39,6 +39,9 @@ void CollisionSystem::receive(const CollisionEvent &event) {
         std::to_string(event.rightEntity.id().id()) << endl;
     */
 
+    cout << event.leftTransform.get()->transform.x << " " << event.leftTransform.get()->transform.y << " -- ";
+    cout << event.rightTransform.get()->transform.x << " " << event.rightTransform.get()->transform.y << endl;
+
 }
 
 /*

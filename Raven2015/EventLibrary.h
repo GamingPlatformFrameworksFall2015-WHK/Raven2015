@@ -121,8 +121,10 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
 
         leftTransform = leftEntity.component<Transform>();
         leftRigidbody = leftEntity.component<Rigidbody>();
+        leftBoxCollider = leftEntity.component <BoxCollider>();
         rightTransform = rightEntity.component<Transform>();
         rightRigidbody = rightEntity.component<Rigidbody>();
+        rightBoxCollider = rightEntity.component <BoxCollider>();
     }
 
     // The transform of the "left" entity in the collision.
@@ -131,11 +133,17 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
     // The rigidbody of the "left" entity in the collision.
     ex::ComponentHandle<Rigidbody> leftRigidbody;
 
+    // The boxcollider of the "left" entity in the collision.
+    ex::ComponentHandle<BoxCollider> leftBoxCollider;
+
     // The transform of the "right" entity in the collision.
     ex::ComponentHandle<Transform> rightTransform;
 
     // The rigidbody of the "right" entity in the collision.
     ex::ComponentHandle<Rigidbody> rightRigidbody;
+
+    // The boxcollider of the "right" entity in the collision.
+    ex::ComponentHandle<BoxCollider> rightBoxCollider;
 
     // The colliding left entity
     ex::Entity leftEntity;
