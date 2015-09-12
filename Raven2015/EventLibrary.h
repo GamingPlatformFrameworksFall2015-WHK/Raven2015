@@ -1,3 +1,15 @@
+/* 
+ * Classname:   Gaming Platform Frameworks
+ * Project:     Raven
+ * Version:     1.0
+ *
+ * Copyright:   The contents of this document are the property of its creators.
+ *              Reproduction or usage of it without permission is prohibited.
+ *
+ * Owners:      Will Nations
+ *              Hailee Ammons
+ *              Kevin Wang
+ */
 #pragma once 
 
 #include "Common.h"         // For Common::EAudioType
@@ -91,27 +103,26 @@ struct SoundCustomEvent : public SoundEvent {
  */
 struct CollisionEvent : public ex::Event<CollisionEvent> {
 
+    CollisionEvent() : events(nullptr) {
+
+    }
+
     /* 
-     * Default constructor. Accepts two entities assumed to be colliding,
+     * Custom constructor. Accepts two entities assumed to be colliding,
      * their point of impact, and a reference to the EventManager in case
      * response events need to be emitted.
      */
-    CollisionEvent(ex::Entity *leftEntity = nullptr, 
-        ex::Entity *rightEntity = nullptr,
-        sf::Vector2f *collisionPoint = nullptr, 
+    CollisionEvent(ex::Entity leftEntity, 
+        ex::Entity rightEntity,
+        sf::Vector2f collisionPoint, 
         ex::EventManager *events = nullptr)
-        : leftEntity(*leftEntity), rightEntity(*rightEntity),
-        collisionPoint(collisionPoint), events(events) {
+        : leftEntity(leftEntity), rightEntity(rightEntity),
+        collisionPoint(collisionPoint)/*, events(events)*/ {
 
-        if (!leftEntity || !rightEntity || !collisionPoint || !events) {
-            cerr << "Error: CollisionEvent constructor called with invalid " <<
-                "parameter." << endl;
-        }
-
-        leftTransform = leftEntity->component<Transform>();
-        leftRigidbody = leftEntity->component<Rigidbody>();
-        rightTransform = rightEntity->component<Transform>();
-        rightRigidbody = rightEntity->component<Rigidbody>();
+        leftTransform = leftEntity.component<Transform>();
+        leftRigidbody = leftEntity.component<Rigidbody>();
+        rightTransform = rightEntity.component<Transform>();
+        rightRigidbody = rightEntity.component<Rigidbody>();
     }
 
     // The transform of the "left" entity in the collision.
@@ -133,7 +144,7 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
     ex::Entity rightEntity;
 
     // The point of impact between the two colliding entities.
-    std::unique_ptr<sf::Vector2f> collisionPoint;
+    sf::Vector2f collisionPoint;
 
     ex::EventManager *events;
 };

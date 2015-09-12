@@ -53,7 +53,8 @@ public:
         { sf::Keyboard::Left,	"move_left" },
         { sf::Keyboard::Right,	"move_right" },
         { sf::Keyboard::Up,		"move_up" },
-        { sf::Keyboard::Down,	"move_down" }
+        { sf::Keyboard::Down,	"move_down" },
+        { sf::Keyboard::Escape, "exit" }
     };
 
     InputHandler() {
@@ -101,26 +102,16 @@ int main() {
 
     // Graphics for now
     sf::CircleShape shape;
-    shape.setRadius(2.f);
-    shape.setPosition(entity1.component<BoxCollider>().get()->origin.x, entity1.component<BoxCollider>().get()->origin.y);
+    shape.setRadius(32.f);
+    shape.setPosition(entity1.component<Transform>().get()->transform.x, 
+        entity1.component<Transform>().get()->transform.y);
     shape.setFillColor(sf::Color::Cyan);
 
     sf::CircleShape shape2;
-    shape2.setRadius(2.f);
-    shape2.setPosition(entity2.component<BoxCollider>().get()->origin.x, entity2.component<BoxCollider>().get()->origin.y);
+    shape2.setRadius(32.f);
+    shape2.setPosition(entity2.component<Transform>().get()->transform.x, 
+        entity2.component<Transform>().get()->transform.y);
     shape2.setFillColor(sf::Color::Red);
-
-    // Verify both are at origin.
-    cout << entity1.component<BoxCollider>().get()->origin.x << "," <<
-        entity1.component<BoxCollider>().get()->origin.y << endl <<
-        entity2.component<BoxCollider>().get()->origin.x << "," <<
-        entity2.component<BoxCollider>().get()->origin.y << endl;
-
-    // Verify both have collision areas
-    cout << entity1.component<BoxCollider>().get()->length << "," <<
-        entity1.component<BoxCollider>().get()->height << endl <<
-        entity2.component<BoxCollider>().get()->length << "," <<
-        entity2.component<BoxCollider>().get()->height << endl;
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
@@ -139,19 +130,18 @@ int main() {
                 int speed = 10;
                 if (i_d.key_map[event.key.code] == "move_right") {
                     entity1.component<Transform>().get()->transform.x += speed;
-                    entity1.component<BoxCollider>().get()->origin.x += speed;
                 }
                 else if (i_d.key_map[event.key.code] == "move_down") {
                     entity1.component<Transform>().get()->transform.y += speed;
-                    entity1.component<BoxCollider>().get()->origin.y += speed;
                 }
                 else if (i_d.key_map[event.key.code] == "move_left") {
                     entity1.component<Transform>().get()->transform.x -= speed;
-                    entity1.component<BoxCollider>().get()->origin.x -= speed;
                 }
                 else if (i_d.key_map[event.key.code] == "move_up") {
                     entity1.component<Transform>().get()->transform.y -= speed;
-                    entity1.component<BoxCollider>().get()->origin.y -= speed;
+                }
+                else if (i_d.key_map[event.key.code] == "exit") {
+                    window.close();
                 }
                 break;
             }
@@ -163,7 +153,8 @@ int main() {
                 break;
             }
         }
-        shape.setPosition(entity1.component<BoxCollider>().get()->origin.x, entity1.component<BoxCollider>().get()->origin.y);
+        shape.setPosition(entity1.component<Transform>().get()->transform.x, 
+            entity1.component<Transform>().get()->transform.y);
 
         /*
          * Per iteration, clear the window, record delta time, update systems,

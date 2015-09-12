@@ -87,7 +87,7 @@ struct Rigidbody : public ex::Component<Rigidbody> {
 
 /*
  * An abstract component used to identify collision areas
- * The origin's x and y values are relative to its Transform.
+ * The originOffset's x and y values are relative to its Transform.
  */
 struct Collider : public ex::Component<Collider> {
 
@@ -98,7 +98,7 @@ struct Collider : public ex::Component<Collider> {
     virtual ~Collider() = 0;
 
     // The x-y coordinate of the collider's center relative to its transform.
-    sf::Vector2f origin;
+    sf::Vector2f originOffset;
 };
 
 // Empty implementation of pure abstract destructor
@@ -113,25 +113,25 @@ struct BoxCollider : Collider {
      * Default constructor
      * 
      * Parameters:
-     * 1. length: desired length. Defaults to Common::STD_UNITX
+     * 1. width: desired width. Defaults to Common::STD_UNITX
      * 2. height: desired height. Defaults to Common::STD_UNITY
      * 3. x: x-axis relative offset from Transform's transform
      * 4. y: y-axis relative offset from Transform's transform
      */
-    BoxCollider(const float length = cmn::STD_UNITX, 
+    BoxCollider(const float width = cmn::STD_UNITX, 
         const float height = cmn::STD_UNITY, 
         const float x = 0.0f, const float y = 0.0f) 
-        : length(length), height(height) {
+        : width(width), height(height) {
     
-        origin.x = x;
-        origin.y = y;
+        originOffset.x = x;
+        originOffset.y = y;
     }
 
     // Custom constructor (scales)
     BoxCollider(const float scale, const float x = 0.0f, 
         const float y = 0.0f) 
         : BoxCollider(cmn::STD_UNITX,cmn::STD_UNITY,x,y) {
-        length *= scale;
+        width *= scale;
         height *= scale;
     }
 
@@ -139,7 +139,7 @@ struct BoxCollider : Collider {
     virtual ~BoxCollider() override {}
 
     // The range of the x-axis of the collider. Origin in the middle.
-    float length;
+    float width;
 
     // The range of the y-axis of the collider. Origin in the middle.
     float height;
@@ -155,8 +155,8 @@ struct CircleCollider : Collider {
         const float x = 0.0f, const float y = 0.0f)
         : radius(radius) {
     
-        origin.x = x;
-        origin.y = y;
+        originOffset.x = x;
+        originOffset.y = y;
     }
 
     // Deconstructor

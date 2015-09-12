@@ -47,7 +47,7 @@ public:
     /*
      * Tests whether two entities' colliders register a collision.
      */
-    void CollisionSystem::testCollision(ex::Entity *leftEntity,
-        ex::Entity *rightEntity, ex::EventManager *events);
+    void CollisionSystem::testCollision(ex::Entity leftEntity,
+        ex::Entity rightEntity, ex::EventManager &events);
 
 };
