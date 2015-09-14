@@ -31,6 +31,10 @@ Current Event list:
 
 For the sake of time, we have forgone an implementation of an InputSystem for now and have simply created an unrelated InputManager class that manages SFML events associated with detecting keyboard input. Currently, we have the arrow keys and WASD mapped to movement operations.
 
+## Bugs & Workarounds
+
+We have been unable to identify the source problem for a bug in which events get received by Systems twice per emission. As a temporary workaround, we have provided a TemplateSystem.h file that comes with pre-defined methods designed to skip every other receive. It requires some additional legwork on the part of the developer, but it will have to do until we can identify the cause of the bug.
+
 ## Installation
 
 This installation guide will assume a build for Visual Studio 2015, built for a Windows x64 platform. As a team, we wished to develop for VS, and the only edition of the VC++ compiler that would work with the EntityX library was that of VS2015. Both of the main libraries used for this game engine are usable for Windows, Mac OSX, and Linux platforms, but as we only have explicit experience in installing for Windows' Visual Studio, that is the only one we will be creating a direct guide for. If you wish to develop on a different platform or use a different IDE, I suggest you visit the documentation for the two libraries listed below.
