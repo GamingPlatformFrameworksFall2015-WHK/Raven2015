@@ -194,7 +194,7 @@
     <ClInclude Include="MovementSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="Resources\Audio\Sounds\sample_sound.wav" />
+    <None Include="Resources\Audio\Sounds\choose.ogg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

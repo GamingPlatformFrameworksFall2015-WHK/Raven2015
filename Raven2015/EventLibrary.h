@@ -1,3 +1,15 @@
+/* 
+ * Classname:   Gaming Platform Frameworks
+ * Project:     Raven
+ * Version:     1.0
+ *
+ * Copyright:   The contents of this document are the property of its creators.
+ *              Reproduction or usage of it without permission is prohibited.
+ *
+ * Owners:      Will Nations
+ *              Hailee Ammons
+ *              Kevin Wang
+ */
 #pragma once 
 
 #include "Common.h"         // For Common::EAudioType
@@ -7,71 +19,81 @@
 #include "ComponentLibrary.h"
 
 #pragma region AudioEvents
-/*
- * An event that holds data regarding an operation involving an audio resource.
- * Operations include...
- * - LoadAudio      (prepare the file for usage)
- * - PlayAudio      (begin playing the audio file)
- * - PauseAudio     (stop playing. If play again, play at same location)
- * - StopAudio      (Pause / Restart combo. If play again, play at beginning)
- * - ScanAudio      (future feature? move through an audio file. rename?)
- * 
- */
-struct AudioEvent : public ex::Event<AudioEvent> {
 
-    // Primary custom constructor. Initializes to zero values.
-    AudioEvent(ex::Entity *owner = nullptr,
-        std::string audioFileName = "",
-        cmn::EAudioType audioType = cmn::EAudioType::NO_TYPE,
-        cmn::EAudioOperation audioOperation =
-        cmn::EAudioOperation::NO_OPERATION,
-        cmn::EAudioLoop audioLoop = cmn::EAudioLoop::UNCHANGED) :
-        owner(owner), audioFileName(audioFileName), audioType(audioType),
-        audioOperation(audioOperation), audioLoop(audioLoop) {}
+struct MusicEvent : public ex::Event<MusicEvent> {
 
-    // Abstract destructor
-    virtual ~AudioEvent() = 0;
+    MusicEvent(std::string audioFileName = "", MusicMaker *maker = nullptr) : 
+        audioFileName(audioFileName), maker(maker) {}
 
-    // The name of the audio file to perform the operation on.
     std::string audioFileName;
 
-    // The type of the audio file to be modified.
-    cmn::EAudioType audioType;
-
-    // The operation to be performed on the audio file.
-    cmn::EAudioOperation audioOperation;
-
-    // Whether or not an audio resource should alter its loop behavior.
-    cmn::EAudioLoop audioLoop;
-
-    // The entity claiming ownership of the audio operation.
-    std::unique_ptr<ex::Entity> owner;
+    std::unique_ptr<MusicMaker> maker;
 };
 
-/*
- * A base class for various types of sound operation events.
- * Sounds must be loaded into memory and are expected to be
- * well under a minute for efficiency reasons.
- */
-struct SoundEvent : public AudioEvent {
+struct SoundEvent : public ex::Event<SoundEvent> {
 
-    // Default constructor
-    SoundEvent(std::string soundFileName = "") : 
-        AudioEvent(nullptr,"",cmn::EAudioType::SOUND,
-            cmn::EAudioOperation::NO_OPERATION,cmn::EAudioLoop::UNCHANGED) {}
+    SoundEvent(std::string audioFileName = "", SoundMaker *maker = nullptr) : 
+        audioFileName(audioFileName), maker(maker) {}
+
+    std::string audioFileName;
+
+    std::unique_ptr<SoundMaker> maker;
 };
 
-/*
- * A base class for various types of music operation events.
- * Music is streamed in real time due to the stress loading a minute or more of
- * audio would have on the memory in the system.
- */
-struct MusicEvent : public AudioEvent {
+struct MusicLoadEvent : public MusicEvent {
+    MusicLoadEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
+        : MusicEvent(audioFileName, maker) {}
+};
+struct MusicUnloadEvent : public MusicEvent {
+    MusicUnloadEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
+        : MusicEvent(audioFileName, maker) {}
+};
+struct MusicPlayEvent : public MusicEvent {
+    MusicPlayEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
+        : MusicEvent(audioFileName, maker) {}
+};
+struct MusicPauseEvent : public MusicEvent {
+    MusicPauseEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
+        : MusicEvent(audioFileName, maker) {}
+};
+struct MusicStopEvent : public MusicEvent {
+    MusicStopEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
+        : MusicEvent(audioFileName, maker) {}
+};
+struct MusicCustomEvent : public MusicEvent {
+    MusicCustomEvent(void(*func) (std::string audioFileName, MusicMaker *maker)) :
+        func(func) {}
 
-    // Default constructor
-    MusicEvent(std::string soundFileName = "") : 
-        AudioEvent(nullptr,"",cmn::EAudioType::MUSIC,
-            cmn::EAudioOperation::NO_OPERATION,cmn::EAudioLoop::UNCHANGED) {}
+    // Function pointer. Plugin a C++11 lambda function for custom behavior
+    void (*func) (std::string audioFileName, MusicMaker *maker);
+};
+
+struct SoundLoadEvent : public SoundEvent {
+    SoundLoadEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
+        : SoundEvent(audioFileName, maker) {}
+};
+struct SoundUnloadEvent : public SoundEvent {
+    SoundUnloadEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
+        : SoundEvent(audioFileName, maker) {}
+};
+struct SoundPlayEvent : public SoundEvent {
+    SoundPlayEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
+        : SoundEvent(audioFileName, maker) {}
+};
+struct SoundPauseEvent : public SoundEvent {
+    SoundPauseEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
+        : SoundEvent(audioFileName, maker) {}
+};
+struct SoundStopEvent : public SoundEvent {
+    SoundStopEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
+        : SoundEvent(audioFileName, maker) {}
+};
+struct SoundCustomEvent : public SoundEvent {
+    SoundCustomEvent(void(*func) (std::string audioFileName, SoundMaker *maker)) :
+        func(func) {}
+
+    // Function pointer. Plugin a C++11 lambda function for custom behavior
+    void (*func) (std::string audioFileName, SoundMaker *maker);
 };
 
 #pragma endregion //AudioEvents
@@ -81,19 +103,28 @@ struct MusicEvent : public AudioEvent {
  */
 struct CollisionEvent : public ex::Event<CollisionEvent> {
 
+    CollisionEvent() : events(nullptr) {
+
+    }
+
     /* 
-     * Default constructor. Accepts two entities assumed to be colliding and
-     * their point of impact.
+     * Custom constructor. Accepts two entities assumed to be colliding,
+     * their point of impact, and a reference to the EventManager in case
+     * response events need to be emitted.
      */
-    CollisionEvent(ex::Entity leftEntity, ex::Entity rightEntity,
-        sf::Vector2f collisionPoint)
+    CollisionEvent(ex::Entity leftEntity, 
+        ex::Entity rightEntity,
+        sf::Vector2f collisionPoint,
+        ex::EventManager *events = nullptr)
         : leftEntity(leftEntity), rightEntity(rightEntity),
-        collisionPoint(collisionPoint) {
+        collisionPoint(collisionPoint), events(events) {
 
         leftTransform = leftEntity.component<Transform>();
         leftRigidbody = leftEntity.component<Rigidbody>();
+        leftBoxCollider = leftEntity.component <BoxCollider>();
         rightTransform = rightEntity.component<Transform>();
         rightRigidbody = rightEntity.component<Rigidbody>();
+        rightBoxCollider = rightEntity.component <BoxCollider>();
     }
 
     // The transform of the "left" entity in the collision.
@@ -102,11 +133,17 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
     // The rigidbody of the "left" entity in the collision.
     ex::ComponentHandle<Rigidbody> leftRigidbody;
 
+    // The boxcollider of the "left" entity in the collision.
+    ex::ComponentHandle<BoxCollider> leftBoxCollider;
+
     // The transform of the "right" entity in the collision.
     ex::ComponentHandle<Transform> rightTransform;
 
     // The rigidbody of the "right" entity in the collision.
     ex::ComponentHandle<Rigidbody> rightRigidbody;
+
+    // The boxcollider of the "right" entity in the collision.
+    ex::ComponentHandle<BoxCollider> rightBoxCollider;
 
     // The colliding left entity
     ex::Entity leftEntity;
@@ -116,4 +153,6 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
 
     // The point of impact between the two colliding entities.
     sf::Vector2f collisionPoint;
+
+    ex::EventManager *events;
 };
