@@ -3,6 +3,8 @@
 #include "entityx\Entity.h"
 #include <algorithm>            //For std::min
 
+using namespace Raven;
+
 /*
 * Iterate through all objects with Colliders and emit CollisionEvents.
 */
@@ -52,6 +54,10 @@ void CollisionSystem::receive(const CollisionEvent &event) {
 }
 
 bool CollisionSystem::response(const CollisionEvent &event) {
+
+    //Right Collision code here
+    cout << "Collision occurred" << endl;
+
     return false;
 }
 
