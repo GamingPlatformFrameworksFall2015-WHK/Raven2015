@@ -38,7 +38,6 @@ public:
 
     void update(ex::TimeDelta dt) {
         systems.update<MovementSystem>(dt);
-        systems.update<AudioSystem>(dt);
         systems.update<CollisionSystem>(dt);
     }
 };
@@ -94,11 +93,12 @@ int main() {
     // Dependencies Verification + Create 2 Entities with colliders
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
-    if (entity1.has_component<Transform>()) {
-        cout << "TRUE" << endl;
-    }
+
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
+
+    ex::Entity entity3 = game.entities.create();
+    entity3.assign<BoxCollider>(cmn::STD_UNITX, cmn::STD_UNITY, 80, 80);
 
     // Graphics for now
     sf::CircleShape shape;
@@ -112,6 +112,11 @@ int main() {
     shape2.setPosition(entity2.component<Transform>().get()->transform.x, 
         entity2.component<Transform>().get()->transform.y);
     shape2.setFillColor(sf::Color::Red);
+
+    sf::CircleShape shape3;
+    shape3.setRadius(32.f);
+    shape3.setPosition(80, 80);
+    shape3.setFillColor(sf::Color::Green);
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
@@ -163,8 +168,12 @@ int main() {
         window.clear();
         window.draw(shape); //Graphic for now
         window.draw(shape2); //Graphic for now
-        sf::Time deltaTime = mainClock.restart();
-        game.update(deltaTime.asSeconds());
+        window.draw(shape3); //Graphic for now
+        //sf::Time deltaTime = mainClock.restart();
+        //game.update(deltaTime.asSeconds());
+        sf::Time deltaTime = mainClock.getElapsedTime();
+        if (deltaTime.asSeconds() > 1) 
+            game.update(mainClock.restart().asSeconds());
         window.display();
     }
 

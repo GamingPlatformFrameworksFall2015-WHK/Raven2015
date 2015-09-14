@@ -114,10 +114,10 @@ struct CollisionEvent : public ex::Event<CollisionEvent> {
      */
     CollisionEvent(ex::Entity leftEntity, 
         ex::Entity rightEntity,
-        sf::Vector2f collisionPoint, 
+        sf::Vector2f collisionPoint,
         ex::EventManager *events = nullptr)
         : leftEntity(leftEntity), rightEntity(rightEntity),
-        collisionPoint(collisionPoint)/*, events(events)*/ {
+        collisionPoint(collisionPoint), events(events) {
 
         leftTransform = leftEntity.component<Transform>();
         leftRigidbody = leftEntity.component<Rigidbody>();

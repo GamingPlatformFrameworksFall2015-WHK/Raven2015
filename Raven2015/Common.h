@@ -7,6 +7,8 @@
 #define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading " + \
     std::string("operation on a new audio resource.")
 
+#include <iostream>
+
 using std::cout;
 using std::cerr;
 using std::endl;

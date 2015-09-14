@@ -52,7 +52,7 @@ public:
      * 
      */
     explicit AudioSystem() {
-
+        eventToggle = true;
     }
 
     /*
@@ -75,6 +75,8 @@ public:
         event_manager.subscribe<SoundPauseEvent>(*this);
         event_manager.subscribe<SoundStopEvent>(*this);
         event_manager.subscribe<SoundCustomEvent>(*this);
+
+        event_manager.subscribe<CollisionEvent>(*this);
     }
 
     /*
@@ -82,6 +84,12 @@ public:
      */
     void update(ex::EntityManager &es, ex::EventManager &events, 
         ex::TimeDelta dt) override; 
+
+    // Base receive
+    template <typename T>
+    void receiveEvent(const T &aEvent) {
+        eventToggle = eventToggle ? response(aEvent) && false : true;
+    }
 
     // AudioEvent receptions...
     void receive(const MusicLoadEvent &event);   // Loads music file
@@ -97,4 +105,9 @@ public:
     void receive(const SoundStopEvent &event);   // Pauses and Scan back
     void receive(const SoundCustomEvent &event); // User defined
 
+    // Collision reception
+    void receive(const CollisionEvent &event);
+    bool response(const CollisionEvent &event);
+
+    bool eventToggle;
 };

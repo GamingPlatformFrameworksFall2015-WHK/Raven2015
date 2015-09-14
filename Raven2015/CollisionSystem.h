@@ -13,7 +13,6 @@
 
 #include "entityx\System.h"
 #include "EventLibrary.h"
-#include "SFML\Audio.hpp"
 
 class CollisionSystem : public ex::System<CollisionSystem>,
     public ex::Receiver<CollisionSystem> {
@@ -23,7 +22,8 @@ public:
      *
      */
     explicit CollisionSystem() {
-
+        a = 0;
+        eventToggle = true;
     }
 
     /*
@@ -39,15 +39,28 @@ public:
     void update(ex::EntityManager &es, ex::EventManager &events, 
         ex::TimeDelta dt) override; 
 
+    // Base receive
+    template <typename T>
+    void receiveEvent(const T &aEvent) {
+        eventToggle = eventToggle ? response(aEvent) && false : true;
+    }
+
     /*
      * Processes data involving the collision of two Entities with Colliders.
      */
     void receive(const CollisionEvent &event);
 
+    bool response(const CollisionEvent &event);
+
     /*
      * Tests whether two entities' colliders register a collision.
      */
-    void CollisionSystem::testCollision(ex::Entity leftEntity,
-        ex::Entity rightEntity, ex::EventManager &events);
+    std::unique_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
+        ex::Entity rightEntity);
 
+
+private:
+    std::map<ex::Entity, std::set<ex::Entity>> collisionMap;
+    int a;
+    bool eventToggle;
 };

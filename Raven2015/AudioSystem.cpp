@@ -72,3 +72,13 @@ void AudioSystem::receive(const SoundStopEvent &event) {
 void AudioSystem::receive(const SoundCustomEvent &event) {
     event.func(event.audioFileName, event.maker.get());
 }
+
+void AudioSystem::receive(const CollisionEvent &event) {
+    receiveEvent(event);
+}
+
+bool AudioSystem::response(const CollisionEvent &event) {
+
+    return false;
+}
+
