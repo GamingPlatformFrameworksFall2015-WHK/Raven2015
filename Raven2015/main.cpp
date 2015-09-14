@@ -27,6 +27,8 @@
 #include "CollisionSystem.h"
 #include "entityx/deps/Dependencies.h"
 
+using namespace Raven;
+
 class Game : public ex::EntityX {
 public:
     explicit Game(sf::RenderTarget &target) {
@@ -98,7 +100,7 @@ int main() {
     entity2.assign<BoxCollider>();
 
     ex::Entity entity3 = game.entities.create();
-    entity3.assign<BoxCollider>(cmn::STD_UNITX, cmn::STD_UNITY, 80, 80);
+    entity3.assign<BoxCollider>(cmn::STD_UNITX, cmn::STD_UNITY, 80.f, 80.f);
 
     // Graphics for now
     sf::CircleShape shape;

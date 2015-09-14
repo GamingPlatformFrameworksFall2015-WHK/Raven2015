@@ -165,7 +165,7 @@ public:
 
   std::bitset<entityx::MAX_COMPONENTS> component_mask() const;
 
- private:
+ protected:
   EntityManager *manager_ = nullptr;
   Entity::Id id_ = INVALID;
 };

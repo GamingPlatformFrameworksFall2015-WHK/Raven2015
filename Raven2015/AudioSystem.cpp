@@ -1,6 +1,8 @@
 #include "AudioSystem.h"
 #include "SFML/Audio/Sound.hpp"
 
+using namespace Raven;
+
 /*
  * Continues processing on any existing audio files as necessary
  */

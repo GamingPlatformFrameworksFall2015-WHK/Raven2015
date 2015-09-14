@@ -14,53 +14,56 @@
 #include "entityx\System.h"
 #include "EventLibrary.h"
 
-class CollisionSystem : public ex::System<CollisionSystem>,
-    public ex::Receiver<CollisionSystem> {
+namespace Raven {
 
-public:
-    /*
-     *
-     */
-    explicit CollisionSystem() {
-        a = 0;
-        eventToggle = true;
-    }
+    class CollisionSystem : public ex::System<CollisionSystem>,
+        public ex::Receiver<CollisionSystem> {
 
-    /*
-     * Setup necessary static information
-     */
-    void configure(entityx::EventManager &event_manager) {
-        event_manager.subscribe<CollisionEvent>(*this);
-    }
+    public:
+        /*
+         *
+         */
+        explicit CollisionSystem() {
+            a = 0;
+            eventToggle = true;
+        }
 
-    /*
-     * Iterate through all objects with Colliders and emit CollisionEvents.
-     */
-    void update(ex::EntityManager &es, ex::EventManager &events, 
-        ex::TimeDelta dt) override; 
+        /*
+         * Setup necessary static information
+         */
+        void configure(entityx::EventManager &event_manager) {
+            event_manager.subscribe<CollisionEvent>(*this);
+        }
 
-    // Base receive
-    template <typename T>
-    void receiveEvent(const T &aEvent) {
-        eventToggle = eventToggle ? response(aEvent) && false : true;
-    }
+        /*
+         * Iterate through all objects with Colliders and emit CollisionEvents.
+         */
+        void update(ex::EntityManager &es, ex::EventManager &events,
+            ex::TimeDelta dt) override;
 
-    /*
-     * Processes data involving the collision of two Entities with Colliders.
-     */
-    void receive(const CollisionEvent &event);
+        // Base receive
+        template <typename T>
+        void receiveEvent(const T &aEvent) {
+            eventToggle = eventToggle ? response(aEvent) && false : true;
+        }
 
-    bool response(const CollisionEvent &event);
+        // Picks up CollisionEvents
+        void receive(const CollisionEvent &event);
+        
+        //Processes the collision of two Entities with Colliders.
+        bool response(const CollisionEvent &event);
 
-    /*
-     * Tests whether two entities' colliders register a collision.
-     */
-    std::unique_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
-        ex::Entity rightEntity);
+        /*
+         * Tests whether two entities' colliders register a collision.
+         */
+        std::unique_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
+            ex::Entity rightEntity);
 
 
-private:
-    std::map<ex::Entity, std::set<ex::Entity>> collisionMap;
-    int a;
-    bool eventToggle;
-};
+    private:
+        std::map<ex::Entity, std::set<ex::Entity>> collisionMap;
+        int a;
+        bool eventToggle;
+    };
+
+}

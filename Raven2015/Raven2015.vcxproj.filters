@@ -86,42 +86,6 @@
     <ClInclude Include="MovementSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="entityx-master\entityx\help\Pool.h">
-      <Filter>Header Files\entityx\help</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\help\Timer.h">
-      <Filter>Header Files\entityx\help</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\config.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\Entity.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\entityx.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\Event.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\quick.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\System.h">
-      <Filter>Header Files\entityx</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\tags\TagsComponent.h">
-      <Filter>Header Files\entityx\tags</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\deps\Dependencies.h">
-      <Filter>Header Files\entityx\deps</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\3rdparty\catch.hpp">
-      <Filter>Header Files\entityx\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="entityx-master\entityx\3rdparty\simplesignal.h">
-      <Filter>Header Files\entityx\3rdparty</Filter>
-    </ClInclude>
     <ClInclude Include="EventLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,6 +100,48 @@
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\config.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\Entity.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\entityx.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\Event.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\quick.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\System.h">
+      <Filter>Header Files\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\tags\TagsComponent.h">
+      <Filter>Header Files\entityx\tags</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\help\NonCopyable.h">
+      <Filter>Header Files\entityx\help</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\help\Pool.h">
+      <Filter>Header Files\entityx\help</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\help\Timer.h">
+      <Filter>Header Files\entityx\help</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\deps\Dependencies.h">
+      <Filter>Header Files\entityx\deps</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\3rdparty\catch.hpp">
+      <Filter>Header Files\entityx\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="entityx\3rdparty\simplesignal.h">
+      <Filter>Header Files\entityx\3rdparty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

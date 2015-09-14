@@ -3,6 +3,8 @@
 #include "entityx\Entity.h"
 #include <algorithm>            //For std::min
 
+using namespace Raven;
+
 /*
 * Iterate through all objects with Colliders and emit CollisionEvents.
 */
