@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\dev\entityx-master\entityx;C:\dev\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\dev\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +86,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\dev\entityx-master\entityx;C:\dev\SFML-2.3.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\dev\SFML-2.3.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -163,7 +163,40 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="entityx-master\entityx\Entity.cc" />
+    <ClCompile Include="entityx-master\entityx\Event.cc" />
+    <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
+    <ClCompile Include="entityx-master\entityx\help\Timer.cc" />
+    <ClCompile Include="entityx-master\entityx\System.cc" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MovementSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="ComponentLibrary.h" />
+    <ClInclude Include="EntityLibrary.h" />
+    <ClInclude Include="entityx\3rdparty\catch.hpp" />
+    <ClInclude Include="entityx\3rdparty\simplesignal.h" />
+    <ClInclude Include="entityx\config.h" />
+    <ClInclude Include="entityx\deps\Dependencies.h" />
+    <ClInclude Include="entityx\Entity.h" />
+    <ClInclude Include="entityx\entityx.h" />
+    <ClInclude Include="entityx\Event.h" />
+    <ClInclude Include="entityx\help\NonCopyable.h" />
+    <ClInclude Include="entityx\help\Pool.h" />
+    <ClInclude Include="entityx\help\Timer.h" />
+    <ClInclude Include="entityx\quick.h" />
+    <ClInclude Include="entityx\System.h" />
+    <ClInclude Include="entityx\tags\TagsComponent.h" />
+    <ClInclude Include="EventLibrary.h" />
+    <ClInclude Include="MovementSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Audio\Sounds\choose.ogg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
