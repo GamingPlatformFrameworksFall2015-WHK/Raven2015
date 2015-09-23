@@ -14,21 +14,26 @@
 #include "entityx\System.h"
 #include "Common.h"
 
-class MovementSystem : public ex::System<MovementSystem> {
+namespace Raven {
 
-public:
+    class MovementSystem : public ex::System<MovementSystem> {
 
-    /*
-     * Default null constructor
-     */
-    explicit MovementSystem() {
+    public:
 
-    }
+        /*
+         * Default null constructor
+         */
+        explicit MovementSystem() {
 
-    /*
-     * Updates the movements of entities with Transform & Rigidbody components.
-     */
-    void update(ex::EntityManager &es, ex::EventManager &events, 
-        ex::TimeDelta dt) override; 
+        }
 
-};
+        /*
+         * Updates the movements of entities with Transform & Rigidbody components.
+         */
+        void update(ex::EntityManager &es, ex::EventManager &events,
+            ex::TimeDelta dt) override;
+
+    };
+
+}
+

@@ -178,20 +178,25 @@
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ComponentLibrary.h" />
-    <ClInclude Include="entityx-master\entityx\3rdparty\catch.hpp" />
-    <ClInclude Include="entityx-master\entityx\3rdparty\simplesignal.h" />
-    <ClInclude Include="entityx-master\entityx\config.h" />
-    <ClInclude Include="entityx-master\entityx\deps\Dependencies.h" />
-    <ClInclude Include="entityx-master\entityx\Entity.h" />
-    <ClInclude Include="entityx-master\entityx\entityx.h" />
-    <ClInclude Include="entityx-master\entityx\Event.h" />
-    <ClInclude Include="entityx-master\entityx\help\Pool.h" />
-    <ClInclude Include="entityx-master\entityx\help\Timer.h" />
-    <ClInclude Include="entityx-master\entityx\quick.h" />
-    <ClInclude Include="entityx-master\entityx\System.h" />
-    <ClInclude Include="entityx-master\entityx\tags\TagsComponent.h" />
+    <ClInclude Include="EntityLibrary.h" />
+    <ClInclude Include="entityx\3rdparty\catch.hpp" />
+    <ClInclude Include="entityx\3rdparty\simplesignal.h" />
+    <ClInclude Include="entityx\config.h" />
+    <ClInclude Include="entityx\deps\Dependencies.h" />
+    <ClInclude Include="entityx\Entity.h" />
+    <ClInclude Include="entityx\entityx.h" />
+    <ClInclude Include="entityx\Event.h" />
+    <ClInclude Include="entityx\help\NonCopyable.h" />
+    <ClInclude Include="entityx\help\Pool.h" />
+    <ClInclude Include="entityx\help\Timer.h" />
+    <ClInclude Include="entityx\quick.h" />
+    <ClInclude Include="entityx\System.h" />
+    <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
     <ClInclude Include="MovementSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Audio\Sounds\choose.ogg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
