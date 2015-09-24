@@ -17,9 +17,9 @@
 #include <string>
 
 //Assuming there exists an event with this name in EventLibrary.h
-struct EventName : public entityx::Event<EventName> { EventName() {} };
+//struct KeyboardEvent : public entityx::Event<InputEvent> { KeyboardEvent() {} };
 
-class InputSystem : public entityx::System<InputSystem>, public entityx::Receiver<EventName> {
+class InputSystem : public entityx::System<InputSystem>, public entityx::Receiver<InputSystem> {
 public:
 	const std::string CONFIG = "config.cfg";
 
@@ -31,7 +31,8 @@ public:
 
 	//Subscribe to events
 	void configure(entityx::EventManager &event_manager) {
-		event_manager.subscribe<EventName>(*this);
+
+		event_manager.subscribe<KeyboardEvent>(*this);
 	}
 
 	//Update data and perform logic every "tick"
@@ -48,7 +49,7 @@ public:
 	/*
 	* Picks up the named event
 	*/
-	void receive(const EventName &event) {
+	void receive(const KeyboardEvent &event) {
 		receiveEvent(event);
 	}
 
@@ -56,13 +57,19 @@ public:
 	* Responds to the event (your ACTUAL "receive" implementation)
 	* Note: it does not matter what boolean this returns.
 	*/
-	bool response(const EventName &event);
+	bool response(const KeyboardEvent &event) {
+		return false;
+	}
 
 	/*
 	* Returns the string of the action depending on the keyboard key
 	*/
 	std::string getAction(sf::Keyboard::Key key) {
-			return key_map[key];
+		return key_map[key];
+	}
+
+	std::string getAction(sf::Mouse::Button button) {
+		return mouse_map[button];
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -79,6 +86,11 @@ private:
 		{ sf::Keyboard::Down,	"move_down" },
 		{ sf::Keyboard::Escape, "exit" }
 	};
+
+	std::map<sf::Mouse::Button, std::string> mouse_map{
+		{ sf::Mouse::Button::Left,	"left_click"}
+	};
+
 	bool eventToggle;
 
 	void insert_input(sf::Keyboard::Key key, std::string action);

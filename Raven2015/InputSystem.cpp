@@ -22,10 +22,6 @@ void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 	ex::TimeDelta dt) {
 }
 
-bool InputSystem::response(const EventName &event) {
-	return 0;
-}
-
 void InputSystem::insert_input(sf::Keyboard::Key key, std::string action) {
 	try {
 		if (key_map.at(key) != action) {
