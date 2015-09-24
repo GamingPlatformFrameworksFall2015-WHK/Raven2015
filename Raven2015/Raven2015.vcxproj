@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Hailee\Source\Repos\Raven2015\Raven2015;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +86,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Hailee\Source\Repos\Raven2015\Raven2015;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Hailee\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -194,6 +194,7 @@
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
     <ClInclude Include="MovementSystem.h" />
+    <ClInclude Include="TimerSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg" />

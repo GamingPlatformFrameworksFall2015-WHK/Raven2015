@@ -143,6 +143,9 @@
     <ClInclude Include="entityx\3rdparty\simplesignal.h">
       <Filter>Header Files\entityx\3rdparty</Filter>
     </ClInclude>
+    <ClInclude Include="TimerSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg">

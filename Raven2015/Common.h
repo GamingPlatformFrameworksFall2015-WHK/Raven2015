@@ -28,6 +28,9 @@ namespace Raven {
         // An enumeration type detailing whether an audio resource should loop.
         enum EAudioLoop { FALSE, TRUE, UNCHANGED };
 
+		// An enumeration type detailing the possible operations for a timer.
+		enum ETimerOperation { NO_OPERATION, PLAY, PAUSE, RESET, SCAN, ADD, REMOVE};
+
         // A standard pixel-based unit of measurement for the x-axis
         static const float STD_UNITX = 64.0f;
 

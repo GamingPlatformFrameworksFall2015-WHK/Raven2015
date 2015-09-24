@@ -98,8 +98,9 @@ namespace Raven {
         void(*func) (std::string audioFileName, SoundMaker *maker);
     };
 
-#pragma endregion //AudioEvents
+#pragma endregion
 
+#pragma region CollisionEvents
     /*
      * An event that stores the identities of two colliding entities.
      */
@@ -158,5 +159,23 @@ namespace Raven {
 
         ex::EventManager *events;
     };
+#pragma endregion
+
+#pragma region TimerEvents
+
+	struct TimerEvent : public ex::Event<TimerEvent> {
+
+		TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr ,
+			std:: string timerName = "", cmn::ETimerOperation op = 
+			cmn::ETimerOperation::NO_OPERATION, ex::TimeDelta scanTime = 0.0) 
+			: timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime){}
+
+		ex::TimeDelta scanTime;
+		cmn::ETimerOperation timerOperation;
+		std::string timerName;
+		std::shared_ptr<TimeTable> timeTable;
+	};
+
+#pragma endregion
 
 }
