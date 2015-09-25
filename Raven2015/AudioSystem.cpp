@@ -44,6 +44,7 @@ void AudioSystem::receive(const MusicCustomEvent &event) {
 void AudioSystem::receive(const SoundLoadEvent &event) {
     // If you can't find the file, load it
     if (event.maker->soundMap.find(event.audioFileName) == event.maker->soundMap.end()) {
+        event.maker->soundMap.insert(std::make_pair(event.audioFileName, std::shared_ptr<sf::SoundBuffer>(new sf::SoundBuffer())));
         event.maker->soundMap[event.audioFileName]->loadFromFile(event.audioFileName);
         event.maker->sound.setBuffer(*event.maker->soundMap[event.audioFileName]);
     }

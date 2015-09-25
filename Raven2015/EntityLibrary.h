@@ -1,3 +1,15 @@
+/*
+* Classname:   Gaming Platform Frameworks
+* Project:     Raven
+* Version:     1.0
+*
+* Copyright:   The contents of this document are the property of its creators.
+*              Reproduction or usage of it without permission is prohibited.
+*
+* Owners:      Will Nations
+*              Hailee Ammons
+*              Kevin Wang
+*/
 #pragma once
 
 #include "Common.h"
@@ -27,6 +39,16 @@ namespace Raven {
 
     };
 
+    /*
+     * Actors are entities that have a precise location in the game space
+     */
+    class Actor : public Entity {
+    public:
+        // Default Constructor
+        Actor() {
+            assign<Transform>();
+        }
+    };
 
 
 }

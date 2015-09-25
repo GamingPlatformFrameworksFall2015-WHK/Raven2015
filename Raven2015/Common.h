@@ -1,11 +1,10 @@
 #pragma once
 
-#define ERRORSTR_AUDIO_TYPE_UNINIT "Error: uninitialized audio type " + \
-    std::string("encountered.")
-#define ERRORSTR_AUDIO_OPERATION_UNINT "Error: uninitialized audio " + \
-    std::string("operation encountered.")
-#define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading " + \
-    std::string("operation on a new audio resource.")
+#define ERRORSTR_AUDIO_TYPE_UNINIT "Error: uninitialized audio type encountered."
+#define ERRORSTR_AUDIO_OPERATION_UNINT "Error: uninitialized audio operation encountered."
+#define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading operation on a new audio resource."
+#define FPS_30_TICK_TIME 0.0333333333333f
+#define FPS_60_TICK_TIME 0.0166666666666f
 
 #include <iostream>
 #include "entityx\config.h"
@@ -13,6 +12,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::cin;
 
 namespace ex = entityx;
 namespace Raven {
@@ -25,14 +25,47 @@ namespace Raven {
         // An enumeration type detailing the possible operations for audio files.
         enum EAudioOperation { NO_OPERATION, LOAD, UNLOAD, PLAY, PAUSE, STOP };
 
-        // An enumeration type detailing whether an audio resource should loop.
-        enum EAudioLoop { FALSE, TRUE, UNCHANGED };
+        // An enumeration type detailing how a loop state should be assigned.
+        enum ELoop { FALSE, TRUE, UNCHANGED };
+
+        // A specification of the ELoop type for audio resources only
+        typedef ELoop EAudioLoop;
+
+        /* 
+         * An enumeration type detailing a set of macro render-sorting layers.
+         * NO_LAYER     = "null" value
+         * Background   = Objects that exist in the back of the game space (typically environmental)
+         * Foreground   = Objects that exist in the main game space
+         * HUD          = Objects that exist overlaying the game space
+         * GUI          = Objects associated with the game's menu system, super-ceding all others
+         */
+        enum ELayer { NO_LAYER, Background, Foreground, HUD, GUI };
+
+        // A specification of the ELayer type for Rendering assets only
+        typedef ELayer ERenderingLayer;
 
         // A standard pixel-based unit of measurement for the x-axis
         static const float STD_UNITX = 64.0f;
 
         // A standard pixel-based unit of measurement for the y-axis
         static const float STD_UNITY = 64.0f;
+
+        // The size of borders for imported spritesheets, in pixels
+        static const int BORDER_PADDING = 2;
+
+        // The size of borders for sprites within imported spritesheets, in pixels
+        static const int SHAPE_PADDING = 2;
+
+        // Helper function for clamping primitives between two values (used in animations)
+        template <typename T>
+        void clamp(T &toClamp, T min, T max) {
+            if (toClamp < min) {
+                toClamp = min;
+            }
+            if (toClamp > max) {
+                toClamp = max;
+            }
+        }
 
     };
 

@@ -184,7 +184,7 @@ namespace Raven {
         SoundMaker() {}
 
         // A mapping between sound file names and the buffers for their storage
-        std::map<std::string, std::unique_ptr<sf::SoundBuffer>> soundMap;
+        std::map<std::string, std::shared_ptr<sf::SoundBuffer>> soundMap;
 
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
@@ -202,9 +202,171 @@ namespace Raven {
         MusicMaker() {}
 
         // A mapping between music file names and their stream storage objects
-        std::map<std::string, std::unique_ptr<sf::Music>> musicMap;
+        std::map<std::string, std::shared_ptr<sf::Music>> musicMap;
     };
 
 #pragma endregion
+
+#pragma region Rendering
+
+    struct Renderer : public ex::Component<Renderer> {
+
+    };
+
+    struct TextRenderer : public Renderer {
+
+        TextRenderer() {
+            font = sf::Font();
+            text = sf::Text("Hello World", font);
+        }
+        
+        sf::Font font;
+
+        sf::Text text;
+    };
+
+    /*
+     * A component that permits the rendering of a sprite for a given entity
+     */
+    struct SpriteRenderer : public Renderer {
+
+        // Default constructor. SpriteRenderer::sprite left uninitialized
+        SpriteRenderer(std::string file = "", 
+            cmn::ERenderingLayer layer = cmn::ERenderingLayer::NO_LAYER, 
+            int priority = 0) : textureFileName(file), renderLayer(layer), 
+            renderPriority(priority) {
+        
+            sprite.setTextureRect(sf::IntRect(0, 0, (int)cmn::STD_UNITX, (int)cmn::STD_UNITY));
+        }
+
+        // The source textures for the sprite
+        std::string textureFileName;
+
+        // The current window into the texture being displayed to the screen
+        sf::Sprite sprite;
+
+        // The rendering layer for macro-sorting of render content
+        cmn::ERenderingLayer renderLayer;
+
+        // The drawing-order priority within the rendering layer. Top-most = high priority
+        int renderPriority;
+
+        bool operator<(const SpriteRenderer &other) {
+            if (renderLayer < other.renderLayer) {
+                return true;
+            }
+            else if (renderLayer == other.renderLayer) {
+                if (renderPriority < other.renderPriority) {
+                    return true;
+                }
+            /*  else if (renderPriority == other.renderPriority)
+             *      Behavior undefined. No guarantees for which
+             *      object will be drawn on top
+             *  }
+             */ 
+            }
+            return false;
+        }
+    };
+
+    /*
+     * A helper class to contain information regarding a given Animation.
+     * A given texture (as a spritesheet) may contain several animation frames.
+     */
+    struct Animation {
+
+        /*
+         * Default Constructor
+         * Initializes an animation with default values. For necessary functionality, include
+         * the textureFileName and size at minimum.
+         * Assume any given "spritesheet" AKA "animation texture" is purely a single animation
+         * with only horizontal translation between frames.
+         */
+        Animation(std::string textureFileName = "", int size = 0, bool isLooping = false, float animationSpeed = 1.0f,
+                int frameWidth = cmn::STD_UNITX, int frameHeight = cmn::STD_UNITY)
+                : textureFileName(textureFileName), size(size), isLooping(isLooping), animationSpeed(animationSpeed),
+                animationProgress(0.0f), frameWidth(frameWidth), frameHeight(frameHeight) {
+
+            // Ensure that we have one viewing rectangle (sf::IntRect) into the texture for each sprite frame
+            frames.resize(size);
+
+            // Ensure that each successive window is placed over the next frame of the spritesheet animation in turn
+            for (int i = 0; i < frames.size(); ++i) {
+                frames[i].width = frameWidth;
+                frames[i].height = frameHeight;
+                frames[i].left += i*frameWidth;
+            }
+        }
+
+        // The sections of the texture the animation draws from for each sprite
+        std::vector<sf::IntRect> frames;
+        
+        // Whether the sprite animation should stop at the end or loop back to the start
+        bool isLooping;
+
+        // The width of each frame in the imported spritesheet texture
+        int frameWidth;
+
+        // The height of each frame in the imported spritesheet texture
+        int frameHeight;
+
+        // The number of frames in the spritesheet animation
+        int size;
+
+        // The speed of the animation (how many ticks per 1 iteration of the animation loop?)
+        double animationSpeed;
+
+        // The current progress towards reaching the animationSpeed threshold
+        double animationProgress;
+
+        // The name of the texture file referenced by the animation (the spritesheet, single line)
+        std::string textureFileName;
+    };
+
+    /*
+     * A component that tracks the Animations available to a given SpriteRenderer
+     * and manages switching between them.
+     */
+    struct Animator : public ex::Component<Animator> {
+
+        // Default Constructor
+        Animator() : animName(""), frameId(0) {}
+
+        // Custom Constructor, string + Animation
+        Animator(std::string animName) : frameId(0) {
+            // Error checking for animation name validity
+            if (animName == "") {
+                cerr << "Error: Attempt to register animation to empty string." << endl;
+                throw 1;
+            }
+
+            this->animName = animName;
+        }
+
+        // The name of the animation in use
+        std::string animName;
+        
+        // The index of the frame of the animation currently being displayed
+        int frameId;
+    };
+
+#pragma endregion
+
+#pragma region Behaviors
+
+    struct BeginPlayBehavior : ex::Component<BeginPlayBehavior> {
+
+        void(*beginPlay)();
+
+    };
+
+    struct UpdateBehavior : ex::Component<UpdateBehavior> {
+
+        void(*update)(ex::TimeDelta dt);
+
+    };
+
+#pragma endregion
+
 
 }

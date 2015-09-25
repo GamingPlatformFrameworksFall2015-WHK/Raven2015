@@ -13,8 +13,8 @@
 
 
 #include "MovementSystem.h"
-#include "ComponentLibrary.h"
-#include "entityx\Entity.h"
+#include "../ComponentLibrary.h"
+#include "../entityx\Entity.h"
 
 using namespace Raven;
 
