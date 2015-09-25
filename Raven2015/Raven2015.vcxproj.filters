@@ -16,9 +16,6 @@
     <Filter Include="Resource Files\Audio">
       <UniqueIdentifier>{89d39faa-8e01-4965-b42d-3d55fb08e1a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Systems">
-      <UniqueIdentifier>{2afd8314-e73c-4766-958c-49212f652ac5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{379c3151-14f2-4e57-a9ea-4f7d52233b9b}</UniqueIdentifier>
     </Filter>
@@ -43,22 +40,19 @@
     <Filter Include="Header Files\entityx\3rdparty">
       <UniqueIdentifier>{27a82abc-f830-48ea-822d-f2295a54178f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Images">
-      <UniqueIdentifier>{3b923448-0001-401a-9ce4-6bdcd4c90856}</UniqueIdentifier>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{3b37b1c5-3a5c-4e98-aa77-907f480db285}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Images\Sprites">
-      <UniqueIdentifier>{d7a4cd1f-dfff-421f-907c-6aadcbe94fcb}</UniqueIdentifier>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{e0001dcf-0d8b-4bfe-8042-eaba917e474a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Images\Textures">
-      <UniqueIdentifier>{17b7ad93-a9c5-4a53-9420-290934063ff5}</UniqueIdentifier>
+    <Filter Include="Resource Files\Fonts">
+      <UniqueIdentifier>{862a91af-6fbc-4ed4-8c05-f11a42e94375}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MovementSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="entityx-master\entityx\Entity.cc">
       <Filter>Source Files\entityx</Filter>
@@ -81,11 +75,14 @@
     <ClCompile Include="CollisionSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="MovementSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MovementSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="EventLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -94,12 +91,6 @@
     </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionSystem.h">
-      <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="EntityLibrary.h">
       <Filter>Header Files</Filter>
@@ -143,10 +134,38 @@
     <ClInclude Include="entityx\3rdparty\simplesignal.h">
       <Filter>Header Files\entityx\3rdparty</Filter>
     </ClInclude>
+    <ClInclude Include="AudioSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="MovementSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg">
       <Filter>Resource Files\Audio</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\Fonts\black_jack.ttf">
+      <Filter>Resource Files\Fonts</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\BlueDot_damaged.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\BlueDot_vibrating.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\YellowGreenBorderBox.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

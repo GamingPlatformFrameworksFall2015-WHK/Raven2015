@@ -114,7 +114,7 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         spriteHeap.push_back(renderer);
         push_heap(spriteHeap.begin(), spriteHeap.end());
         ex::ComponentHandle<Transform> transform = entity.component<Transform>();
-        renderer.sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5, transform->transform.y - cmn::STD_UNITY*.5);
+        renderer.sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
 
         // If the exact address of this texture is not the same as the one on record, reacquire it
         if (renderer.sprite.getTexture() != &textureMap[renderer.textureFileName]) {
