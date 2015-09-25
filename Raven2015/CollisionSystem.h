@@ -26,6 +26,8 @@ namespace Raven {
         explicit CollisionSystem() {
             a = 0;
             eventToggle = true;
+			fireUntilOff = false;
+			collided = false;
         }
 
         /*
@@ -64,6 +66,8 @@ namespace Raven {
         std::map<ex::Entity, std::set<ex::Entity>> collisionMap;
         int a;
         bool eventToggle;
+		bool fireUntilOff;
+		bool collided;
     };
 
 }

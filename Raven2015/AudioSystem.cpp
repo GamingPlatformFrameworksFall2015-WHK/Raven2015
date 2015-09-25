@@ -11,6 +11,12 @@ void AudioSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 
 }
+void AudioSystem::receive(const SoundLoadEvent &event) {
+	receiveEvent(event);
+}
+void AudioSystem::receive(const SoundPlayEvent &event) {
+	receiveEvent(event);
+}
 
 void AudioSystem::receive(const MusicLoadEvent &event) {
     // If you can't find the file, load it
@@ -41,23 +47,35 @@ void AudioSystem::receive(const MusicStopEvent &event) {
 void AudioSystem::receive(const MusicCustomEvent &event) {
     event.func(event.audioFileName, event.maker.get());
 }
-void AudioSystem::receive(const SoundLoadEvent &event) {
+//THIS ONE GOT HACKED
+bool AudioSystem::response(const SoundLoadEvent &event) {
     // If you can't find the file, load it
+	cout << "loading soundfile" << endl;
     if (event.maker->soundMap.find(event.audioFileName) == event.maker->soundMap.end()) {
+		event.maker->soundMap[event.audioFileName] = std::shared_ptr<sf::SoundBuffer>(new sf::SoundBuffer());
         event.maker->soundMap[event.audioFileName]->loadFromFile(event.audioFileName);
         event.maker->sound.setBuffer(*event.maker->soundMap[event.audioFileName]);
     }
+	return false;
 }
 void AudioSystem::receive(const SoundUnloadEvent &event) {
     if (event.maker->soundMap.find(event.audioFileName) != event.maker->soundMap.end()) {
         event.maker->soundMap.erase(event.audioFileName);
     }
 }
-void AudioSystem::receive(const SoundPlayEvent &event) {
+//THIS ONE GOT HACKED
+bool AudioSystem::response(const SoundPlayEvent &event) {
+	cout << "playing soundfile" << endl;
+	event.maker->sound.play();
+/*
     if (event.maker->soundMap.find(event.audioFileName) != event.maker->soundMap.end()) {
+		cout << "i break here" << endl;
         event.maker->sound.setBuffer(*event.maker->soundMap[event.audioFileName]);
         event.maker->sound.play();
+		cout << "I lived" << endl;
     }
+	cout << "do i run pass" << endl;*/
+	return false;
 }
 void AudioSystem::receive(const SoundPauseEvent &event) {
     if (event.maker->soundMap.find(event.audioFileName) != event.maker->soundMap.end()) {

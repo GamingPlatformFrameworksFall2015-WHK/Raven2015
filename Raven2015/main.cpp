@@ -65,9 +65,11 @@ int main() {
     // Dependencies Verification + Create 2 Entities with colliders
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
+	entity1.assign<SoundMaker>();
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
+	entity2.assign<SoundMaker>();
 
     ex::Entity entity3 = game.entities.create();
     entity3.assign<BoxCollider>(cmn::STD_UNITX, cmn::STD_UNITY, 80.f, 80.f);
@@ -99,39 +101,33 @@ int main() {
 
         sf::Event event;
 
-        while (window.pollEvent(event)) {
-			input.setEventType(event);
-            switch (event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed: {
-                int speed = 10;
-                if (input.getAction(event.key.code) == "move_right") {
-                    entity1.component<Transform>().get()->transform.x += speed;
-                }
-                else if (input.getAction(event.key.code) == "move_down") {
-                    entity1.component<Transform>().get()->transform.y += speed;
-                }
-                else if (input.getAction(event.key.code) == "move_left") {
-                    entity1.component<Transform>().get()->transform.x -= speed;
-                }
-                else if (input.getAction(event.key.code) == "move_up") {
-                    entity1.component<Transform>().get()->transform.y -= speed;
-                }
-                else if (input.getAction(event.key.code) == "exit") {
-                    window.close();
-                }
-                break;
-            }
-            case sf::Event::MouseButtonPressed:
-                break;
-            case sf::Event::JoystickButtonPressed:
-                break;
-            case sf::Event::JoystickMoved:
-                break;
-            }
-        }
+		while (window.pollEvent(event)) {
+			game.systems.system<InputSystem>()->setEventType(event);
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
+			case sf::Event::KeyPressed: {
+				int speed = 10;
+				if (input.getAction(event.key.code) == "move_right") {
+					entity1.component<Transform>().get()->transform.x += speed;
+				}
+				else if (input.getAction(event.key.code) == "move_down") {
+					entity1.component<Transform>().get()->transform.y += speed;
+				}
+				else if (input.getAction(event.key.code) == "move_left") {
+					entity1.component<Transform>().get()->transform.x -= speed;
+				}
+				else if (input.getAction(event.key.code) == "move_up") {
+					entity1.component<Transform>().get()->transform.y -= speed;
+				}
+				else if (input.getAction(event.key.code) == "exit") {
+					window.close();
+				}
+				break;
+			}
+			}
+		}
         shape.setPosition(entity1.component<Transform>().get()->transform.x, 
             entity1.component<Transform>().get()->transform.y);
 

@@ -29,7 +29,7 @@ namespace Raven {
 
         std::string audioFileName;
 
-        std::unique_ptr<MusicMaker> maker;
+        std::shared_ptr<MusicMaker> maker;
     };
 
     struct SoundEvent : public ex::Event<SoundEvent> {
@@ -39,7 +39,7 @@ namespace Raven {
 
         std::string audioFileName;
 
-        std::unique_ptr<SoundMaker> maker;
+        std::shared_ptr<SoundMaker> maker;
     };
 
     struct MusicLoadEvent : public MusicEvent {

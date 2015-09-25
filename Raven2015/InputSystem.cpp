@@ -20,12 +20,17 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 	ex::TimeDelta dt) {
-	events.emit<KeyboardEvent>("move_left");
+	if (eventTypeId == 0) { //look a keyboard event
+		events.emit<KeyboardEvent>(key);
+		eventTypeId = 5; //so there's no event atm
+	}
+
 }
 
 int InputSystem::setEventType(sf::Event event) {
 	switch (event.type) {
 		case sf::Event::KeyPressed: {
+			key = getAction(event.key.code);
 			eventTypeId = 0;
 			break;
 		}

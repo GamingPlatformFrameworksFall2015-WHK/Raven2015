@@ -27,6 +27,7 @@ namespace Raven {
 		explicit InputSystem() {
 			eventToggle = true;
 			eventTypeId = 0;
+			key = "";
 			read_file(CONFIG);
 		}
 
@@ -98,6 +99,7 @@ namespace Raven {
 
 		bool eventToggle;
 		int eventTypeId;
+		std::string key;
 
 		void insert_input(sf::Keyboard::Key key, std::string action);
 

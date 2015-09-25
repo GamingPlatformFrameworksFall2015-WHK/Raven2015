@@ -184,7 +184,7 @@ namespace Raven {
         SoundMaker() {}
 
         // A mapping between sound file names and the buffers for their storage
-        std::map<std::string, std::unique_ptr<sf::SoundBuffer>> soundMap;
+        std::map<std::string, std::shared_ptr<sf::SoundBuffer>> soundMap;
 
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
@@ -202,7 +202,7 @@ namespace Raven {
         MusicMaker() {}
 
         // A mapping between music file names and their stream storage objects
-        std::map<std::string, std::unique_ptr<sf::Music>> musicMap;
+        std::map<std::string, std::shared_ptr<sf::Music>> musicMap;
     };
 
 #pragma endregion
