@@ -158,11 +158,24 @@ int main() {
     */
 
     cout << "Starting game loop..." << endl;
-    int count = 0;
     sf::Clock mainClock;
+    Timer fpsTimer;
+    int fps = 0;
     while (window.isOpen()) {
 
         sf::Event event;
+
+        // Calculate FPS based on iterations game loop has completed in 1 second
+        if (fpsTimer.getETime() >= 1.0) {
+            // Update FPS display with fps value
+            fpsTimer.reset();
+            fps = 0;
+        }
+        else {
+            fps++;
+        }
+
+        renderer->text.setString(sf::String(std::string(std::to_string(fps))));
 
         while (window.pollEvent(event)) {
 
