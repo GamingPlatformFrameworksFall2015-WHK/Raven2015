@@ -36,12 +36,14 @@ public:
         systems.add<MovementSystem>();
         systems.add<AudioSystem>();
         systems.add<CollisionSystem>();
+		systems.add<InputSystem>();
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
         systems.update<MovementSystem>(dt);
         systems.update<CollisionSystem>(dt);
+		systems.update<InputSystem>(dt);
     }
 };
 
@@ -98,7 +100,7 @@ int main() {
         sf::Event event;
 
         while (window.pollEvent(event)) {
-
+			input.setEventType(event);
             switch (event.type) {
             case sf::Event::Closed:
                 window.close();

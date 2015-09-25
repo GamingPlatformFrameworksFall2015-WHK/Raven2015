@@ -20,6 +20,29 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 	ex::TimeDelta dt) {
+	events.emit<KeyboardEvent>("move_left");
+}
+
+int InputSystem::setEventType(sf::Event event) {
+	switch (event.type) {
+		case sf::Event::KeyPressed: {
+			eventTypeId = 0;
+			break;
+		}
+		case sf::Event::MouseButtonPressed: {
+			eventTypeId = 1;
+			break;
+		}
+		case sf::Event::JoystickButtonPressed: {
+			eventTypeId = 2;
+			break;
+		}
+		case sf::Event::JoystickMoved: {
+			eventTypeId = 3;
+			break;
+		}
+	}
+	return 0;
 }
 
 void InputSystem::insert_input(sf::Keyboard::Key key, std::string action) {
