@@ -97,8 +97,7 @@ int main() {
     game.systems.configure();
 
     ex::Entity entity1 = game.entities.create();
-    entity1.assign<Transform>();
-    entity1.assign<Rigidbody>();
+    entity1.assign<BoxCollider>();
     entity1.assign<SpriteRenderer>("Resources/Textures/BlueDot_vibrating.png", cmn::ERenderingLayer::Foreground, 0);
     entity1.assign<Animator>("BlueDotIdle");
     game.systems.system<RenderingSystem>()->initialize(game.entities, window);
