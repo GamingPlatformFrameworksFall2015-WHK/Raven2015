@@ -24,7 +24,8 @@ namespace Raven {
          *
          */
         explicit CollisionSystem() {
-
+            a = 0;
+            eventToggle = true;
         }
 
         /*
@@ -40,16 +41,29 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override;
 
-        /*
-         * Processes data involving the collision of two Entities with Colliders.
-         */
+        // Base receive
+        template <typename T>
+        void receiveEvent(const T &aEvent) {
+            eventToggle = eventToggle ? response(aEvent) && false : true;
+        }
+
+        // Picks up CollisionEvents
         void receive(const CollisionEvent &event);
+        
+        //Processes the collision of two Entities with Colliders.
+        bool response(const CollisionEvent &event);
 
         /*
          * Tests whether two entities' colliders register a collision.
          */
-        void CollisionSystem::testCollision(ex::Entity leftEntity,
-            ex::Entity rightEntity, ex::EventManager &events);
+        std::unique_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
+            ex::Entity rightEntity);
 
+
+    private:
+        std::map<ex::Entity, std::set<ex::Entity>> collisionMap;
+        int a;
+        bool eventToggle;
     };
+
 }

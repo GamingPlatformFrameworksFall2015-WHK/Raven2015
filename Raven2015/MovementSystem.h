@@ -12,7 +12,7 @@
 #pragma once
 
 #include "entityx\System.h"
-#include "Common.h"
+#include "../Common.h"
 
 namespace Raven {
 
@@ -34,4 +34,6 @@ namespace Raven {
             ex::TimeDelta dt) override;
 
     };
+
 }
+

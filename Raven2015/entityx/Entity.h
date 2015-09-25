@@ -128,13 +128,13 @@ public:
 
   Id id() const { return id_; }
 
-  EntityManager *manager() const { return manager_; }
-
   template <typename C, typename ... Args>
   ComponentHandle<C> assign(Args && ... args);
 
   template <typename C>
   ComponentHandle<C> assign_from_copy(const C &component);
+  EntityManager *manager() const { return manager_; }
+
 
   template <typename C, typename ... Args>
   ComponentHandle<C> replace(Args && ... args);
@@ -154,6 +154,9 @@ public:
   template <typename ... Components>
   std::tuple<ComponentHandle<const Components, const EntityManager>...> components() const;
 
+//  template <typename C>
+//  Entity copy();
+
   template <typename C>
   bool has_component() const;
 
@@ -167,7 +170,7 @@ public:
 
   std::bitset<entityx::MAX_COMPONENTS> component_mask() const;
 
- protected:
+protected:
   EntityManager *manager_ = nullptr;
   Entity::Id id_ = INVALID;
 };
@@ -601,7 +604,7 @@ class EntityManager : entityx::help::NonCopyable {
 
     // Placement new into the component pool.
     Pool<C> *pool = accomodate_component<C>();
-    new(pool->get(id.index())) C(std::forward<Args>(args) ...);
+    ::new(pool->get(id.index())) C(std::forward<Args>(args) ...);
 
     // Set the bit for this component.
     entity_component_mask_[id.index()].set(family);
@@ -943,6 +946,17 @@ std::tuple<ComponentHandle<const Components, const EntityManager>...> Entity::co
   return const_cast<const EntityManager*>(manager_)->components<const Components...>(id_);
 }
 
+/*
+template <typename ... Components>
+Entity Entity::copy() {
+  assert(valid());
+  Entity e = manager_->create();
+  Component *cc
+  for (std::tuple<ComponentHandle<const Components, const EntityManager>...> c : components<C>()) {
+      e.assign<C>
+  }
+  return e;
+}*/
 
 template <typename C>
 bool Entity::has_component() const {
