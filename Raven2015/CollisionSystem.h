@@ -24,7 +24,6 @@ namespace Raven {
          *
          */
         explicit CollisionSystem() {
-            a = 0;
             eventToggle = true;
         }
 

@@ -117,6 +117,16 @@ int main() {
     renderer->text.setFont(renderer->font);
     renderer->text.setString(sf::String(std::string(std::to_string(40))));
 
+    ex::Entity entity2 = game.entities.create();
+    entity2.assign<Transform>();
+    entity2.assign<SoundMaker>();
+    cout << "emitting load event" << endl;
+    game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::LOAD, cmn::EAudioLoop::FALSE);
+    cout << "emitting play event" << endl;
+    game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::PLAY, cmn::EAudioLoop::UNCHANGED);
+
     /*
     // Dependencies Verification + Create 2 Entities with colliders
     ex::Entity entity1 = game.entities.create();

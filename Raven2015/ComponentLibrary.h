@@ -172,19 +172,23 @@ namespace Raven {
 
 #pragma region Audio
 
+    struct AudioMaker : public ex::Component<AudioMaker> {
+
+    };
+
     /*
      * A component that stores the names of tracks for sf::Sound.
      * sf::Sound is optimized for small audio tracks (a few seconds).
      *
      * TODO: Restrict types playable with these filenames to sf::Sound objects.
      */
-    struct SoundMaker {
+    struct SoundMaker : public AudioMaker {
 
         // Default constructor
-        SoundMaker() {}
+        SoundMaker()  {}
 
         // A mapping between sound file names and the buffers for their storage
-        std::map<std::string, std::shared_ptr<sf::SoundBuffer>> soundMap;
+        SOUNDMAP_T soundMap;
 
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
@@ -196,13 +200,13 @@ namespace Raven {
      *
      * TODO: Restrict types playable with these filenames to sf::Music objects.
      */
-    struct MusicMaker {
+    struct MusicMaker : public AudioMaker {
 
         // Default constructor
         MusicMaker() {}
 
         // A mapping between music file names and their stream storage objects
-        std::map<std::string, std::shared_ptr<sf::Music>> musicMap;
+        MUSICMAP_T musicMap;
     };
 
 #pragma endregion

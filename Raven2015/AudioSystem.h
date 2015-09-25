@@ -49,15 +49,14 @@ namespace Raven {
          *
          */
         explicit AudioSystem() {
-            a = false;
+            eventToggle = true;
         }
 
         /*
          * Setup necessary static information
          */
         void configure(entityx::EventManager &event_manager) {
-            event_manager.subscribe<MusicEvent>(*this);
-            event_manager.subscribe<SoundEvent>(*this);
+            event_manager.subscribe<AudioEvent>(*this);
         }
 
         /*
@@ -66,15 +65,19 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override;
 
-        /*
-         * Responds to requests for operations regarding audio resources.
-         */
-        void receive(const MusicEvent &event);
+        // Base receive
+        template <typename T>
+        void receiveEvent(const T &aEvent) {
+            eventToggle = eventToggle ? response(aEvent) && false : true;
+        }
 
-        void receive(const SoundEvent &event);
+        // Picks up AudioEvents
+        void receive(const AudioEvent &event);
+
+        //Processes the operations on audio resources.
+        bool response(const AudioEvent &event);
 
     private:
-        sf::Sound sound;
-        bool a;
+        bool eventToggle;
     };
 }

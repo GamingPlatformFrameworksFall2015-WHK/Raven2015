@@ -5,6 +5,8 @@
 #define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading operation on a new audio resource."
 #define FPS_30_TICK_TIME 0.0333333333333f
 #define FPS_60_TICK_TIME 0.0166666666666f
+#define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
+#define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 
 #include <iostream>
 #include "entityx\config.h"

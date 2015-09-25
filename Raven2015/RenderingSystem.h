@@ -11,7 +11,8 @@
 
 namespace Raven {
 
-    class RenderingSystem : public entityx::System<RenderingSystem> {
+    class RenderingSystem : public entityx::System<RenderingSystem>, 
+        public ex::Receiver<RenderingSystem> {
     public:
         // Perform initializations
         explicit RenderingSystem() {
@@ -22,6 +23,18 @@ namespace Raven {
         void configure(entityx::EventManager &event_manager) {
 
         }
+
+        // Base receive
+        template <typename T>
+        void receiveEvent(const T &aEvent) {
+            eventToggle = eventToggle ? response(aEvent) && false : true;
+        }
+
+        // Picks up CollisionEvents
+        //void receive(const CollisionEvent &event);
+        
+        //Processes the collision of two Entities with Colliders.
+        //bool response(const CollisionEvent &event);
 
         // Initialize loading of textures
         void initialize(entityx::EntityManager &es, sf::RenderWindow &window);
