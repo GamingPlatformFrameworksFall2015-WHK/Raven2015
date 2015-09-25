@@ -25,6 +25,7 @@
 #include "MovementSystem.h"
 #include "AudioSystem.h"
 #include "CollisionSystem.h"
+#include "InputSystem.h"
 #include "RenderingSystem.h"
 #include "entityx/deps/Dependencies.h"
 
@@ -36,6 +37,7 @@ public:
         systems.add<MovementSystem>();
         systems.add<AudioSystem>();
         systems.add<CollisionSystem>();
+        systems.add<InputSystem>();
         systems.add<RenderingSystem>();
         systems.configure();
     }
@@ -43,41 +45,9 @@ public:
     void update(ex::TimeDelta dt) {
         systems.update<MovementSystem>(dt);
         systems.update<CollisionSystem>(dt);
+        systems.update<InputSystem>(dt);
         systems.update<RenderingSystem>(dt);
     }
-};
-
-class InputHandler {
-public:
-    std::map<sf::Keyboard::Key, std::string> key_map{
-        { sf::Keyboard::A,		"move_left" },
-        { sf::Keyboard::D,		"move_right" },
-        { sf::Keyboard::W,		"move_up" },
-        { sf::Keyboard::S,		"move_down" },
-        { sf::Keyboard::Left,	"move_left" },
-        { sf::Keyboard::Right,	"move_right" },
-        { sf::Keyboard::Up,		"move_up" },
-        { sf::Keyboard::Down,	"move_down" },
-        { sf::Keyboard::Escape, "exit" }
-    };
-
-    InputHandler() {
-        //read config file
-        //remap key_map so in config: 'move_left = A' => insert_input(A, move_left);
-    }
-
-    void insert_input(sf::Keyboard::Key key, std::string action) {
-        try {
-            if (key_map.at(key) != action) {
-                key_map[key] = action;
-            }
-        }
-        catch (std::exception e) {
-            //If k does not match the key of any element in the container, the function throws an out_of_range exception.
-            key_map.insert(std::pair<sf::Keyboard::Key, std::string>(key, action));
-        }
-    }
-
 };
 
 int main() {
@@ -123,6 +93,8 @@ int main() {
         cmn::EAudioType::SOUND, cmn::EAudioOperation::LOAD, cmn::EAudioLoop::FALSE);
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
         cmn::EAudioType::SOUND, cmn::EAudioOperation::PLAY, cmn::EAudioLoop::UNCHANGED);
+
+    std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
     /*
     // Dependencies Verification + Create 2 Entities with colliders
@@ -175,27 +147,26 @@ int main() {
         renderer->text.setString(sf::String(std::string(std::to_string(fps))));
 
         while (window.pollEvent(event)) {
-
+            input->setEventType(event);
             switch (event.type) {
             case sf::Event::Closed:
                 window.close();
                 break;
             case sf::Event::KeyPressed: {
-                InputHandler i_d;
                 int speed = 10;
-                if (i_d.key_map[event.key.code] == "move_right") {
+                if (input->getAction(event.key.code) == "move_right") {
                     entity1.component<Transform>().get()->transform.x += speed;
                 }
-                else if (i_d.key_map[event.key.code] == "move_down") {
+                else if (input->getAction(event.key.code) == "move_down") {
                     entity1.component<Transform>().get()->transform.y += speed;
                 }
-                else if (i_d.key_map[event.key.code] == "move_left") {
+                else if (input->getAction(event.key.code) == "move_left") {
                     entity1.component<Transform>().get()->transform.x -= speed;
                 }
-                else if (i_d.key_map[event.key.code] == "move_up") {
+                else if (input->getAction(event.key.code) == "move_up") {
                     entity1.component<Transform>().get()->transform.y -= speed;
                 }
-                else if (i_d.key_map[event.key.code] == "exit") {
+                else if (input->getAction(event.key.code) == "exit") {
                     window.close();
                 }
                 break;

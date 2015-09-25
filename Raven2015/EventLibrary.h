@@ -120,4 +120,21 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region InputEvents
+
+    struct InputEvent : public ex::Event<InputEvent> {
+
+        InputEvent(std::string action = "") :
+            action(action) {}
+
+        std::string action;
+    };
+
+    struct KeyboardEvent : public InputEvent {
+        KeyboardEvent(std::string action = "")
+            : InputEvent(action) {}
+    };
+
+#pragma endregion //InputEvents
+
 }
