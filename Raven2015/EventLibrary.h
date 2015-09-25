@@ -22,84 +22,38 @@ namespace Raven {
 
 #pragma region AudioEvents
 
-    struct MusicEvent : public ex::Event<MusicEvent> {
+    struct AudioEvent : public ex::Event<AudioEvent> {
 
-        MusicEvent(std::string audioFileName = "", MusicMaker *maker = nullptr) :
-            audioFileName(audioFileName), maker(maker) {}
+        AudioEvent(std::string audioFileName = "", AudioMaker *maker = nullptr,
+            cmn::EAudioType type = cmn::EAudioType::NO_TYPE, cmn::EAudioOperation operation = cmn::EAudioOperation::NO_OPERATION,
+            cmn::EAudioLoop loop = cmn::EAudioLoop::FALSE) : audioFileName(audioFileName), maker(maker), type(type), operation(operation),
+            loop(loop) {}
 
         std::string audioFileName;
 
+<<<<<<< HEAD
         std::shared_ptr<MusicMaker> maker;
     };
 
     struct SoundEvent : public ex::Event<SoundEvent> {
+=======
+        AudioMaker *maker;
+>>>>>>> master
 
-        SoundEvent(std::string audioFileName = "", SoundMaker *maker = nullptr) :
-            audioFileName(audioFileName), maker(maker) {}
+        cmn::EAudioType type;
 
-        std::string audioFileName;
+        cmn::EAudioOperation operation;
 
+<<<<<<< HEAD
         std::shared_ptr<SoundMaker> maker;
+=======
+        cmn::EAudioLoop loop;
+>>>>>>> master
     };
 
-    struct MusicLoadEvent : public MusicEvent {
-        MusicLoadEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
-            : MusicEvent(audioFileName, maker) {}
-    };
-    struct MusicUnloadEvent : public MusicEvent {
-        MusicUnloadEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
-            : MusicEvent(audioFileName, maker) {}
-    };
-    struct MusicPlayEvent : public MusicEvent {
-        MusicPlayEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
-            : MusicEvent(audioFileName, maker) {}
-    };
-    struct MusicPauseEvent : public MusicEvent {
-        MusicPauseEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
-            : MusicEvent(audioFileName, maker) {}
-    };
-    struct MusicStopEvent : public MusicEvent {
-        MusicStopEvent(std::string audioFileName = "", MusicMaker *maker = nullptr)
-            : MusicEvent(audioFileName, maker) {}
-    };
-    struct MusicCustomEvent : public MusicEvent {
-        MusicCustomEvent(void(*func) (std::string audioFileName, MusicMaker *maker)) :
-            func(func) {}
+#pragma endregion
 
-        // Function pointer. Plugin a C++11 lambda function for custom behavior
-        void(*func) (std::string audioFileName, MusicMaker *maker);
-    };
-
-    struct SoundLoadEvent : public SoundEvent {
-        SoundLoadEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
-            : SoundEvent(audioFileName, maker) {}
-    };
-    struct SoundUnloadEvent : public SoundEvent {
-        SoundUnloadEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
-            : SoundEvent(audioFileName, maker) {}
-    };
-    struct SoundPlayEvent : public SoundEvent {
-        SoundPlayEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
-            : SoundEvent(audioFileName, maker) {}
-    };
-    struct SoundPauseEvent : public SoundEvent {
-        SoundPauseEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
-            : SoundEvent(audioFileName, maker) {}
-    };
-    struct SoundStopEvent : public SoundEvent {
-        SoundStopEvent(std::string audioFileName = "", SoundMaker *maker = nullptr)
-            : SoundEvent(audioFileName, maker) {}
-    };
-    struct SoundCustomEvent : public SoundEvent {
-        SoundCustomEvent(void(*func) (std::string audioFileName, SoundMaker *maker)) :
-            func(func) {}
-
-        // Function pointer. Plugin a C++11 lambda function for custom behavior
-        void(*func) (std::string audioFileName, SoundMaker *maker);
-    };
-
-#pragma endregion //AudioEvents
-
+#pragma region CollisionEvents
     /*
      * An event that stores the identities of two colliding entities.
      */
@@ -158,7 +112,43 @@ namespace Raven {
 
         ex::EventManager *events;
     };
+#pragma endregion
 
+#pragma region TimerEvents
+
+    struct TimerEvent : public ex::Event<TimerEvent> {
+
+        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr ,
+            std:: string timerName = "", cmn::ETimerOperation op = 
+            cmn::ETimerOperation::NO_OPERATION, ex::TimeDelta scanTime = 0.0) 
+            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime){}
+
+        ex::TimeDelta scanTime;
+        cmn::ETimerOperation timerOperation;
+        std::string timerName;
+        std::shared_ptr<TimeTable> timeTable;
+    };
+
+#pragma endregion
+
+#pragma region InputEvents
+
+    struct InputEvent : public ex::Event<InputEvent> {
+
+        InputEvent(std::string action = "") :
+            action(action) {}
+
+        std::string action;
+    };
+
+    struct KeyboardEvent : public InputEvent {
+        KeyboardEvent(std::string action = "")
+            : InputEvent(action) {}
+    };
+
+#pragma endregion //InputEvents
+
+<<<<<<< HEAD
 #pragma region InputEvents
 	struct InputEvent : public ex::Event<InputEvent> {
 
@@ -175,3 +165,6 @@ namespace Raven {
 
 #pragma endregion //InputEvents
 }
+=======
+}
+>>>>>>> master

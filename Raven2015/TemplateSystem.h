@@ -45,7 +45,6 @@ class SystemName : public entityx::System<SystemName>, public entityx::Receiver<
 
     //--------------------------------------------------------------------------------------------
 
-
 private:
     bool eventToggle;
 };
