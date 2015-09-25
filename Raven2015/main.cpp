@@ -122,6 +122,8 @@ int main() {
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
+	Timer fpsTimer;
+	int fps = 0;
     while (window.isOpen()) {
 
         sf::Event event;
@@ -174,8 +176,20 @@ int main() {
         //sf::Time deltaTime = mainClock.restart();
         //game.update(deltaTime.asSeconds());
         sf::Time deltaTime = mainClock.getElapsedTime();
-        if (deltaTime.asSeconds() > 1) 
-            game.update(mainClock.restart().asSeconds());
+		if (deltaTime.asSeconds() > 1.0) {
+			game.update(mainClock.restart().asSeconds());
+		}
+
+		// Calculate FPS based on iterations game loop has completed in 1 second
+		if (fpsTimer.getETime() >= 1.0) {
+			// Update FPS display with fps value
+			fpsTimer.reset();
+			fps = 0;
+		}
+		else {
+			fps++;
+		}
+
         window.display();
     }
 
