@@ -363,11 +363,12 @@ namespace Raven {
         // Default constructor
         Timer(std::shared_ptr<sf::Clock> clock = nullptr,
             ex::TimeDelta dTime = 0.0, bool isPlaying = true)
-            : clock(clock), eTime(dTime), isPlaying(isPlaying) {}
+            : clock(clock ? clock : std::shared_ptr<sf::Clock>(new sf::Clock())),
+            eTime(dTime), isPlaying(isPlaying) {}
 
         // Return private variable
         ex::TimeDelta getETime() {
-            return eTime;
+            return eTime + clock->getElapsedTime().asSeconds();
         }
 
         // Rewind or forward timer by scanDis amount
