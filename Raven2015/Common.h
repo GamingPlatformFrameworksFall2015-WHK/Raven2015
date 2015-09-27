@@ -69,6 +69,23 @@ namespace Raven {
             }
         }
 
+        class Serializable {
+
+            // Default Null Constructor
+            Serializable() {}
+
+            // Primary enforcement of abstract class
+            virtual ~Serializable() = 0;
+
+            // Allow the ISerializable to output an XML string representation of its properties
+            std::string(*serialize)();
+
+            // Allow the ISerializable to assign new values to its properties via an XML string
+            void(*deserialize)(std::string &xml);
+        };
+
+        //static void ()
+
     };
 
 }
