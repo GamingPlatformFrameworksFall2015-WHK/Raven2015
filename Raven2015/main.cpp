@@ -72,7 +72,7 @@ int main() {
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
-    renderer->sprites["BlueDot"].reset(new RenderableSprite(new sf::Sprite(),
+    renderer->sprites["BlueDot"].reset(new RenderableSprite(
         "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
     game.systems.system<RenderingSystem>()->initialize(game.entities, window);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
@@ -87,7 +87,7 @@ int main() {
         new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
             "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
-    sf::Text *fpsText(efps_renderer->texts["FPS"]->getAsText());
+    std::shared_ptr<sf::Text> fpsText(efps_renderer->texts["FPS"]->text);
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();

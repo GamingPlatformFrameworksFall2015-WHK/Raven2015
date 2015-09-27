@@ -425,6 +425,76 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region Timers
+
+    struct Timer {
+
+        // Default constructor
+        Timer(std::shared_ptr<sf::Clock> clock = nullptr,
+            ex::TimeDelta dTime = 0.0, bool isPlaying = true)
+            : clock(clock ? clock : std::shared_ptr<sf::Clock>(new sf::Clock())),
+            eTime(dTime), isPlaying(isPlaying) {}
+
+        // Return private variable
+        ex::TimeDelta getETime() {
+            return eTime + clock->getElapsedTime().asSeconds();
+        }
+
+        // Rewind or forward timer by scanDis amount
+        void scan(ex::TimeDelta scanDis) {
+            eTime += scanDis;
+        }
+
+        // Pause timer only if timer is currently playing
+        void pause() {
+            if (isPlaying) {
+                eTime += clock->restart().asSeconds();
+                isPlaying = false;
+            }
+            else {
+                cerr << "Timer already paused." << endl;
+            }
+        }
+
+        // Play timer only if timer is currently paused
+        void play() {
+            if (!isPlaying) {
+                clock->restart();
+                isPlaying = true;
+            }
+            else {
+                cerr << "Timer is already playing." << endl;
+            }
+        }
+
+        //
+        void reset() {
+            eTime = 0.0;
+            clock->restart();
+        }
+
+
+
+    private:
+        // Clock for recording time
+        std::shared_ptr <sf::Clock> clock;
+        // Record of elapsed time
+        ex::TimeDelta eTime;
+        // Current state of timer
+        bool isPlaying;
+    };
+
+    struct TimeTable : public ex::Component<TimeTable> {
+        // Default constructor
+        TimeTable() {}
+
+        // Maps a name to current timers
+        std::map<std::string, Timer> timerMap;
+    };
+
+#pragma endregion
+
+
 #pragma region Behaviors
 
     /*
