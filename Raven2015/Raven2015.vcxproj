@@ -198,6 +198,7 @@
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MovementSystem.h" />
     <ClInclude Include="RenderingSystem.h" />
+    <ClInclude Include="TimerSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg" />
