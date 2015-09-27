@@ -149,6 +149,9 @@
     <ClInclude Include="RenderingSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="raven.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg">
@@ -170,10 +173,5 @@
     <Image Include="Resources\Textures\YellowGreenBorderBox.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Xsd Include="raven.xsd">
-      <Filter>Resource Files\XML</Filter>
-    </Xsd>
   </ItemGroup>
 </Project>
