@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="raven"
+    targetNamespace="http://tempuri.org/raven.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/raven.xsd"
+    xmlns:mstns="http://tempuri.org/raven.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  
+  
+  
+</xs:schema>

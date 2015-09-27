@@ -195,6 +195,9 @@
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
     <ClInclude Include="MovementSystem.h" />
+    <ClInclude Include="raven.h">
+      <DependentUpon>raven.xsd</DependentUpon>
+    </ClInclude>
     <ClInclude Include="RenderingSystem.h" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +210,9 @@
     <Image Include="Resources\Textures\BlueDot_damaged.png" />
     <Image Include="Resources\Textures\BlueDot_vibrating.png" />
     <Image Include="Resources\Textures\YellowGreenBorderBox.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xsd Include="raven.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -358,15 +358,26 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    struct BeginPlayBehavior : ex::Component<BeginPlayBehavior> {
+    /*
+    * This is a baseline Behavior component with functionality that many entities will likely reference.
+    */
+    struct CoreBehavior : public ex::Component<CoreBehavior> {
 
+        CoreBehavior() : awake(nullptr), beginPlay(nullptr), onCollisionEnter(nullptr), onCollisionExit(nullptr),
+            preUpdate(nullptr), postUpdate(nullptr) {}
+
+        // Called when the entity instance is loaded
+        void(*awake)();
+        // Called when the game begins
         void(*beginPlay)();
-
-    };
-
-    struct UpdateBehavior : ex::Component<UpdateBehavior> {
-
-        void(*update)(ex::TimeDelta dt);
+        // Called if the entity has a Collider and has start colliding with another entity's Collider
+        void(*onCollisionEnter)(ex::Entity &other);
+        // Called if the entity has a Collider and has stopped colliding with another entity's Collider
+        void(*onCollisionExit)(ex::Entity &other);
+        // Called at the beginning of each frame before other System updates
+        void(*preUpdate)(ex::TimeDelta dt);
+        // Called at the end of each frame after other System updates
+        void(*postUpdate)(ex::TimeDelta dt);
 
     };
 

@@ -49,6 +49,9 @@
     <Filter Include="Resource Files\Fonts">
       <UniqueIdentifier>{862a91af-6fbc-4ed4-8c05-f11a42e94375}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\XML">
+      <UniqueIdentifier>{a18dc733-2c98-4cbb-87d2-25b42a705c74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -167,5 +170,10 @@
     <Image Include="Resources\Textures\YellowGreenBorderBox.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xsd Include="raven.xsd">
+      <Filter>Resource Files\XML</Filter>
+    </Xsd>
   </ItemGroup>
 </Project>
