@@ -70,7 +70,7 @@ namespace Raven {
         }
 
         class Serializable {
-
+        public:
             // Default Null Constructor
             Serializable() {}
 

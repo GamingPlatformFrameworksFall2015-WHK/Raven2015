@@ -4,21 +4,27 @@
 
 using namespace Raven;
 
-/*
- * Automatically register all textures associated with SpriteRenderers thus far
- */
+/// <summary>
+/// Initializes the loading of all textures defined by Renderers
+/// </summary>
+/// <param name="es">The es.</param>
+/// <param name="window">The window.</param>
 void RenderingSystem::initialize(entityx::EntityManager &es, sf::RenderWindow &window) {
 
     renderWindow = &window;
 
-    es.each<SpriteRenderer>([&](ex::Entity &entity, SpriteRenderer &renderer) {
-        registerTexture(renderer.textureFileName);
+    es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
+        for (auto item : renderer.sprites) {
+            registerTexture(item.second->textureFileName);
+        }
+
     });
 }
 
-/*
- * Register a texture asset to permit access from Animations and SpriteRenderers
- */
+/// <summary>
+/// Registers the texture, permitting access from Animations and Renderers
+/// </summary>
+/// <param name="textureFileName">Name of the texture file.</param>
 void RenderingSystem::registerTexture(std::string textureFileName) {
     if (textureMap.find(textureFileName) == textureMap.end()) {
         cout << "Note: textureMap look up failed. Inserting new texture." << endl;
@@ -34,10 +40,18 @@ void RenderingSystem::registerTexture(std::string textureFileName) {
     }
 }
 
-/*
- * Register an Animation asset to permit access from Animators and SpriteRenderers
- */
-void RenderingSystem::registerAnimation(std::string animationName, std::shared_ptr<Animation> animation) {
+/// <summary>
+/// <para>Registers the animation.
+/// There are two valid methods of passing parameters to the animation variable:</para>
+/// <para>1. Pass in a std::shared_ptr for Animation. (variable will be preserved in external pointer)</para>
+/// <para>2. Pass in a new Animation(...). (variable will be deleted when registerAnimation leaves scope)</para>
+/// </summary>
+/// <param name="animationName">Name of the animation.</param>
+/// <param name="animation">The animation.</param>
+void RenderingSystem::registerAnimation(const std::string &animationName, Animation* const animation) {
+
+    // Shared pointer to catch either another shared pointer or a new pointer
+    std::shared_ptr<Animation> ptr(animation);
 
     // Null pointer check
     if (!animation) {
@@ -57,16 +71,20 @@ void RenderingSystem::registerAnimation(std::string animationName, std::shared_p
     }
 
     // Store the animation under the given name
-    animationMap[animationName] = *animation;
+    animationMap[animationName] = *ptr;
 
-    registerTexture(animation->textureFileName);
+    registerTexture(ptr->textureFileName);
 }
-            
-/*
- * 1. Increments any and all animations by 1 frame.
- * 2. Sorts all current sprites based on their draw layer and priority.
- * 3. Iterates through each sprite from back to front, drawing them.
- */
+
+/// <summary>
+/// <para>Updates all rendered assets by following the sequence below.</para>
+/// <para>1. Increments any and all animations by 1 frame.</para>
+/// <para>2. Sorts all current sprites based on their draw layer and priority.</para>
+/// <para>3. Iterates through each sprite from back to front, drawing them.</para>
+/// </summary>
+/// <param name="es">Entity Manager reference for iterating through entities.</param>
+/// <param name="events">Event Manager reference for emitting events.</param>
+/// <param name="dt">The approximate amount of time that has passed since the last update</param>
 void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) {
 
     // Error checking for window validity
@@ -76,65 +94,106 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
     }
     
     // Determine the next image to be drawn to the screen for each sprite
-    es.each<SpriteRenderer, Animator>([&](ex::Entity &entity, SpriteRenderer &renderer, Animator &animator) {
-        // Save the current Animation
-        Animation anim = animationMap[animator.animName];
+    es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
 
-        // How much progress have we made towards iterating frames?
-        anim.animationProgress += dt * anim.animationSpeed;
+        // Acquire each std::string-RenderableSprite pair in the renderer
+        for (auto name_renderable : renderer.sprites) {
 
-        // Move the current frame appropriately and reset the progress
-        if (anim.animationSpeed < 0 && anim.animationProgress < -1) {
-            animator.frameId += (int)anim.animationProgress;
-            anim.animationProgress += (int)anim.animationProgress;
+            // Save the current Animation
+            Animation anim = animationMap[name_renderable.second->animName];
+
+            // How much progress have we made towards iterating frames?
+            anim.animationProgress += dt * anim.animationSpeed;
+
+            // Move the current frame appropriately and reset the progress
+            if (anim.animationSpeed < 0 && anim.animationProgress < -1) {
+                name_renderable.second->frameId += (int)anim.animationProgress;
+                anim.animationProgress += (int)anim.animationProgress;
+            }
+            else if (anim.animationSpeed > 0 && anim.animationProgress > 1) {
+                name_renderable.second->frameId += (int)anim.animationProgress;
+                anim.animationProgress -= (int)anim.animationProgress;
+            }
+
+            // If looping, then modulate the result within the available frames
+            if (anim.isLooping) {
+                name_renderable.second->frameId %= anim.frames.size();
+            }
+            else { //else, clamp the result between the two extreme ends of the frame sequence
+                cmn::clamp<int>(name_renderable.second->frameId, 0, (int)anim.frames.size() - 1);
+            }
+
+            // Update the map value with the altered animation data
+            animationMap[name_renderable.second->animName] = anim;
+
+            // Set the renderer's sprite to the IntRect in the animation's frames vector using the frame ID
+            std::shared_ptr<sf::Sprite> sprite(name_renderable.second->sprite);
+            if (sprite) {
+                sprite->setTextureRect(anim.frames[name_renderable.second->frameId]);
+            }
         }
-        else if (anim.animationSpeed > 0 && anim.animationProgress > 1) {
-            animator.frameId += (int)anim.animationProgress;
-            anim.animationProgress -= (int)anim.animationProgress;
-        }
-
-        // If looping, then modulate the result within the available frames
-        if (anim.isLooping) {
-            animator.frameId %= anim.frames.size();
-        }
-        else { //else, clamp the result between the two extreme ends of the frame sequence
-            cmn::clamp<int>(animator.frameId, 0, (int)anim.frames.size()-1);
-        }
-
-        // Update the map value with the altered animation data
-        animationMap[animator.animName] = anim;
-
-        // Set the renderer's sprite to the IntRect in the animation's frames vector using the frame ID
-        renderer.sprite.setTextureRect(anim.frames[animator.frameId]);
     });
 
     // Generate the sorted heap
-    es.each<SpriteRenderer>([&](ex::Entity &entity, SpriteRenderer &renderer) {
-        // Add the renderer to the spriteHeap
-        spriteHeap.push_back(renderer);
-        push_heap(spriteHeap.begin(), spriteHeap.end());
-        ex::ComponentHandle<Transform> transform = entity.component<Transform>();
-        renderer.sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+    es.each<Renderer>([this](ex::Entity &entity, Renderer &renderer) {
+        cout << "Adding to heap from an entity's renderer" << endl;
 
-        // If the exact address of this texture is not the same as the one on record, reacquire it
-        if (renderer.sprite.getTexture() != &textureMap[renderer.textureFileName]) {
-            cout << "Note: Re-applying texture to sprite" << endl;
-            renderer.sprite.setTexture(textureMap[renderer.textureFileName]);
+        for (auto name_renderable : renderer.sprites) {
+            renderableHeap.push(*name_renderable.second);
+            std::shared_ptr<sf::Sprite> sprite(name_renderable.second->sprite);
+
+            // Acquire the transform of the entity
+            ex::ComponentHandle<Transform> transform = entity.component<Transform>();
+
+            // Ensure that the sprite is positioned properly
+            if (transform && sprite) {
+                sprite->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            }
+
+            // If the exact address of this texture is not the same as the one on record, reacquire it
+            if (sprite->getTexture() != &textureMap[name_renderable.second->textureFileName]) {
+                cout << "Note: Re-applying texture to sprite" << endl;
+                sprite->setTexture(textureMap[name_renderable.second->textureFileName]);
+            }
+        }
+
+        for (auto name_renderable : renderer.rectangles) {
+            renderableHeap.push(*name_renderable.second);
+            std::shared_ptr<sf::Shape> shape(name_renderable.second->rectangle);
+
+            // Acquire the transform of the entity
+            ex::ComponentHandle<Transform> transform = entity.component<Transform>();
+
+            // Ensure that the sprite is positioned properly
+            if (transform && shape) {
+                shape->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            }
+        }
+
+        for (auto name_renderable : renderer.circles) {
+            renderableHeap.push(*name_renderable.second);
+            std::shared_ptr<sf::Shape> shape(name_renderable.second->circle);
+
+            // Acquire the transform of the entity
+            ex::ComponentHandle<Transform> transform = entity.component<Transform>();
+
+            // Ensure that the sprite is positioned properly
+            if (transform && shape) {
+                shape->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            }
+        }
+
+        for (auto name_renderable : renderer.texts) {
+            renderableHeap.push(*name_renderable.second);
         }
     });
 
-    // Pop every sprite off the heap, drawing them as you go
-    while (!spriteHeap.empty()) {
-        SpriteRenderer renderer;
-        renderer = spriteHeap.front();
-        renderer.sprite.setTexture(textureMap[renderer.textureFileName]);
-        renderWindow->draw(renderer.sprite);
-        pop_heap(spriteHeap.begin(), spriteHeap.end());
-        spriteHeap.pop_back();
-    }
 
-    es.each<TextRenderer>([&](ex::Entity &entity, TextRenderer &renderer) {
-        renderWindow->draw(renderer.text);
-    });
+    // Pop every sprite off the heap, drawing them as you go
+    std::shared_ptr<Renderable> renderable = nullptr;
+    while (!renderableHeap.empty()) {
+        renderWindow->draw(*renderableHeap.top().drawPtr);
+        renderableHeap.pop();
+    }
 }
 

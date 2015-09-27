@@ -213,41 +213,18 @@ namespace Raven {
 
 #pragma region Rendering
 
-    struct Renderer : public ex::Component<Renderer> {
-
-    };
-
-    struct TextRenderer : public Renderer {
-
-        TextRenderer() {
-            font = sf::Font();
-            text = sf::Text("Hello World", font);
-        }
-        
-        sf::Font font;
-
-        sf::Text text;
-    };
-
     /*
-     * A component that permits the rendering of a sprite for a given entity
+     * A wrapper class around drawable assets to allow for sorting.
+     * Sorting is based on layer first, priority second.
+     * A low priority means it will be drawn first, i.e. below other objects
      */
-    struct SpriteRenderer : public Renderer {
+    struct Renderable {
 
-        // Default constructor. SpriteRenderer::sprite left uninitialized
-        SpriteRenderer(std::string file = "", 
-            cmn::ERenderingLayer layer = cmn::ERenderingLayer::NO_LAYER, 
-            int priority = 0) : textureFileName(file), renderLayer(layer), 
-            renderPriority(priority) {
-        
-            sprite.setTextureRect(sf::IntRect(0, 0, (int)cmn::STD_UNITX, (int)cmn::STD_UNITY));
-        }
+        Renderable(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : renderLayer(renderLayer), renderPriority(renderPriority), drawPtr(nullptr) {}
 
-        // The source textures for the sprite
-        std::string textureFileName;
-
-        // The current window into the texture being displayed to the screen
-        sf::Sprite sprite;
+        // A Drawable pointer used SOLELY for generic drawing (errors occurred otherwise)
+        std::shared_ptr<sf::Drawable> drawPtr;
 
         // The rendering layer for macro-sorting of render content
         cmn::ERenderingLayer renderLayer;
@@ -255,7 +232,7 @@ namespace Raven {
         // The drawing-order priority within the rendering layer. Top-most = high priority
         int renderPriority;
 
-        bool operator<(const SpriteRenderer &other) {
+        bool operator<(const Renderable &other) {
             if (renderLayer < other.renderLayer) {
                 return true;
             }
@@ -263,14 +240,133 @@ namespace Raven {
                 if (renderPriority < other.renderPriority) {
                     return true;
                 }
-            /*  else if (renderPriority == other.renderPriority)
-             *      Behavior undefined. No guarantees for which
-             *      object will be drawn on top
-             *  }
-             */ 
+                /*  else if (renderPriority == other.renderPriority)
+                *      Behavior undefined. No guarantees for which
+                *      object will be drawn on top
+                *  }
+                */
             }
             return false;
         }
+    };
+
+    /*
+     * A sortable Text for rendering
+     */
+    struct RenderableText : public Renderable {
+
+        RenderableText(const std::string &text = "", const sf::Vector2f &position = sf::Vector2f(),
+            const std::string &fontFile = "", const sf::Color &color = sf::Color::White,
+            cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority), font(new sf::Font()), text(new sf::Text()) {
+
+            drawPtr.reset(this->text.get());
+
+            if (!font->loadFromFile(fontFile)) {
+                cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
+                throw 1;
+            }
+
+            if (this->text) {
+                this->text->setString(text);
+                this->text->setColor(color);
+                this->text->setPosition(position);
+                this->text->setFont(*font);
+            }
+        }
+
+        // A Font used to format text
+        std::shared_ptr<sf::Font> font;
+
+        // A Text used to draw text to the window
+        std::shared_ptr<sf::Text> text;
+    };
+
+    /*
+     * A base class for containing sf::Shape objects in a sortable format
+     */
+    struct RenderableShape : public Renderable {
+
+        RenderableShape(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority) {}
+
+    };
+
+    /*
+     * A sortable Circle for rendering
+     */
+    struct RenderableCircle : public RenderableShape {
+
+        RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : RenderableShape(renderLayer, renderPriority), circle(new sf::CircleShape()) {
+        
+            drawPtr.reset(circle.get());
+        }
+
+        std::shared_ptr<sf::CircleShape> circle;
+    };
+
+    /*
+     * A sortable Rectangle for rendering
+     */
+    struct RenderableRectangle : public RenderableShape {
+
+        RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : RenderableShape(renderLayer, renderPriority), rectangle(new sf::RectangleShape()) {
+        
+            drawPtr.reset(rectangle.get());
+        }
+
+        std::shared_ptr<sf::RectangleShape> rectangle;
+    };
+
+    /*
+     * A sortable Sprite for rendering and animation
+     */
+    struct RenderableSprite : public Renderable {
+
+        RenderableSprite(const std::string &textureFileName = "",
+            const std::string &animName = "", const int frameId = 0,
+            const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
+            frameId(frameId), sprite(new sf::Sprite()) {
+        
+            drawPtr.reset(sprite.get());
+        }
+
+        // The source texture file for the current sprite(sheet)
+        std::string textureFileName;
+
+        // The name of the animation in use. Empty string ("") indicates no animation necessary
+        std::string animName;
+
+        // The index of the frame of the animation currently being displayed. Only significant if animation is necessary
+        int frameId;
+
+        // The sprite to be sorted
+        std::shared_ptr<sf::Sprite> sprite;
+    };
+
+
+    struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
+
+        Renderer() {
+
+            //Implement details of XML serialization and deserialization here
+
+        }
+
+        // Maps a string name to a given Text to be rendered
+        std::map<std::string, std::shared_ptr<RenderableText>> texts;
+
+        // Maps a string name to a given Rectangle to be rendered
+        std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
+
+        // Maps a string name to a given Circle to be rendered
+        std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
+
+        // Maps a string name to a given Sprite to be rendered
+        std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
     };
 
     /*
@@ -325,33 +421,6 @@ namespace Raven {
 
         // The name of the texture file referenced by the animation (the spritesheet, single line)
         std::string textureFileName;
-    };
-
-    /*
-     * A component that tracks the Animations available to a given SpriteRenderer
-     * and manages switching between them.
-     */
-    struct Animator : public ex::Component<Animator> {
-
-        // Default Constructor
-        Animator() : animName(""), frameId(0) {}
-
-        // Custom Constructor, string + Animation
-        Animator(std::string animName) : frameId(0) {
-            // Error checking for animation name validity
-            if (animName == "") {
-                cerr << "Error: Attempt to register animation to empty string." << endl;
-                throw 1;
-            }
-
-            this->animName = animName;
-        }
-
-        // The name of the animation in use
-        std::string animName;
-        
-        // The index of the frame of the animation currently being displayed
-        int frameId;
     };
 
 #pragma endregion

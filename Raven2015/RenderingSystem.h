@@ -4,6 +4,7 @@
 #include "entityx\System.h"
 #include "../EventLibrary.h"
 #include <map>
+#include <queue>
 
 #define TEXTURE_MAP_T std::map<std::string, sf::Texture>
 
@@ -43,12 +44,11 @@ namespace Raven {
         void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override;
 
         // Register an Animation asset to permit access from Animators
-        void registerAnimation(std::string animationName, std::shared_ptr<Animation> animation);
+        void registerAnimation(const std::string &animationName, Animation* const animation);
 
         // Register a texture asset to permit access from Animations and SpriteRenderers
         void registerTexture(std::string textureFileName);
             
-    private:
         // A mapping between texture file names and texture assets
         TEXTURE_MAP_T textureMap;
 
@@ -58,8 +58,8 @@ namespace Raven {
         // A pointer to the window used for rendering
         sf::RenderWindow *renderWindow;
 
-        // A SpriteRenderer min-heap for determining draw order of sprites
-        std::vector<SpriteRenderer> spriteHeap;
+        // A Renderable min-heap for determining draw order of text, shapes, and sprites
+        std::priority_queue<Renderable> renderableHeap;
     };
 
 }
