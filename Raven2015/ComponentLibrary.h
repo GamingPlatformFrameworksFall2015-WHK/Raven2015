@@ -213,11 +213,11 @@ namespace Raven {
 
 #pragma region Rendering
 
-    /*
-     * A wrapper class around drawable assets to allow for sorting.
-     * Sorting is based on layer first, priority second.
-     * A low priority means it will be drawn first, i.e. below other objects
-     */
+     /// <summary>
+     /// <para>A wrapper class around drawable assets to allow for sorting.</para>
+     /// <para>Sorting is based on layer first, priority second.</para>
+     /// <para>A low priority means it will be drawn first, i.e. below other objects</para>
+     /// </summary>
     struct Renderable {
 
         Renderable(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
@@ -232,6 +232,7 @@ namespace Raven {
         // The drawing-order priority within the rendering layer. Top-most = high priority
         int renderPriority;
 
+        // Operator < to provide sorting capabilities
         bool operator<(const Renderable &other) {
             if (renderLayer < other.renderLayer) {
                 return true;
@@ -250,9 +251,9 @@ namespace Raven {
         }
     };
 
-    /*
-     * A sortable Text for rendering
-     */
+    /// <summary>
+    /// A sortable Text for rendering
+    /// </summary>
     struct RenderableText : public Renderable {
 
         RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
@@ -280,9 +281,9 @@ namespace Raven {
         sf::Text text;
     };
 
-    /*
-     * A base class for containing sf::Shape objects in a sortable format
-     */
+    /// <summary>
+    /// A base class for sortable Shapes for rendering
+    /// </summary>
     struct RenderableShape : public Renderable {
 
         RenderableShape(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
@@ -290,9 +291,9 @@ namespace Raven {
 
     };
 
-    /*
-     * A sortable Circle for rendering
-     */
+    /// <summary>
+    /// A base class for sortable Circles for rendering
+    /// </summary>
     struct RenderableCircle : public RenderableShape {
 
         RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
@@ -304,9 +305,9 @@ namespace Raven {
         sf::CircleShape circle;
     };
 
-    /*
-     * A sortable Rectangle for rendering
-     */
+    /// <summary>
+    /// A base class for sortable Rectangles for rendering
+    /// </summary>
     struct RenderableRectangle : public RenderableShape {
 
         RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
@@ -318,9 +319,9 @@ namespace Raven {
         sf::RectangleShape rectangle;
     };
 
-    /*
-     * A sortable Sprite for rendering and animation
-     */
+    /// <summary>
+    /// A base class for sortable Sprites for rendering & animation
+    /// </summary>
     struct RenderableSprite : public Renderable {
 
         RenderableSprite(const std::string &textureFileName = "",
@@ -346,6 +347,9 @@ namespace Raven {
     };
 
 
+    /// <summary>
+    /// A component used to store renderable assets. Each asset is mapped by a name
+    /// </summary>
     struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
 
         Renderer() {
@@ -367,10 +371,10 @@ namespace Raven {
         std::map<std::string, RenderableSprite> sprites;
     };
 
-    /*
-     * A helper class to contain information regarding a given Animation.
-     * A given texture (as a spritesheet) may contain several animation frames.
-     */
+     /// <summary>
+     /// <para>A helper class to contain information regarding a given Animation.</para>
+     /// <para>A given texture (as a spritesheet) may contain several animation frames.</para>
+     /// </summary>
     struct Animation {
 
         /*
@@ -425,28 +429,29 @@ namespace Raven {
 
 #pragma region Timers
 
+    /// <summary>
+    /// A wrapper for an sf::Clock and ex::TimeDelta that allows a higher level of control over the clock
+    /// </summary>
     struct Timer {
 
         // Default constructor
-        Timer(std::shared_ptr<sf::Clock> clock = nullptr,
-            ex::TimeDelta dTime = 0.0, bool isPlaying = true)
-            : clock(clock ? clock : std::shared_ptr<sf::Clock>(new sf::Clock())),
-            eTime(dTime), isPlaying(isPlaying) {}
+        Timer(sf::Clock clock = sf::Clock(), ex::TimeDelta deltaTime = 0.0, bool isPlaying = true)
+            : elapsedTime(deltaTime), isPlaying(isPlaying) {}
 
         // Return private variable
         ex::TimeDelta getETime() {
-            return eTime + clock->getElapsedTime().asSeconds();
+            return elapsedTime + clock.getElapsedTime().asSeconds();
         }
 
         // Rewind or forward timer by scanDis amount
         void scan(ex::TimeDelta scanDis) {
-            eTime += scanDis;
+            elapsedTime += scanDis;
         }
 
         // Pause timer only if timer is currently playing
         void pause() {
             if (isPlaying) {
-                eTime += clock->restart().asSeconds();
+                elapsedTime += clock.restart().asSeconds();
                 isPlaying = false;
             }
             else {
@@ -457,7 +462,7 @@ namespace Raven {
         // Play timer only if timer is currently paused
         void play() {
             if (!isPlaying) {
-                clock->restart();
+                clock.restart();
                 isPlaying = true;
             }
             else {
@@ -466,18 +471,18 @@ namespace Raven {
         }
 
         //
-        void reset() {
-            eTime = 0.0;
-            clock->restart();
+        void restart() {
+            elapsedTime = 0.0;
+            clock.restart();
         }
 
 
 
     private:
         // Clock for recording time
-        std::shared_ptr <sf::Clock> clock;
+        sf::Clock clock;
         // Record of elapsed time
-        ex::TimeDelta eTime;
+        ex::TimeDelta elapsedTime;
         // Current state of timer
         bool isPlaying;
     };
