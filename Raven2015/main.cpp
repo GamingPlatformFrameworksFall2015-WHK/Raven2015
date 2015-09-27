@@ -65,15 +65,12 @@ int main() {
     game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
     game.systems.configure();
 
+    // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
-    /*entity1.assign<Renderer>("Resources/Textures/BlueDot_vibrating.png", cmn::ERenderingLayer::Foreground, 0);
-    entity1.assign<Animator>("BlueDotIdle");*/
-
-    // This should all eventually get converted into XML, that way no "registration" is required
     ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
-    renderer->sprites["BlueDot"].reset(new RenderableSprite(
-        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+    renderer->sprites["BlueDot"] = RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0);
     game.systems.system<RenderingSystem>()->initialize(game.entities, window);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
@@ -83,11 +80,8 @@ int main() {
     ex::Entity efps = game.entities.create();
     efps.assign<Transform>();
     ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
-    efps_renderer->texts["FPS"] = std::shared_ptr<RenderableText>(
-        new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
-            "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
-
-    std::shared_ptr<sf::Text> fpsText(efps_renderer->texts["FPS"]->text);
+    efps_renderer->texts["FPS"] = RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+        "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD);
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
@@ -98,36 +92,6 @@ int main() {
         cmn::EAudioType::SOUND, cmn::EAudioOperation::PLAY, cmn::EAudioLoop::UNCHANGED);
 
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
-
-    /*
-    // Dependencies Verification + Create 2 Entities with colliders
-    ex::Entity entity1 = game.entities.create();
-    entity1.assign<Transform>();
-
-    ex::Entity entity2 = game.entities.create();
-    entity2.assign<BoxCollider>();
-
-    ex::Entity entity3 = game.entities.create();
-    entity3.assign<BoxCollider>(cmn::STD_UNITX, cmn::STD_UNITY, 80.f, 80.f);
-
-    // Graphics for now
-    sf::CircleShape shape;
-    shape.setRadius(32.f);
-    shape.setPosition(entity1.component<Transform>().get()->transform.x,
-    entity1.component<Transform>().get()->transform.y);
-    shape.setFillColor(sf::Color::Cyan);
-
-    sf::CircleShape shape2;
-    shape2.setRadius(32.f);
-    shape2.setPosition(entity2.component<Transform>().get()->transform.x,
-    entity2.component<Transform>().get()->transform.y);
-    shape2.setFillColor(sf::Color::Red);
-
-    sf::CircleShape shape3;
-    shape3.setRadius(32.f);
-    shape3.setPosition(80, 80);
-    shape3.setFillColor(sf::Color::Green);
-    */
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
@@ -147,12 +111,7 @@ int main() {
             fps++;
         }
 
-        if (fpsText) {
-            fpsText->setString(sf::String(std::to_string(fps)));
-        }
-        else {
-            cout << "PROBLEM: fpsText is null!" << endl;
-        }
+        efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
         while (window.pollEvent(event)) {
             input->setEventType(event);

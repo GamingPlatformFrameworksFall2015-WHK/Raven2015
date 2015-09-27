@@ -15,7 +15,7 @@ void RenderingSystem::initialize(entityx::EntityManager &es, sf::RenderWindow &w
 
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
         for (auto item : renderer.sprites) {
-            registerTexture(item.second->textureFileName);
+            registerTexture(item.second.textureFileName);
         }
 
     });
@@ -100,37 +100,34 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         for (auto name_renderable : renderer.sprites) {
 
             // Save the current Animation
-            Animation anim = animationMap[name_renderable.second->animName];
+            Animation anim = animationMap[name_renderable.second.animName];
 
             // How much progress have we made towards iterating frames?
             anim.animationProgress += dt * anim.animationSpeed;
 
             // Move the current frame appropriately and reset the progress
             if (anim.animationSpeed < 0 && anim.animationProgress < -1) {
-                name_renderable.second->frameId += (int)anim.animationProgress;
+                name_renderable.second.frameId += (int)anim.animationProgress;
                 anim.animationProgress += (int)anim.animationProgress;
             }
             else if (anim.animationSpeed > 0 && anim.animationProgress > 1) {
-                name_renderable.second->frameId += (int)anim.animationProgress;
+                name_renderable.second.frameId += (int)anim.animationProgress;
                 anim.animationProgress -= (int)anim.animationProgress;
             }
 
             // If looping, then modulate the result within the available frames
             if (anim.isLooping) {
-                name_renderable.second->frameId %= anim.frames.size();
+                name_renderable.second.frameId %= anim.frames.size();
             }
             else { //else, clamp the result between the two extreme ends of the frame sequence
-                cmn::clamp<int>(name_renderable.second->frameId, 0, (int)anim.frames.size() - 1);
+                cmn::clamp<int>(name_renderable.second.frameId, 0, (int)anim.frames.size() - 1);
             }
 
             // Update the map value with the altered animation data
-            animationMap[name_renderable.second->animName] = anim;
+            animationMap[name_renderable.second.animName] = anim;
 
             // Set the renderer's sprite to the IntRect in the animation's frames vector using the frame ID
-            std::shared_ptr<sf::Sprite> sprite(name_renderable.second->sprite);
-            if (sprite) {
-                sprite->setTextureRect(anim.frames[name_renderable.second->frameId]);
-            }
+            name_renderable.second.sprite.setTextureRect(anim.frames[name_renderable.second.frameId]);
         }
     });
 
@@ -139,52 +136,51 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         cout << "Adding to heap from an entity's renderer" << endl;
 
         for (auto name_renderable : renderer.sprites) {
-            renderableHeap.push(*name_renderable.second);
-            std::shared_ptr<sf::Sprite> sprite(name_renderable.second->sprite);
+            renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
             // Ensure that the sprite is positioned properly
-            if (transform && sprite) {
-                sprite->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            if (transform) {
+                name_renderable.second.sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
             }
 
             // If the exact address of this texture is not the same as the one on record, reacquire it
-            if (sprite->getTexture() != &textureMap[name_renderable.second->textureFileName]) {
+            if (name_renderable.second.sprite.getTexture() != &textureMap[name_renderable.second.textureFileName]) {
                 cout << "Note: Re-applying texture to sprite" << endl;
-                sprite->setTexture(textureMap[name_renderable.second->textureFileName]);
+                name_renderable.second.sprite.setTexture(textureMap[name_renderable.second.textureFileName]);
             }
         }
 
         for (auto name_renderable : renderer.rectangles) {
-            renderableHeap.push(*name_renderable.second);
-            std::shared_ptr<sf::Shape> shape(name_renderable.second->rectangle);
+            renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
             // Ensure that the sprite is positioned properly
-            if (transform && shape) {
-                shape->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            if (transform) {
+                name_renderable.second.rectangle.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
             }
         }
 
         for (auto name_renderable : renderer.circles) {
-            renderableHeap.push(*name_renderable.second);
-            std::shared_ptr<sf::Shape> shape(name_renderable.second->circle);
+            renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
             // Ensure that the sprite is positioned properly
-            if (transform && shape) {
-                shape->setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+            if (transform) {
+                name_renderable.second.circle.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
             }
         }
 
         for (auto name_renderable : renderer.texts) {
-            renderableHeap.push(*name_renderable.second);
+            renderableHeap.push(name_renderable.second);
         }
     });
 

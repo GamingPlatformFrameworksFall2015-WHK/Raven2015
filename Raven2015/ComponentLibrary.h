@@ -255,31 +255,29 @@ namespace Raven {
      */
     struct RenderableText : public Renderable {
 
-        RenderableText(const std::string &text = "", const sf::Vector2f &position = sf::Vector2f(),
+        RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
             const std::string &fontFile = "", const sf::Color &color = sf::Color::White,
             cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority), font(new sf::Font()), text(new sf::Text()) {
+            : Renderable(renderLayer, renderPriority) {
 
-            drawPtr.reset(this->text.get());
+            drawPtr.reset(&text);
 
-            if (!font->loadFromFile(fontFile)) {
+            if (!font.loadFromFile(fontFile)) {
                 cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
                 throw 1;
             }
 
-            if (this->text) {
-                this->text->setString(text);
-                this->text->setColor(color);
-                this->text->setPosition(position);
-                this->text->setFont(*font);
-            }
+            text.setString(textContent);
+            text.setColor(color);
+            text.setPosition(position);
+            text.setFont(font);
         }
 
         // A Font used to format text
-        std::shared_ptr<sf::Font> font;
+        sf::Font font;
 
         // A Text used to draw text to the window
-        std::shared_ptr<sf::Text> text;
+        sf::Text text;
     };
 
     /*
@@ -298,12 +296,12 @@ namespace Raven {
     struct RenderableCircle : public RenderableShape {
 
         RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority), circle(new sf::CircleShape()) {
+            : RenderableShape(renderLayer, renderPriority) {
         
-            drawPtr.reset(circle.get());
+            drawPtr.reset(&circle);
         }
 
-        std::shared_ptr<sf::CircleShape> circle;
+        sf::CircleShape circle;
     };
 
     /*
@@ -312,12 +310,12 @@ namespace Raven {
     struct RenderableRectangle : public RenderableShape {
 
         RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority), rectangle(new sf::RectangleShape()) {
+            : RenderableShape(renderLayer, renderPriority) {
         
-            drawPtr.reset(rectangle.get());
+            drawPtr.reset(&rectangle);
         }
 
-        std::shared_ptr<sf::RectangleShape> rectangle;
+        sf::RectangleShape rectangle;
     };
 
     /*
@@ -329,9 +327,9 @@ namespace Raven {
             const std::string &animName = "", const int frameId = 0,
             const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
             : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
-            frameId(frameId), sprite(new sf::Sprite()) {
+            frameId(frameId) {
         
-            drawPtr.reset(sprite.get());
+            drawPtr.reset(&sprite);
         }
 
         // The source texture file for the current sprite(sheet)
@@ -344,7 +342,7 @@ namespace Raven {
         int frameId;
 
         // The sprite to be sorted
-        std::shared_ptr<sf::Sprite> sprite;
+        sf::Sprite sprite;
     };
 
 
@@ -357,16 +355,16 @@ namespace Raven {
         }
 
         // Maps a string name to a given Text to be rendered
-        std::map<std::string, std::shared_ptr<RenderableText>> texts;
+        std::map<std::string, RenderableText> texts;
 
         // Maps a string name to a given Rectangle to be rendered
-        std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
+        std::map<std::string, RenderableRectangle> rectangles;
 
         // Maps a string name to a given Circle to be rendered
-        std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
+        std::map<std::string, RenderableCircle> circles;
 
         // Maps a string name to a given Sprite to be rendered
-        std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
+        std::map<std::string, RenderableSprite> sprites;
     };
 
     /*
