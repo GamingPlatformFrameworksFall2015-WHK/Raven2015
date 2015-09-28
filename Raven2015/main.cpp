@@ -80,8 +80,9 @@ int main() {
     ex::Entity efps = game.entities.create();
     efps.assign<Transform>();
     ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
-    efps_renderer->texts["FPS"] = RenderableText("40", sf::Vector2f(400.0f, 50.0f),
-        "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD);
+    std::string fpsStr = "FPS";
+    efps_renderer->texts.insert(fpsStr, RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+        "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();

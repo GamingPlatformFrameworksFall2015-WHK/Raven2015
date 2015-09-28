@@ -263,7 +263,7 @@ namespace Raven {
         /// <summary>
         /// A Drawable pointer used SOLELY for generic drawing (errors occurred otherwise)
         /// </summary>
-        std::shared_ptr<sf::Drawable> drawPtr;
+        sf::Drawable* drawPtr;
 
         /// <summary>
         /// The rendering layer for macro-sorting of render content
@@ -283,7 +283,7 @@ namespace Raven {
         /// </summary>
         /// <param name="other">The Renderable to compare against</param>
         /// <returns>Whether this Renderable is "greater-than" than the other</returns>
-        bool operator<(const Renderable &other) {
+        bool operator<(const Renderable &other) const {
             return *this > other;
         }
         
@@ -294,7 +294,7 @@ namespace Raven {
         /// </summary>
         /// <param name="other">The Renderable to compare against</param>
         /// <returns>Whether this Renderable is "greater" than the other</returns>
-        bool operator>(const Renderable &other) {
+        bool operator>(const Renderable &other) const {
             if (renderLayer > other.renderLayer) {
                 return true;
             }
@@ -322,7 +322,7 @@ namespace Raven {
             cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
             : Renderable(renderLayer, renderPriority) {
 
-            drawPtr.reset(&text);
+            drawPtr = &text;
 
             if (!font.loadFromFile(fontFile)) {
                 cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
@@ -364,7 +364,7 @@ namespace Raven {
         RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
             : RenderableShape(renderLayer, renderPriority) {
         
-            drawPtr.reset(&circle);
+            drawPtr = &circle;
         }
 
         sf::CircleShape circle;
@@ -378,7 +378,7 @@ namespace Raven {
         RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
             : RenderableShape(renderLayer, renderPriority) {
         
-            drawPtr.reset(&rectangle);
+            drawPtr = &rectangle;
         }
 
         sf::RectangleShape rectangle;
@@ -393,9 +393,10 @@ namespace Raven {
             const std::string &animName = "", const int frameId = 0,
             const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
             : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
-            frameId(frameId) {
+            frameId(frameId), sprite() {
         
-            drawPtr.reset(&sprite);
+            cout << "renderSprite contructor entering" << endl;
+            drawPtr = &sprite;
         }
 
         /// <summary>

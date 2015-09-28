@@ -182,7 +182,7 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         for (std::pair<std::string, RenderableText> name_renderable : renderer.texts) {
             renderableHeap.push(name_renderable.second);
         }
-    });/*
+    });
 
 
     // Pop every sprite off the heap, drawing them as you go
@@ -190,6 +190,6 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
     while (!renderableHeap.empty()) {
         renderWindow->draw(*renderableHeap.top().drawPtr);
         renderableHeap.pop();
-    }*/
+    }
 }
 
