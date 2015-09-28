@@ -130,12 +130,12 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             name_renderable.second.sprite.setTextureRect(anim.frames[name_renderable.second.frameId]);
         }
     });
-
+    
     // Generate the sorted heap
     es.each<Renderer>([this](ex::Entity &entity, Renderer &renderer) {
         cout << "Adding to heap from an entity's renderer" << endl;
 
-        for (auto name_renderable : renderer.sprites) {
+        for (std::pair<std::string, RenderableSprite> name_renderable : renderer.sprites) {
             renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
@@ -153,7 +153,7 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             }
         }
 
-        for (auto name_renderable : renderer.rectangles) {
+        for (std::pair<std::string, RenderableRectangle> name_renderable : renderer.rectangles) {
             renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
@@ -166,7 +166,7 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             }
         }
 
-        for (auto name_renderable : renderer.circles) {
+        for (std::pair<std::string, RenderableCircle> name_renderable : renderer.circles) {
             renderableHeap.push(name_renderable.second);
 
             // Acquire the transform of the entity
@@ -179,10 +179,10 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             }
         }
 
-        for (auto name_renderable : renderer.texts) {
+        for (std::pair<std::string, RenderableText> name_renderable : renderer.texts) {
             renderableHeap.push(name_renderable.second);
         }
-    });
+    });/*
 
 
     // Pop every sprite off the heap, drawing them as you go
@@ -190,6 +190,6 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
     while (!renderableHeap.empty()) {
         renderWindow->draw(*renderableHeap.top().drawPtr);
         renderableHeap.pop();
-    }
+    }*/
 }
 

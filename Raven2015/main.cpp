@@ -102,9 +102,9 @@ int main() {
         sf::Event event;
 
         // Calculate FPS based on iterations game loop has completed in 1 second
-        if (fpsTimer.getETime() >= 1.0) {
+        if (fpsTimer.getElapsedTime() >= 1.0) {
             // Update FPS display with fps value
-            fpsTimer.reset();
+            fpsTimer.restart();
             fps = 0;
         }
         else {
