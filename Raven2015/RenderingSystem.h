@@ -25,17 +25,7 @@ namespace Raven {
 
         }
 
-        // Base receive
-        template <typename T>
-        void receiveEvent(const T &aEvent) {
-            eventToggle = eventToggle ? response(aEvent) && false : true;
-        }
-
-        // Picks up CollisionEvents
         //void receive(const CollisionEvent &event);
-        
-        //Processes the collision of two Entities with Colliders.
-        //bool response(const CollisionEvent &event);
 
         // Initialize loading of textures
         void initialize(entityx::EntityManager &es, sf::RenderWindow &window);

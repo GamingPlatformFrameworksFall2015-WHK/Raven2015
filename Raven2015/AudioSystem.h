@@ -49,7 +49,7 @@ namespace Raven {
          *
          */
         explicit AudioSystem() {
-            eventToggle = true;
+
         }
 
         /*
@@ -65,19 +65,7 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override;
 
-        // Base receive
-        template <typename T>
-        void receiveEvent(const T &aEvent) {
-            eventToggle = eventToggle ? response(aEvent) && false : true;
-        }
-
-        // Picks up AudioEvents
+        // Receives and processes AudioEvents
         void receive(const AudioEvent &event);
-
-        //Processes the operations on audio resources.
-        bool response(const AudioEvent &event);
-
-    private:
-        bool eventToggle;
     };
 }

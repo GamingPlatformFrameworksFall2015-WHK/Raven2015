@@ -25,10 +25,13 @@ namespace Raven {
         enum EAudioType { NO_TYPE, SOUND, MUSIC };
 
         // An enumeration type detailing the possible operations for audio files.
-        enum EAudioOperation { NO_OPERATION, LOAD, UNLOAD, PLAY, PAUSE, STOP };
+        enum EAudioOperation { NO_AUDIO_OPERATION, AUDIO_LOAD, AUDIO_UNLOAD, AUDIO_PLAY, AUDIO_PAUSE, AUDIO_STOP };
+
+        // An enumeration type detailing the possible operations for timers.
+        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN };
 
         // An enumeration type detailing how a loop state should be assigned.
-        enum ELoop { FALSE, TRUE, UNCHANGED };
+        enum ELoop { LOOP_FALSE, LOOP_TRUE, LOOP_UNCHANGED };
 
         // A specification of the ELoop type for audio resources only
         typedef ELoop EAudioLoop;

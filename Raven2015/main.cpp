@@ -39,12 +39,15 @@ public:
         systems.add<CollisionSystem>();
         systems.add<InputSystem>();
         systems.add<RenderingSystem>();
+        systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
+        systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
+        systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
-        systems.update<MovementSystem>(dt);
-        systems.update<CollisionSystem>(dt);
+        systems.update<MovementSystem>(dt); 
+        systems.update<CollisionSystem>(dt); 
         systems.update<InputSystem>(dt);
         systems.update<RenderingSystem>(dt);
     }
@@ -58,19 +61,12 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(600, 400), "Raven Test");
     Game game(window);
 
-    // Add dependencies
-    cout << "Adding component dependencies..." << endl;
-    game.systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
-    game.systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-    game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
-    game.systems.configure();
-
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
     ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
-    renderer->sprites["BlueDot"] = RenderableSprite(
-        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0);
+    renderer->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
     game.systems.system<RenderingSystem>()->initialize(game.entities, window);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
@@ -81,16 +77,16 @@ int main() {
     efps.assign<Transform>();
     ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
     std::string fpsStr = "FPS";
-    efps_renderer->texts.insert(fpsStr, RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+    efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
         "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
     entity2.assign<SoundMaker>();
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
-        cmn::EAudioType::SOUND, cmn::EAudioOperation::LOAD, cmn::EAudioLoop::FALSE);
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
-        cmn::EAudioType::SOUND, cmn::EAudioOperation::PLAY, cmn::EAudioLoop::UNCHANGED);
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
 
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
@@ -112,7 +108,7 @@ int main() {
             fps++;
         }
 
-        efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
+        //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
         while (window.pollEvent(event)) {
             input->setEventType(event);

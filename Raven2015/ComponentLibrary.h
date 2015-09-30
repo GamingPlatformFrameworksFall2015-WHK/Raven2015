@@ -437,22 +437,22 @@ namespace Raven {
         /// <summary>
         /// Maps a string name to a given Text to be rendered        
         /// </summary>
-        std::map<std::string, RenderableText> texts;
+        std::map<std::string, std::shared_ptr<RenderableText>> texts;
 
         /// <summary>
         /// Maps a string name to a given Rectangle to be rendered        
         /// </summary>
-        std::map<std::string, RenderableRectangle> rectangles;
+        std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
 
         /// <summary>
         /// Maps a string name to a given Circle to be rendered        
         /// </summary>
-        std::map<std::string, RenderableCircle> circles;
+        std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
 
         /// <summary>
         /// Maps a string name to a given Sprite to be rendered        
         /// </summary>
-        std::map<std::string, RenderableSprite> sprites;
+        std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
     };
 
      /// <summary>
