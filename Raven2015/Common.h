@@ -7,9 +7,11 @@
 #define FPS_60_TICK_TIME 0.0166666666666f
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
+#define NO_ACTION_STR "NO ACTION"
 
 #include <iostream>
 #include "entityx\config.h"
+#include "tinyxml2.h"
 
 using std::cout;
 using std::cerr;

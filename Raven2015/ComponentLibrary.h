@@ -20,11 +20,59 @@
 #include <map>                          // For std::map
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For entityx::Component
-#include "Common.h"                     // For EAudioType
+#include "EntityLibrary.h"              // For Entity
+#include "Common.h"                     // For etc.
 
 namespace Raven {
 
 #pragma region Physics
+    
+    /// <summary>
+    /// <para>A description of a given collision layer. Entities may exist within a layer and yet still not</para>
+    /// <para>be collideable within it. Combining an Entity with a CollisionLayer will tell you what types</para>
+    /// <para>of Entities that Entity can collide with while in that layer.</para>
+    /// </summary>
+    struct CollisionLayer {
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollisionLayer"/> struct.
+        /// </summary>
+        /// <param name="isSolid">if set to <c>true</c> [is solid].</param>
+        /// <param name="isTrigger">if set to <c>true</c> [is trigger].</param>
+        /// <param name="collideable">A single collideable Entity, if collision is restricted</param>
+        CollisionLayer(bool isSolid, bool isTrigger, Entity *collideableEntity = nullptr, 
+            ex::BaseComponent *collideableComponent = nullptr)
+            : isSolid(isSolid), isTrigger(isTrigger) {
+        
+            // Need to double-check that this doesn't delete memory unintentionally
+            if (collideableEntity) {
+                collideableEntities.insert(std::shared_ptr<Entity>(collideableEntity));
+            }
+            if (collideableComponent) {
+                collideableComponents.insert(std::shared_ptr<ex::BaseComponent>(collideableComponent));
+            }
+        }
+        
+        /// <summary>
+        /// Determines whether objects in this layer should push each other out of their colliders
+        /// </summary>
+        bool isSolid;
+        
+        /// <summary>
+        /// Determines whether an event should be emitted as a result of collisions on this layer
+        /// </summary>
+        bool isTrigger;
+        
+        /// <summary>
+        /// The set of Entities that can be collided with on this layer
+        /// </summary>
+        std::set<std::shared_ptr<Entity>> collideableEntities;
+        
+        /// <summary>
+        /// The set of components whose owners can be collided with on this layer
+        /// </summary>
+        std::set<std::shared_ptr<ex::BaseComponent>> collideableComponents;
+    };
 
     /*
      * A component enabling a passive physical state. Required for placement.
@@ -682,5 +730,30 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region Pawn
+    
+    /// <summary>
+    /// A class designed to "listen" for specific actions and provide a response for the entity
+    /// </summary>
+    struct Pawn : ex::Component<Pawn> {
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Pawn"/> struct.
+        /// </summary>
+        Pawn() : playerId(-1) {}
+        
+        /// <summary>
+        /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
+        /// </summary>
+        /// <remarks>Will need to replace std::string if the format of actions ever changes</remarks>
+        std::map<std::string, void(*)(ex::Entity &entity)> actionMap;
+        
+        /// <summary>
+        /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
+        /// </summary>
+        int playerId;
+    };
+
+#pragma endregion
 
 }
