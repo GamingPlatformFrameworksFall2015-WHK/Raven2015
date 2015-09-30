@@ -28,7 +28,7 @@ namespace Raven {
         enum EAudioOperation { NO_AUDIO_OPERATION, AUDIO_LOAD, AUDIO_UNLOAD, AUDIO_PLAY, AUDIO_PAUSE, AUDIO_STOP };
 
         // An enumeration type detailing the possible operations for timers.
-        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN };
+        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN, TIMER_REMOVE, TIMER_ADD };
 
         // An enumeration type detailing how a loop state should be assigned.
         enum ELoop { LOOP_FALSE, LOOP_TRUE, LOOP_UNCHANGED };
