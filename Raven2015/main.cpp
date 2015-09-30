@@ -27,6 +27,7 @@
 #include "CollisionSystem.h"
 #include "InputSystem.h"
 #include "RenderingSystem.h"
+#include "GUISystem.h"
 #include "entityx/deps/Dependencies.h"
 
 using namespace Raven;
@@ -38,7 +39,8 @@ public:
         systems.add<AudioSystem>();
         systems.add<CollisionSystem>();
         systems.add<InputSystem>();
-        systems.add<RenderingSystem>();
+        systems.add<GUISystem>(std::shared_ptr<sf::RenderWindow>(&target));
+        systems.add<RenderingSystem>(std::shared_ptr<sf::RenderWindow>(&target)); // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
@@ -57,9 +59,9 @@ int main() {
     std::srand((unsigned int)std::time(nullptr));
 
     // Create game window
-    sf::RenderWindow window(sf::VideoMode(600, 400), "Viewport");
+    std::shared_ptr<sf::RenderWindow> window(new sf::RenderWindow(sf::VideoMode(600, 400), "Viewport"));
 
-    Game game(window);
+    Game game(*window);
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
@@ -67,7 +69,7 @@ int main() {
     ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
     renderer->sprites["BlueDot"].reset(new RenderableSprite(
         "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
-    game.systems.system<RenderingSystem>()->initialize(game.entities, window);
+    game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
@@ -94,7 +96,7 @@ int main() {
     sf::Clock mainClock;
     Timer fpsTimer;
     int fps = 0;
-    while (window.isOpen()) {
+    while (window->isOpen()) {
 
         sf::Event event;
 
@@ -110,11 +112,11 @@ int main() {
 
         //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
-        while (window.pollEvent(event)) {
+        while (window->pollEvent(event)) {
             input->setEventType(event);
             switch (event.type) {
             case sf::Event::Closed:
-                window.close();
+                window->close();
                 break;
             case sf::Event::KeyPressed: {
                 int speed = 10;
@@ -131,7 +133,7 @@ int main() {
                     entity1.component<Transform>().get()->transform.y -= speed;
                 }
                 else if (input->getAction(event.key.code) == "exit") {
-                    window.close();
+                    window->close();
                 }
                 break;
             }
@@ -148,10 +150,10 @@ int main() {
         * Per iteration, clear the window, record delta time, update systems,
         * and redisplay.
         */
-        window.clear();
+        window->clear();
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
-        window.display();
+        window->display();
     }
 
 

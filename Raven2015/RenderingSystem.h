@@ -16,7 +16,7 @@ namespace Raven {
         public ex::Receiver<RenderingSystem> {
     public:
         // Perform initializations
-        explicit RenderingSystem() {
+        explicit RenderingSystem(std::shared_ptr<sf::RenderWindow> window) : renderWindow(window) {
 
         }
 
@@ -28,7 +28,7 @@ namespace Raven {
         //void receive(const CollisionEvent &event);
 
         // Initialize loading of textures
-        void initialize(entityx::EntityManager &es, sf::RenderWindow &window);
+        void initialize(entityx::EntityManager &es);
 
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override;
@@ -46,7 +46,7 @@ namespace Raven {
         ANIMATION_MAP_T animationMap;
 
         // A pointer to the window used for rendering
-        sf::RenderWindow *renderWindow;
+        std::shared_ptr<sf::RenderWindow> renderWindow;
 
         // A Renderable min-heap for determining draw order of text, shapes, and sprites
         std::priority_queue<Renderable> renderableHeap;

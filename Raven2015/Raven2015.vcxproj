@@ -197,6 +197,7 @@
     <ClInclude Include="entityx\System.h" />
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
+    <ClInclude Include="GUISystem.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MovementSystem.h" />
     <ClInclude Include="RenderingSystem.h" />

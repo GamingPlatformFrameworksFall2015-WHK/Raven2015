@@ -18,7 +18,7 @@
 namespace Raven {
 
     class TimerSystem : public ex::System<TimerSystem>, public ex::Receiver<TimerEvent> {
-        
+    public:
         explicit TimerSystem() {
 
         }
