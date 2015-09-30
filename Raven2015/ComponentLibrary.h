@@ -427,16 +427,21 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    struct BeginPlayBehavior : ex::Component<BeginPlayBehavior> {
+    struct CoreBehavior : ex::Component<CoreBehavior> {
+
+        CoreBehavior() {}
+
+        void(*awake)();
 
         void(*beginPlay)();
 
-    };
+        void(*onCollisionEnter)(ex::Entity &other);
 
-    struct UpdateBehavior : ex::Component<UpdateBehavior> {
+        void(*onCollisionExit)(ex::Entity &other);
 
-        void(*update)(ex::TimeDelta dt);
+        void(*preUpdate)();
 
+        void(*postUpdate)();
     };
 
 #pragma endregion
