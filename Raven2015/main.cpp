@@ -41,7 +41,6 @@ public:
         systems.add<RenderingSystem>();
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-        systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
         systems.configure();
     }
 
@@ -58,7 +57,8 @@ int main() {
     std::srand((unsigned int)std::time(nullptr));
 
     // Create game window
-    sf::RenderWindow window(sf::VideoMode(600, 400), "Raven Test");
+    sf::RenderWindow window(sf::VideoMode(600, 400), "Viewport");
+
     Game game(window);
 
     // This should all eventually get converted into XML, that way no "registration" is required
