@@ -9,9 +9,7 @@ using namespace Raven;
 /// </summary>
 /// <param name="es">The es.</param>
 /// <param name="window">The window.</param>
-void RenderingSystem::initialize(entityx::EntityManager &es, sf::RenderWindow &window) {
-
-    renderWindow = &window;
+void RenderingSystem::initialize(entityx::EntityManager &es) {
 
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
         for (auto item : renderer.sprites) {
