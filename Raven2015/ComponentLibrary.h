@@ -68,11 +68,13 @@ namespace Raven {
             acceleration.x = accelerationX;
             acceleration.y = accelerationY;
         }
-
-        /*
-         * Custom constructor. Requires velocity and acceleration as sf::Vector2f
-         * objects with an optional radialVelocity.
-         */
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Rigidbody"/> struct.
+        /// </summary>
+        /// <param name="velocity">The velocity.</param>
+        /// <param name="acceleration">The acceleration.</param>
+        /// <param name="radialVelocity">The radial velocity. (Optional)</param>
         Rigidbody(const sf::Vector2f &velocity, const sf::Vector2f &acceleration,
             const float radialVelocity = 0.0f) : velocity(velocity),
             acceleration(acceleration), radialVelocity(radialVelocity) {}
@@ -86,40 +88,45 @@ namespace Raven {
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
     };
-
-    /*
-     * An abstract component used to identify collision areas
-     * The originOffset's x and y values are relative to its Transform.
-     */
+    
+    /// <summary>
+    /// <para>An abstract component used to identify collision areas.</para>
+    /// <para>The originOffset's x and y values are relative to its Transform.</para>
+    /// </summary>
     struct Collider : public ex::Component<Collider> {
-
-        // Default constructor
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Collider"/> struct.
+        /// </summary>
         Collider() {}
-
-        // Abstract deconstructor
+                
+        /// <summary>
+        /// Abstract definition for virtual destructor to finalize an instance of 
+        /// the abstract <see cref="Collider" /> class.
+        /// </summary>
         virtual ~Collider() = 0;
 
         // The x-y coordinate of the collider's center relative to its transform.
         sf::Vector2f originOffset;
     };
-
-    // Empty implementation of pure abstract destructor
+        
+    /// <summary>
+    /// Inline empty implementation of <see cref="Collider"/>'s pure virtual deconstructor
+    /// </summary>
     inline Collider::~Collider() {}
-
-    /*
-     * A Collider with a box-shaped collision area
-     */
+    
+    /// <summary>
+    /// A Collider with a box-shaped collision area
+    /// </summary>
     struct BoxCollider : Collider {
 
-        /*
-         * Default constructor
-         *
-         * Parameters:
-         * 1. width: desired width. Defaults to Common::STD_UNITX
-         * 2. height: desired height. Defaults to Common::STD_UNITY
-         * 3. x: x-axis relative offset from Transform's transform
-         * 4. y: y-axis relative offset from Transform's transform
-         */
+         /// <summary>
+         /// Initializes a new instance of the <see cref="BoxCollider"/> struct.
+         /// </summary>
+         /// <param name="width">The width. Defaults to Common::STD_UNITX</param>
+         /// <param name="height">The height. Defaults to Common::STD_UNITY</param>
+         /// <param name="x">The x coordinate.</param>
+         /// <param name="y">The y coordinate.</param>
         BoxCollider(const float width = cmn::STD_UNITX,
             const float height = cmn::STD_UNITY,
             const float x = 0.0f, const float y = 0.0f)
@@ -128,31 +135,48 @@ namespace Raven {
             originOffset.x = x;
             originOffset.y = y;
         }
-
-        // Custom constructor (scales)
+        
+        /// <summary>
+        /// Initializes a new scaled instance of the <see cref="BoxCollider"/> struct.
+        /// </summary>
+        /// <param name="scale">The scale.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
         BoxCollider(const float scale, const float x = 0.0f,
             const float y = 0.0f)
             : BoxCollider(cmn::STD_UNITX, cmn::STD_UNITY, x, y) {
             width *= scale;
             height *= scale;
         }
-
-        // Deconstructor
+        
+        /// <summary>
+        /// Finalizes an instance of the <see cref="BoxCollider"/> class.
+        /// </summary>
         virtual ~BoxCollider() override {}
-
-        // The range of the x-axis of the collider. Origin in the middle.
+        
+        /// <summary>
+        /// The range of the x-axis of the collider. Origin in the middle.
+        /// </summary>
         float width;
-
-        // The range of the y-axis of the collider. Origin in the middle.
+        
+        /// <summary>
+        /// The range of the y-axis of the collider. Origin in the middle.
+        /// </summary>
         float height;
     };
-
-    /*
-     * A Collider with a circle-shaped collision area.
-     */
+    
+    /// <summary>
+    /// A Collider with a circle-shaped collision area.
+    /// </summary>
     struct CircleCollider : Collider {
-
-        // Default constructor. Defaults radius to 1/2 the standard unit in Common
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CircleCollider"/> struct.
+        /// </summary>
+        /// <remarks>Defaults radius to 1/2 the standard unit in Common</remarks>
+        /// <param name="radius">The radius</param>
+        /// <param name="x">The x coordinate</param>
+        /// <param name="y">The y coordinate</param>
         CircleCollider(const float radius = 0.5*(cmn::STD_UNITX),
             const float x = 0.0f, const float y = 0.0f)
             : radius(radius) {
@@ -160,11 +184,15 @@ namespace Raven {
             originOffset.x = x;
             originOffset.y = y;
         }
-
-        // Deconstructor
+        
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircleCollider"/> class.
+        /// </summary>
         virtual ~CircleCollider() override {}
-
-        // The radius of the circular collision area
+        
+        /// <summary>
+        /// The radius of the circular collision area
+        /// </summary>
         float radius;
     };
 
@@ -172,40 +200,49 @@ namespace Raven {
 
 #pragma region Audio
 
+    /// <summary>
+    /// <para>A component that acts as a base class for audio-storage data</para>
+    /// </summary>
     struct AudioMaker : public ex::Component<AudioMaker> {
 
     };
 
-    /*
-     * A component that stores the names of tracks for sf::Sound.
-     * sf::Sound is optimized for small audio tracks (a few seconds).
-     *
-     * TODO: Restrict types playable with these filenames to sf::Sound objects.
-     */
+    /// <summary>
+    /// <para>A component that stores the names of tracks for sf::Sound.</para>
+    /// <para>sf::Sound is optimized for small audio tracks (a few seconds).</para>
+    /// </summary>
     struct SoundMaker : public AudioMaker {
 
-        // Default constructor
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         SoundMaker()  {}
 
-        // A mapping between sound file names and the buffers for their storage
+        /// <summary>
+        /// A mapping between sound file names and the buffers for their storage
+        /// </summary>
         SOUNDMAP_T soundMap;
 
-        // An object for performing sound operations on a buffer.
+        /// <summary>
+        /// An object for performing sound operations on a buffer.
+        /// </summary>
         sf::Sound sound;
     };
 
-    /*
-     * A component that stores the names of tracks for sf::Music.
-     * sf::Music is optimized for large audio tracks (~30 seconds+).
-     *
-     * TODO: Restrict types playable with these filenames to sf::Music objects.
-     */
+    /// <summary>
+    /// <para>A component that stores the names of tracks for sf::Music.</para>
+    /// <para>sf::Music is optimized for large audio tracks (~30 seconds+).</para>
+    /// </summary>
     struct MusicMaker : public AudioMaker {
 
-        // Default constructor
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         MusicMaker() {}
 
-        // A mapping between music file names and their stream storage objects
+        /// <summary>
+        /// A mapping between music file names and their stream storage objects
+        /// </summary>
         MUSICMAP_T musicMap;
     };
 
@@ -213,79 +250,228 @@ namespace Raven {
 
 #pragma region Rendering
 
-    struct Renderer : public ex::Component<Renderer> {
+     /// <summary>
+     /// <para>A wrapper class around drawable assets to allow for sorting.</para>
+     /// <para>Sorting is based on layer first, priority second.</para>
+     /// <para>A low priority means it will be drawn first, i.e. below other objects</para>
+     /// </summary>
+    struct Renderable {
 
-    };
+        Renderable(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : renderLayer(renderLayer), renderPriority(renderPriority), drawPtr(nullptr) {}
 
-    struct TextRenderer : public Renderer {
+        /// <summary>
+        /// A Drawable pointer used SOLELY for generic drawing (errors occurred otherwise)
+        /// </summary>
+        sf::Drawable* drawPtr;
 
-        TextRenderer() {
-            font = sf::Font();
-            text = sf::Text("Hello World", font);
-        }
-        
-        sf::Font font;
-
-        sf::Text text;
-    };
-
-    /*
-     * A component that permits the rendering of a sprite for a given entity
-     */
-    struct SpriteRenderer : public Renderer {
-
-        // Default constructor. SpriteRenderer::sprite left uninitialized
-        SpriteRenderer(std::string file = "", 
-            cmn::ERenderingLayer layer = cmn::ERenderingLayer::NO_LAYER, 
-            int priority = 0) : textureFileName(file), renderLayer(layer), 
-            renderPriority(priority) {
-        
-            sprite.setTextureRect(sf::IntRect(0, 0, (int)cmn::STD_UNITX, (int)cmn::STD_UNITY));
-        }
-
-        // The source textures for the sprite
-        std::string textureFileName;
-
-        // The current window into the texture being displayed to the screen
-        sf::Sprite sprite;
-
-        // The rendering layer for macro-sorting of render content
+        /// <summary>
+        /// The rendering layer for macro-sorting of render content
+        /// </summary>
         cmn::ERenderingLayer renderLayer;
 
-        // The drawing-order priority within the rendering layer. Top-most = high priority
+
+        /// <summary>
+        /// The drawing-order priority within the rendering layer. Top-most = high priority
+        /// </summary>
         int renderPriority;
 
-        bool operator<(const SpriteRenderer &other) {
-            if (renderLayer < other.renderLayer) {
+        /// <summary>
+        /// <para>Assuming usage of priority queue with fixed max-heap functionality</para>
+        /// <para>Need to have a 'less-than' operator that places higher priorities at minimum values</para>
+        /// <para>Therefore, it simply references the 'greater-than' operator to achieve the desired inversion</para>
+        /// </summary>
+        /// <param name="other">The Renderable to compare against</param>
+        /// <returns>Whether this Renderable is "greater-than" than the other</returns>
+        bool operator<(const Renderable &other) const {
+            return *this > other;
+        }
+        
+        /// <summary>
+        /// <para>Helps to sort Renderables based on layer and priority.</para>
+        /// <para>Higher priorities are given minimal values b/c
+        /// priority queues pop off items max-first</para>
+        /// </summary>
+        /// <param name="other">The Renderable to compare against</param>
+        /// <returns>Whether this Renderable is "greater" than the other</returns>
+        bool operator>(const Renderable &other) const {
+            if (renderLayer > other.renderLayer) {
                 return true;
             }
             else if (renderLayer == other.renderLayer) {
-                if (renderPriority < other.renderPriority) {
+                if (renderPriority > other.renderPriority) {
                     return true;
                 }
-            /*  else if (renderPriority == other.renderPriority)
-             *      Behavior undefined. No guarantees for which
-             *      object will be drawn on top
-             *  }
-             */ 
+            /// else if (renderPriority == other.renderPriority)
+            ///     Behavior undefined. No guarantees for which
+            ///     object will be drawn on top
+            /// }
+            ///
             }
             return false;
         }
     };
 
-    /*
-     * A helper class to contain information regarding a given Animation.
-     * A given texture (as a spritesheet) may contain several animation frames.
-     */
+    /// <summary>
+    /// A sortable Text for rendering
+    /// </summary>
+    struct RenderableText : public Renderable {
+
+        RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
+            const std::string &fontFile = "", const sf::Color &color = sf::Color::White,
+            cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority) {
+
+            drawPtr = &text;
+
+            if (!font.loadFromFile(fontFile)) {
+                cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
+                throw 1;
+            }
+
+            text.setString(textContent);
+            text.setColor(color);
+            text.setPosition(position);
+            text.setFont(font);
+        }
+
+        /// <summary>
+        /// A Font used to format text
+        /// </summary>
+        sf::Font font;
+
+        /// <summary>
+        /// A Text used to draw text to the window        
+        /// </summary>
+        sf::Text text;
+    };
+
+    /// <summary>
+    /// A base class for sortable Shapes for rendering
+    /// </summary>
+    struct RenderableShape : public Renderable {
+
+        RenderableShape(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority) {}
+
+    };
+
+    /// <summary>
+    /// A base class for sortable Circles for rendering
+    /// </summary>
+    struct RenderableCircle : public RenderableShape {
+
+        RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : RenderableShape(renderLayer, renderPriority) {
+        
+            drawPtr = &circle;
+        }
+
+        sf::CircleShape circle;
+    };
+
+    /// <summary>
+    /// A base class for sortable Rectangles for rendering
+    /// </summary>
+    struct RenderableRectangle : public RenderableShape {
+
+        RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : RenderableShape(renderLayer, renderPriority) {
+        
+            drawPtr = &rectangle;
+        }
+
+        sf::RectangleShape rectangle;
+    };
+
+    /// <summary>
+    /// A base class for sortable Sprites for rendering & animation
+    /// </summary>
+    struct RenderableSprite : public Renderable {
+
+        RenderableSprite(const std::string &textureFileName = "",
+            const std::string &animName = "", const int frameId = 0,
+            const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
+            : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
+            frameId(frameId), sprite() {
+        
+            cout << "renderSprite contructor entering" << endl;
+            drawPtr = &sprite;
+        }
+
+        /// <summary>
+        /// The source texture file for the current sprite(sheet)        
+        /// </summary>
+        std::string textureFileName;
+
+        /// <summary>
+        /// The name of the animation in use. Empty string ("") indicates no animation necessary
+        /// </summary>
+        std::string animName;
+
+        /// <summary>
+        /// The index of the frame of the animation currently being displayed. Only significant if animation is necessary
+        /// </summary>
+        int frameId;
+
+        /// <summary>
+        /// The sprite to be sorted
+        /// </summary>
+        sf::Sprite sprite;
+    };
+
+
+    /// <summary>
+    /// A component used to store renderable assets. Each asset is mapped by a name
+    /// </summary>
+    struct Renderer : public ex::Component<Renderer> {
+
+        Renderer() {
+
+            //Implement details of XML serialization and deserialization here
+
+        }
+
+        //virtual ~Renderer() override {}
+
+        /// <summary>
+        /// Maps a string name to a given Text to be rendered        
+        /// </summary>
+        std::map<std::string, std::shared_ptr<RenderableText>> texts;
+
+        /// <summary>
+        /// Maps a string name to a given Rectangle to be rendered        
+        /// </summary>
+        std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
+
+        /// <summary>
+        /// Maps a string name to a given Circle to be rendered        
+        /// </summary>
+        std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
+
+        /// <summary>
+        /// Maps a string name to a given Sprite to be rendered        
+        /// </summary>
+        std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
+    };
+
+     /// <summary>
+     /// <para>A helper class to contain information regarding a given Animation.</para>
+     /// <para>A given texture (as a spritesheet) may contain several animation frames.</para>
+     /// </summary>
     struct Animation {
 
-        /*
-         * Default Constructor
-         * Initializes an animation with default values. For necessary functionality, include
-         * the textureFileName and size at minimum.
-         * Assume any given "spritesheet" AKA "animation texture" is purely a single animation
-         * with only horizontal translation between frames.
-         */
+         /// <summary>
+         /// <para>Initializes a new instance of the <see cref="Animation"/> struct.</para>
+         /// <para>Assume any given "spritesheet" AKA "animation texture" is purely a single animation
+         /// with only horizontal translation between frames.</para>
+         /// </summary>
+         /// <param name="textureFileName">Name of the texture file.</param>
+         /// <param name="size">The size.</param>
+         /// <param name="isLooping">if set to <c>true</c> [is looping].</param>
+         /// <param name="animationSpeed">The animation speed.</param>
+         /// <param name="frameWidth">Width of the frame.</param>
+         /// <param name="frameHeight">Height of the frame.</param>
         Animation(std::string textureFileName = "", int size = 0, bool isLooping = false, float animationSpeed = 1.0f,
                 int frameWidth = cmn::STD_UNITX, int frameHeight = cmn::STD_UNITY)
                 : textureFileName(textureFileName), size(size), isLooping(isLooping), animationSpeed(animationSpeed),
@@ -302,84 +488,87 @@ namespace Raven {
             }
         }
 
-        // The sections of the texture the animation draws from for each sprite
+        /// <summary>
+        /// The sections of the texture the animation draws from for each sprite        
+        /// </summary>
         std::vector<sf::IntRect> frames;
         
-        // Whether the sprite animation should stop at the end or loop back to the start
+        /// <summary>
+        /// Whether the sprite animation should stop at the end or loop back to the start        
+        /// </summary>
         bool isLooping;
 
-        // The width of each frame in the imported spritesheet texture
+        /// <summary>
+        /// The width of each frame in the imported spritesheet texture        
+        /// </summary>
         int frameWidth;
 
-        // The height of each frame in the imported spritesheet texture
+        /// <summary>
+        /// The height of each frame in the imported spritesheet texture        
+        /// </summary>
         int frameHeight;
 
-        // The number of frames in the spritesheet animation
+        /// <summary>
+        /// The number of frames in the spritesheet animation        
+        /// </summary>
         int size;
 
-        // The speed of the animation (how many ticks per 1 iteration of the animation loop?)
+        /// <summary>
+        /// The speed of the animation (how many ticks per 1 iteration of the animation loop?)        
+        /// </summary>
         double animationSpeed;
 
-        // The current progress towards reaching the animationSpeed threshold
+        /// <summary>
+        /// The current progress towards reaching the animationSpeed threshold
+        /// </summary>
         double animationProgress;
 
-        // The name of the texture file referenced by the animation (the spritesheet, single line)
+        /// <summary>
+        /// The name of the texture file referenced by the animation (the spritesheet, single line)        
+        /// </summary>
         std::string textureFileName;
-    };
-
-    /*
-     * A component that tracks the Animations available to a given SpriteRenderer
-     * and manages switching between them.
-     */
-    struct Animator : public ex::Component<Animator> {
-
-        // Default Constructor
-        Animator() : animName(""), frameId(0) {}
-
-        // Custom Constructor, string + Animation
-        Animator(std::string animName) : frameId(0) {
-            // Error checking for animation name validity
-            if (animName == "") {
-                cerr << "Error: Attempt to register animation to empty string." << endl;
-                throw 1;
-            }
-
-            this->animName = animName;
-        }
-
-        // The name of the animation in use
-        std::string animName;
-        
-        // The index of the frame of the animation currently being displayed
-        int frameId;
     };
 
 #pragma endregion
 
 #pragma region Timers
 
+    /// <summary>
+    /// A wrapper for an sf::Clock and ex::TimeDelta that allows a higher level of control over the clock
+    /// </summary>
     struct Timer {
-
-        // Default constructor
-        Timer(std::shared_ptr<sf::Clock> clock = nullptr,
-            ex::TimeDelta dTime = 0.0, bool isPlaying = true)
-            : clock(clock ? clock : std::shared_ptr<sf::Clock>(new sf::Clock())),
-            eTime(dTime), isPlaying(isPlaying) {}
-
-        // Return private variable
-        ex::TimeDelta getETime() {
-            return eTime + clock->getElapsedTime().asSeconds();
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Timer"/> struct.
+        /// </summary>
+        /// <param name="clock">The clock.</param>
+        /// <param name="deltaTime">The delta time.</param>
+        /// <param name="isPlaying">if set to <c>true</c> [is playing].</param>
+        Timer(sf::Clock clock = sf::Clock(), ex::TimeDelta deltaTime = 0.0, bool isPlaying = true)
+            : elapsedTime(deltaTime), isPlaying(isPlaying) {}
+        
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <returns>The time since the last restart operation</returns>
+        ex::TimeDelta getElapsedTime() {
+            return elapsedTime + clock.getElapsedTime().asSeconds();
         }
 
-        // Rewind or forward timer by scanDis amount
-        void scan(ex::TimeDelta scanDis) {
-            eTime += scanDis;
+        /// <summary>
+        /// Rewind or advance the timer by a given amount        
+        /// </summary>
+        /// <param name="scanDis">The distance to be scanned left or right in the timeline</param>
+        void scan(ex::TimeDelta scanDistance) {
+            elapsedTime += scanDistance;
         }
 
-        // Pause timer only if timer is currently playing
+        /// <summary>
+        /// Pause timer only if timer is currently playing        
+        /// </summary>
         void pause() {
             if (isPlaying) {
-                eTime += clock->restart().asSeconds();
+                elapsedTime += clock.restart().asSeconds();
                 isPlaying = false;
             }
             else {
@@ -387,61 +576,108 @@ namespace Raven {
             }
         }
 
-        // Play timer only if timer is currently paused
+        /// <summary>
+        /// Play timer only if timer is currently paused        
+        /// </summary>
         void play() {
             if (!isPlaying) {
-                clock->restart();
+                clock.restart();
                 isPlaying = true;
             }
             else {
                 cerr << "Timer is already playing." << endl;
             }
         }
-
-        //
-        void reset() {
-            eTime = 0.0;
-            clock->restart();
+                
+        /// <summary>
+        /// Restarts the timer, returning the time up to that point
+        /// </summary>
+        /// <returns>The accumulated time up till the point of restart</returns>
+        ex::TimeDelta restart() {
+            ex::TimeDelta time = getElapsedTime();
+            elapsedTime = 0.0;
+            clock.restart();
+            return time;
         }
 
 
 
-    private:
-        // Clock for recording time
-        std::shared_ptr <sf::Clock> clock;
-        // Record of elapsed time
-        ex::TimeDelta eTime;
-        // Current state of timer
+    private:        
+        /// <summary>
+        /// An sf::Clock to assist in recording time
+        /// </summary>
+        sf::Clock clock;
+        
+        /// <summary>
+        /// Record of elapsed time
+        /// </summary>
+        ex::TimeDelta elapsedTime;
+        
+        /// <summary>
+        /// Current state of timer
+        /// </summary>
         bool isPlaying;
     };
 
-    struct TimeTable : public ex::Component<TimeTable> {
-        // Default constructor
+    struct TimeTable : public ex::Component<TimeTable> {        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeTable"/> struct.
+        /// </summary>
         TimeTable() {}
-
-        // Maps a name to current timers
+        
+        /// <summary>
+        /// Maps a name to current timers
+        /// <remarks>Needs to be ported to a TimerSystem and keep just the names of owned timers</remarks>
+        /// </summary>
         std::map<std::string, Timer> timerMap;
     };
 
 #pragma endregion
 
+
 #pragma region Behaviors
 
-    struct CoreBehavior : ex::Component<CoreBehavior> {
+    /// <summary>
+    /// A baseline Behavior component with functionality that many entities will likely reference.
+    /// </summary>
+    struct CoreBehavior : public ex::Component<CoreBehavior> {
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoreBehavior"/> struct.
+        /// </summary>
+        CoreBehavior() : awake(nullptr), beginPlay(nullptr), onCollisionEnter(nullptr), onCollisionExit(nullptr),
+            preUpdate(nullptr), postUpdate(nullptr) {}
+        
+        /// <summary>
+        /// Called when the entity instance is loaded
+        /// </summary>
+        void(*awake)();        
 
-        CoreBehavior() {}
+        /// <summary>
+        /// Called when the game begins
+        /// </summary>
+        void(*beginPlay)();        
 
-        void(*awake)();
+        /// <summary>
+        /// Called if the entity has a Collider and has start colliding with another entity's Collider
+        /// </summary>
+        void(*onCollisionEnter)(ex::Entity &other);        
 
-        void(*beginPlay)();
+        /// <summary>
+        /// Called if the entity has a Collider and has stopped colliding with another entity's Collider
+        /// </summary>
+        void(*onCollisionExit)(ex::Entity &other);        
 
-        void(*onCollisionEnter)(ex::Entity &other);
+        /// <summary>
+        /// Called at the beginning of each frame before other System updates
+        /// </summary>
+        void(*preUpdate)(ex::TimeDelta dt);        
 
-        void(*onCollisionExit)(ex::Entity &other);
+        /// <summary>
+        /// Called at the end of each frame after other System updates
+        /// </summary>
+        void(*postUpdate)(ex::TimeDelta dt);
 
-        void(*preUpdate)();
-
-        void(*postUpdate)();
     };
 
 #pragma endregion

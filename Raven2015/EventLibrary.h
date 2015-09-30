@@ -25,8 +25,8 @@ namespace Raven {
     struct AudioEvent : public ex::Event<AudioEvent> {
 
         AudioEvent(std::string audioFileName = "", AudioMaker *maker = nullptr,
-            cmn::EAudioType type = cmn::EAudioType::NO_TYPE, cmn::EAudioOperation operation = cmn::EAudioOperation::NO_OPERATION,
-            cmn::EAudioLoop loop = cmn::EAudioLoop::FALSE) : audioFileName(audioFileName), maker(maker), type(type), operation(operation),
+            cmn::EAudioType type = cmn::EAudioType::NO_TYPE, cmn::EAudioOperation operation = cmn::EAudioOperation::NO_AUDIO_OPERATION,
+            cmn::EAudioLoop loop = cmn::EAudioLoop::LOOP_FALSE) : audioFileName(audioFileName), maker(maker), type(type), operation(operation),
             loop(loop) {}
 
         std::string audioFileName;
@@ -40,9 +40,10 @@ namespace Raven {
         cmn::EAudioLoop loop;
     };
 
-#pragma endregion
+#pragma endregion //AudioEvents
 
 #pragma region CollisionEvents
+
     /*
      * An event that stores the identities of two colliding entities.
      */
@@ -101,22 +102,6 @@ namespace Raven {
 
         ex::EventManager *events;
     };
-#pragma endregion
-
-#pragma region TimerEvents
-
-    struct TimerEvent : public ex::Event<TimerEvent> {
-
-        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr ,
-            std:: string timerName = "", cmn::ETimerOperation op = 
-            cmn::ETimerOperation::NO_OPERATION, ex::TimeDelta scanTime = 0.0) 
-            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime){}
-
-        ex::TimeDelta scanTime;
-        cmn::ETimerOperation timerOperation;
-        std::string timerName;
-        std::shared_ptr<TimeTable> timeTable;
-    };
 
 #pragma endregion
 
@@ -135,6 +120,24 @@ namespace Raven {
             : InputEvent(action) {}
     };
 
-#pragma endregion //InputEvents
+#pragma endregion
+
+#pragma region TimerEvents
+
+    struct TimerEvent : public ex::Event<TimerEvent> {
+
+        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr,
+            std::string timerName = "", cmn::ETimerOperation op =
+            cmn::ETimerOperation::NO_TIMER_OPERATION, ex::TimeDelta = 0.0)
+            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime) {}
+
+        ex::TimeDelta scanTime;
+        cmn::ETimerOperation timerOperation;
+        std::string timerName;
+        std::shared_ptr<TimeTable> timeTable;
+    };
+
+#pragma endregion
+
 
 }

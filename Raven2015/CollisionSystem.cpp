@@ -45,20 +45,9 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
     });
 }
 
-/*
-* Processes data involving the collision of two Entities with Colliders.
-*/
 void CollisionSystem::receive(const CollisionEvent &event) {
-    receiveEvent(event);
 
-}
-
-bool CollisionSystem::response(const CollisionEvent &event) {
-
-    //Right Collision code here
-    cout << "Collision occurred" << endl;
-
-    return false;
+    //cout << "Collision occurred" << endl;
 }
 
 /*
