@@ -34,13 +34,15 @@ using namespace Raven;
 
 class Game : public ex::EntityX {
 public:
-    explicit Game(sf::RenderTarget &target) {
+    explicit Game(sf::RenderTarget &target) : Game() {}
+
+    explicit Game() {
         systems.add<MovementSystem>();
         systems.add<AudioSystem>();
         systems.add<CollisionSystem>();
         systems.add<InputSystem>();
-        systems.add<GUISystem>(std::shared_ptr<sf::RenderWindow>(&target));
-        systems.add<RenderingSystem>(std::shared_ptr<sf::RenderWindow>(&target)); // Required that this comes after GUISystem
+        systems.add<GUISystem>();
+        systems.add<RenderingSystem>(systems.system<GUISystem>()->gameWindow); // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
@@ -58,10 +60,12 @@ int main() {
 
     std::srand((unsigned int)std::time(nullptr));
 
-    // Create game window
-    std::shared_ptr<sf::RenderWindow> window(new sf::RenderWindow(sf::VideoMode(600, 400), "Viewport"));
+    // Create EntityX-required game window (but won't be used)
+    sf::RenderWindow requiredWindow;
 
-    Game game(*window);
+    // Create EntityX manager object
+    Game game(requiredWindow);
+    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->gameWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
