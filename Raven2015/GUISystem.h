@@ -21,7 +21,7 @@
 
 namespace Raven {
 
-    class GUISystem : public entityx::System<GUISystem>,
+    class GUISystem : public ex::System<GUISystem>,
         public ex::Receiver<GUISystem> {
     public:
 
@@ -32,17 +32,18 @@ namespace Raven {
                     new sf::RenderWindow(sf::VideoMode(600,400),"Viewport"))),
                 editorWindow(sfg::Window::Create()) {
 
+            editorWindow->SetPosition(sf::Vector2f(50, 50));
         }
 
         // Subscribe to events
-        void configure(entityx::EventManager &event_manager) {
+        void configure(ex::EventManager &event_manager) {
 
         }
 
         //void receive(const CollisionEvent &event);
 
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
-        void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override;
+        void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
         // A pointer to the window used for the game
         std::shared_ptr<sf::RenderWindow> gameWindow;
