@@ -51,9 +51,6 @@ namespace Raven {
         // A specification of the ELayer type for Rendering assets only
         typedef ELayer ERenderingLayer;
 
-		// An enumeration type detailing the possible operations for a timer.
-		enum ETimerOperation { NO_OPERATION, PLAY, PAUSE, RESET, SCAN, ADD, REMOVE};
-
         // A standard pixel-based unit of measurement for the x-axis
         static const float STD_UNITX = 64.0f;
 

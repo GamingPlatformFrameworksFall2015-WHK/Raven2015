@@ -12,11 +12,12 @@
 */
 #pragma once
 
-#include "Common.h"
 #include "entityx\Entity.h"
 #include "ComponentLibrary.h"
 
 namespace ex = entityx;
+
+//Raven::Transform t;
 
 namespace Raven {
 
@@ -46,7 +47,7 @@ namespace Raven {
     public:
         // Default Constructor
         Actor() {
-            assign<Transform>();
+            //assign<Transform>();
         }
     };
 

@@ -11,22 +11,26 @@
  */
 #pragma once
 
-#include "../Common.h"
-#include "entityx\System.h"
-#include "../EventLibrary.h"
+#include "Common.h"
+#include "entityx/System.h"
+#include "EventLibrary.h"
 #include <map>
 #include <queue>
 #include "SFGUI/SFGUI.hpp"
-#include "SFGUI\Window.hpp"
+#include "SFGUI/Window.hpp"
 
 namespace Raven {
 
     class GUISystem : public entityx::System<GUISystem>,
         public ex::Receiver<GUISystem> {
     public:
+
+
         // Perform initializations
-        explicit GUISystem(std::shared_ptr<sf::RenderWindow> window) : gameWindow(window),
-            editorWindow(sfg::Window::Create()) {
+        explicit GUISystem(std::shared_ptr<sf::RenderWindow> window = nullptr) : 
+                gameWindow(window ? window : std::shared_ptr<sf::RenderWindow>(
+                    new sf::RenderWindow(sf::VideoMode(600,400),"Viewport"))),
+                editorWindow(sfg::Window::Create()) {
 
         }
 
