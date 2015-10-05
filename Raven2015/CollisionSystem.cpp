@@ -56,7 +56,7 @@ void CollisionSystem::receive(const CollisionEvent &event) {
 bool CollisionSystem::response(const CollisionEvent &event) {
 
     //Right Collision code here
-    cout << "Collision occurred" << endl;
+    //cout << "Collision occurred" << endl;
 
     return false;
 }
