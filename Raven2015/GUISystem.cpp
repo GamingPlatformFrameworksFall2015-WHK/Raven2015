@@ -15,7 +15,7 @@
 namespace Raven {
 
     void GUISystem::update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) {
-
+        desktop->Update((float)dt);
     }
 
 }

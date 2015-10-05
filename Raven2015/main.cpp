@@ -52,6 +52,7 @@ public:
         systems.update<MovementSystem>(dt); 
         systems.update<CollisionSystem>(dt); 
         systems.update<InputSystem>(dt);
+        systems.update<GUISystem>(dt);
         systems.update<RenderingSystem>(dt);
     }
 };
@@ -117,6 +118,11 @@ int main() {
         //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
         while (window->pollEvent(event)) {
+
+            // Allow the GUISystem to handle updates for the SFGUI elements
+            game.systems.system<GUISystem>()->desktop->HandleEvent(event);
+
+            // Handle game input using the InputSystem
             input->setEventType(event);
             switch (event.type) {
             case sf::Event::Closed:
@@ -154,10 +160,12 @@ int main() {
         * Per iteration, clear the window, record delta time, update systems,
         * and redisplay.
         */
-        window->clear();
+        //window->clear();
+        game.systems.system<GUISystem>()->clear();
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
-        window->display();
+        game.systems.system<GUISystem>()->display();
+        //window->display();
     }
 
 
