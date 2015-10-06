@@ -31,13 +31,24 @@ namespace Raven {
 
         std::string audioFileName;
 
+<<<<<<< HEAD
+        std::shared_ptr<MusicMaker> maker;
+    };
+
+    struct SoundEvent : public ex::Event<SoundEvent> {
+=======
         AudioMaker *maker;
+>>>>>>> master
 
         cmn::EAudioType type;
 
         cmn::EAudioOperation operation;
 
+<<<<<<< HEAD
+        std::shared_ptr<SoundMaker> maker;
+=======
         cmn::EAudioLoop loop;
+>>>>>>> master
     };
 
 #pragma endregion //AudioEvents
@@ -140,4 +151,27 @@ namespace Raven {
 #pragma endregion
 
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+#pragma region InputEvents
+	struct InputEvent : public ex::Event<InputEvent> {
+
+		InputEvent(std::string action = "") :
+			action(action) {}
+
+		std::string action;
+	};
+
+	struct KeyboardEvent : public InputEvent {
+		KeyboardEvent(std::string action = "")
+			: InputEvent(action) {}
+	};
+
+#pragma endregion //InputEvents
 }
+=======
+}
+>>>>>>> master
+=======
+}
+>>>>>>> master

@@ -218,10 +218,18 @@ namespace Raven {
         /// </summary>
         SoundMaker()  {}
 
+<<<<<<< HEAD
+        // A mapping between sound file names and the buffers for their storage
+<<<<<<< HEAD
+        std::map<std::string, std::shared_ptr<sf::SoundBuffer>> soundMap;
+=======
+=======
         /// <summary>
         /// A mapping between sound file names and the buffers for their storage
         /// </summary>
+>>>>>>> master
         SOUNDMAP_T soundMap;
+>>>>>>> master
 
         /// <summary>
         /// An object for performing sound operations on a buffer.
@@ -240,9 +248,16 @@ namespace Raven {
         /// </summary>
         MusicMaker() {}
 
+<<<<<<< HEAD
+        // A mapping between music file names and their stream storage objects
+<<<<<<< HEAD
+        std::map<std::string, std::shared_ptr<sf::Music>> musicMap;
+=======
+=======
         /// <summary>
         /// A mapping between music file names and their stream storage objects
         /// </summary>
+>>>>>>> master
         MUSICMAP_T musicMap;
     };
 
@@ -678,6 +693,7 @@ namespace Raven {
         /// </summary>
         void(*postUpdate)(ex::TimeDelta dt);
 
+>>>>>>> master
     };
 
 #pragma endregion

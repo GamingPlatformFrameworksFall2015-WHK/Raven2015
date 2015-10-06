@@ -40,9 +40,18 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
                 collisionMap[leftEntity].insert(rightEntity);
                 events.emit<CollisionEvent>(leftEntity, rightEntity, *collisionPoint, &events);
+				if (!fireUntilOff) {
+					events.emit<SoundLoadEvent>("Resources/Audio/Sounds/choose.ogg", leftEntity.component<SoundMaker>().get());
+					events.emit<SoundPlayEvent>("Resources/Audio/Sounds/choose.ogg", leftEntity.component<SoundMaker>().get());
+					fireUntilOff = true;
+				}
+				collided = true;
             }
         });
     });
+	if (!collided) {
+		fireUntilOff = false;
+	}
 }
 
 void CollisionSystem::receive(const CollisionEvent &event) {

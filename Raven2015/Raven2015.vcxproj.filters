@@ -78,12 +78,15 @@
     <ClCompile Include="CollisionSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+<<<<<<< HEAD
+=======
     <ClCompile Include="MovementSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="RenderingSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+>>>>>>> master
     <ClCompile Include="InputSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
@@ -143,6 +146,13 @@
     <ClInclude Include="entityx\3rdparty\simplesignal.h">
       <Filter>Header Files\entityx\3rdparty</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="InputSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+=======
     <ClInclude Include="AudioSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -160,6 +170,7 @@
     </ClInclude>
     <ClInclude Include="InputSystem.h">
       <Filter>Header Files\Systems</Filter>
+>>>>>>> master
     </ClInclude>
     <ClInclude Include="tinyxml2.h">
       <Filter>Header Files</Filter>

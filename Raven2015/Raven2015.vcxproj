@@ -76,8 +76,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+<<<<<<< HEAD
+    <IncludePath>C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+=======
     <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+>>>>>>> master
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -197,6 +202,10 @@
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
     <ClInclude Include="InputSystem.h" />
+<<<<<<< HEAD
+    <ClInclude Include="main.h" />
+=======
+>>>>>>> master
     <ClInclude Include="MovementSystem.h" />
     <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="TimerSystem.h" />
