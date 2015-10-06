@@ -24,20 +24,17 @@ namespace Raven {
         // An enumeration type detailing the types of processable audio files.
         enum EAudioType { NO_TYPE, SOUND, MUSIC };
 
-        /* An enumeration type detailing the possible operations for audio files.
-         * LOAD/UNLOAD/STOP for audio, ADD/REMOVE/SCAN for timers.
-         */
-        enum EOperation { NO_OPERATION, LOAD, UNLOAD, PLAY, PAUSE, STOP, SCAN, ADD, REMOVE };
+        // An enumeration type detailing the possible operations for audio files.
+        enum EAudioOperation { NO_AUDIO_OPERATION, AUDIO_LOAD, AUDIO_UNLOAD, AUDIO_PLAY, AUDIO_PAUSE, AUDIO_STOP };
+
+        // An enumeration type detailing the possible operations for timers.
+        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN };
 
         // An enumeration type detailing how a loop state should be assigned.
-        enum ELoop { FALSE, TRUE, UNCHANGED };
+        enum ELoop { LOOP_FALSE, LOOP_TRUE, LOOP_UNCHANGED };
 
         // A specification of the ELoop type for audio resources only
         typedef ELoop EAudioLoop;
-
-        typedef EOperation EAudioOperation;
-
-        typedef EOperation ETimerOperation;
 
         /* 
          * An enumeration type detailing a set of macro render-sorting layers.
@@ -74,6 +71,23 @@ namespace Raven {
                 toClamp = max;
             }
         }
+
+        class Serializable {
+        public:
+            // Default Null Constructor
+            Serializable() {}
+
+            // Primary enforcement of abstract class
+            virtual ~Serializable() = 0;
+
+            // Allow the ISerializable to output an XML string representation of its properties
+            std::string(*serialize)();
+
+            // Allow the ISerializable to assign new values to its properties via an XML string
+            void(*deserialize)(std::string &xml);
+        };
+
+        //static void ()
 
     };
 

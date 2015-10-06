@@ -49,6 +49,9 @@
     <Filter Include="Resource Files\Fonts">
       <UniqueIdentifier>{862a91af-6fbc-4ed4-8c05-f11a42e94375}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\XML">
+      <UniqueIdentifier>{a18dc733-2c98-4cbb-87d2-25b42a705c74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -86,6 +89,9 @@
 >>>>>>> master
     <ClCompile Include="InputSystem.cpp">
       <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +165,15 @@
     <ClInclude Include="RenderingSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="TimerSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="InputSystem.h">
       <Filter>Header Files\Systems</Filter>
 >>>>>>> master
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -29,23 +29,23 @@ void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 int InputSystem::setEventType(sf::Event event) {
 	switch (event.type) {
-		case sf::Event::KeyPressed: {
-			key = getAction(event.key.code);
-			eventTypeId = 0;
-			break;
-		}
-		case sf::Event::MouseButtonPressed: {
-			eventTypeId = 1;
-			break;
-		}
-		case sf::Event::JoystickButtonPressed: {
-			eventTypeId = 2;
-			break;
-		}
-		case sf::Event::JoystickMoved: {
-			eventTypeId = 3;
-			break;
-		}
+	case sf::Event::KeyPressed: {
+		key = getAction(event.key.code);
+		eventTypeId = 0;
+		break;
+	}
+	case sf::Event::MouseButtonPressed: {
+		eventTypeId = 1;
+		break;
+	}
+	case sf::Event::JoystickButtonPressed: {
+		eventTypeId = 2;
+		break;
+	}
+	case sf::Event::JoystickMoved: {
+		eventTypeId = 3;
+		break;
+	}
 	}
 	return 0;
 }
@@ -73,8 +73,13 @@ void InputSystem::read_file(std::string filename) {
 	std::string action, key;
 	while (file >> action) {
 		file >> key;
+<<<<<<< HEAD
 		if ("A" == key) { insert_input(sf::Keyboard::A, action);}
 		else if ("B" == key) { insert_input(sf::Keyboard::B, action);}
+=======
+		if ("A" == key) { insert_input(sf::Keyboard::A, action); }
+		else if ("B" == key) { insert_input(sf::Keyboard::B, action); }
+>>>>>>> master
 		else if ("C" == key) { insert_input(sf::Keyboard::C, action); }
 		else if ("D" == key) { insert_input(sf::Keyboard::D, action); }
 		else if ("E" == key) { insert_input(sf::Keyboard::E, action); }

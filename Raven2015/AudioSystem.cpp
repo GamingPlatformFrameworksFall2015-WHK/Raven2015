@@ -96,24 +96,20 @@ void AudioSystem::receive(const SoundCustomEvent &event) {
 >>>>>>> master
 }
 
-void AudioSystem::receive(const AudioEvent &event) {
-    receiveEvent(event);
-}
-
 /*
  * Responds to requests for operations regarding audio resources.
  */
-bool AudioSystem::response(const AudioEvent &event) {
-    cout << "entering response" << endl;
+void AudioSystem::receive(const AudioEvent &event) {
 
+    // Deal with the "Sound" case
     if (event.type == cmn::EAudioType::SOUND) {
         SoundMaker *sMaker = (SoundMaker*)event.maker;
 
         if (sMaker->soundMap.find(event.audioFileName) == sMaker->soundMap.end() &&
-            event.operation != cmn::EAudioOperation::LOAD) {
+            event.operation != cmn::EAudioOperation::AUDIO_LOAD) {
 
             cerr << std::string(ERRORSTR_AUDIO_NO_RECORD) << endl;
-            return true;
+            return;
         }
 
         //Pre-Switch Declarations
@@ -121,38 +117,34 @@ bool AudioSystem::response(const AudioEvent &event) {
 
         // Process the audio operation appropriately
         switch (event.operation) {
-        case cmn::EAudioOperation::LOAD:
-            cout << "Entering load" << endl;
+        case cmn::EAudioOperation::AUDIO_LOAD:
             buffer = new sf::SoundBuffer();
             if (!buffer->loadFromFile(event.audioFileName)) {
                 cerr << "Error: Could not load sound file." << endl;
-                return true;
+                return;
             }
             sMaker->soundMap[event.audioFileName].reset(buffer);
             sMaker->sound.setBuffer(*sMaker->soundMap[event.audioFileName]);
             break;
-        case cmn::EAudioOperation::UNLOAD:
+        case cmn::EAudioOperation::AUDIO_UNLOAD:
             sMaker->soundMap.erase(event.audioFileName);
             break;
-        case cmn::EAudioOperation::PLAY:
-            cout << "Entering play" << endl;
+        case cmn::EAudioOperation::AUDIO_PLAY:
             sMaker->sound.play();
             break;
-        case cmn::EAudioOperation::PAUSE:
+        case cmn::EAudioOperation::AUDIO_PAUSE:
             sMaker->sound.pause();
             break;
-        case cmn::EAudioOperation::STOP:
+        case cmn::EAudioOperation::AUDIO_STOP:
             sMaker->sound.stop();
             break;
         }
 
-        cout << "Processing loops" << endl;
-
         // Evaluate potential loop behavior alterations
-        if (event.loop == cmn::EAudioLoop::FALSE) {
+        if (event.loop == cmn::EAudioLoop::LOOP_FALSE) {
             sMaker->sound.setLoop(false);
         }
-        else if (event.loop == cmn::EAudioLoop::TRUE) {
+        else if (event.loop == cmn::EAudioLoop::LOOP_TRUE) {
             sMaker->sound.setLoop(true);
         }
         else {
@@ -164,43 +156,40 @@ bool AudioSystem::response(const AudioEvent &event) {
         MusicMaker *mMaker = (MusicMaker*)event.maker;
 
         if (mMaker->musicMap.find(event.audioFileName) == mMaker->musicMap.end() &&
-            event.operation != cmn::EAudioOperation::LOAD) {
+            event.operation != cmn::EAudioOperation::AUDIO_LOAD) {
 
             cerr << std::string(ERRORSTR_AUDIO_NO_RECORD) << endl;
-            return true;
+            return;
         }
 
         // Process the audio operation appropriately
         switch (event.operation) {
-        case cmn::EAudioOperation::LOAD:
+        case cmn::EAudioOperation::AUDIO_LOAD:
             mMaker->musicMap[event.audioFileName]->openFromFile(event.audioFileName);
             break;
-        case cmn::EAudioOperation::UNLOAD:
+        case cmn::EAudioOperation::AUDIO_UNLOAD:
             mMaker->musicMap.erase(event.audioFileName);
             break;
-        case cmn::EAudioOperation::PLAY:
+        case cmn::EAudioOperation::AUDIO_PLAY:
             mMaker->musicMap[event.audioFileName]->play();
             break;
-        case cmn::EAudioOperation::PAUSE:
+        case cmn::EAudioOperation::AUDIO_PAUSE:
             mMaker->musicMap[event.audioFileName]->pause();
             break;
-        case cmn::EAudioOperation::STOP:
+        case cmn::EAudioOperation::AUDIO_STOP:
             mMaker->musicMap[event.audioFileName]->stop();
             break;
         }
 
         // Evaluate potential loop behavior alterations
-        if (event.loop == cmn::EAudioLoop::FALSE) {
+        if (event.loop == cmn::EAudioLoop::LOOP_FALSE) {
             mMaker->musicMap[event.audioFileName]->setLoop(false);
         }
-        else if (event.loop == cmn::EAudioLoop::TRUE) {
+        else if (event.loop == cmn::EAudioLoop::LOOP_TRUE) {
             mMaker->musicMap[event.audioFileName]->setLoop(true);
         }
         else {
             // Do nothing, leaving it "UNCHANGED"
         }
     }
-
-    cout << "cleanly leaving response" << endl;
-    return true;
 }

@@ -1,15 +1,15 @@
-/* 
- * Classname:   Gaming Platform Frameworks
- * Project:     Raven
- * Version:     1.0
- *
- * Copyright:   The contents of this document are the property of its creators.
- *              Reproduction or usage of it without permission is prohibited.
- *
- * Owners:      Will Nations
- *              Hailee Ammons
- *              Kevin Wang
- */
+/*
+* Classname:   Gaming Platform Frameworks
+* Project:     Raven
+* Version:     1.0
+*
+* Copyright:   The contents of this document are the property of its creators.
+*              Reproduction or usage of it without permission is prohibited.
+*
+* Owners:      Will Nations
+*              Hailee Ammons
+*              Kevin Wang
+*/
 
 #pragma once
 
@@ -45,16 +45,27 @@ public:
 =======
         systems.add<InputSystem>();
         systems.add<RenderingSystem>();
+<<<<<<< HEAD
+>>>>>>> master
+=======
+        systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
+        systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
+        systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
 >>>>>>> master
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
+<<<<<<< HEAD
         systems.update<MovementSystem>(dt);
         systems.update<CollisionSystem>(dt);
 <<<<<<< HEAD
 		systems.update<InputSystem>(dt);
 =======
+=======
+        systems.update<MovementSystem>(dt); 
+        systems.update<CollisionSystem>(dt); 
+>>>>>>> master
         systems.update<InputSystem>(dt);
         systems.update<RenderingSystem>(dt);
 >>>>>>> master
@@ -63,53 +74,50 @@ public:
 
 int main() {
 
-    std::srand((unsigned int) std::time(nullptr));
+    std::srand((unsigned int)std::time(nullptr));
 
     // Create game window
-    sf::RenderWindow window(sf::VideoMode(600,400), "Raven Test");
+    sf::RenderWindow window(sf::VideoMode(600, 400), "Raven Test");
     Game game(window);
 
-    // Add dependencies
-    cout << "Adding component dependencies..." << endl;
-    game.systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
-    game.systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-    game.systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
-    game.systems.add <ex::deps::Dependency<Animator, SpriteRenderer>>();
-    game.systems.configure();
-
+    // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
+<<<<<<< HEAD
 <<<<<<< HEAD
 	entity1.assign<SoundMaker>();
 =======
     entity1.assign<SpriteRenderer>("Resources/Textures/BlueDot_vibrating.png", cmn::ERenderingLayer::Foreground, 0);
     entity1.assign<Animator>("BlueDotIdle");
+=======
+    ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
+    renderer->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+>>>>>>> master
     game.systems.system<RenderingSystem>()->initialize(game.entities, window);
-    game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle", std::shared_ptr<Animation>(
-        new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0)));
-    game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged", std::shared_ptr<Animation>(
-        new Animation("Resources/Textures/BlueDot_damaged.png", 4, true)));
+    game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
+        new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
+    game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
+        new Animation("Resources/Textures/BlueDot_damaged.png", 4, true));
 
     ex::Entity efps = game.entities.create();
     efps.assign<Transform>();
-    efps.assign<TextRenderer>();
-    ex::ComponentHandle<TextRenderer> renderer = efps.component<TextRenderer>();
-    renderer->text.setPosition(400.0f, 50.0f);
-    renderer->text.setColor(sf::Color::White);
-    renderer->font.loadFromFile("Resources/Fonts/black_jack.ttf");
-    renderer->text.setFont(renderer->font);
-    renderer->text.setString(sf::String(std::string(std::to_string(40))));
+    ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
+    std::string fpsStr = "FPS";
+    efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+        "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
     entity2.assign<SoundMaker>();
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
-        cmn::EAudioType::SOUND, cmn::EAudioOperation::LOAD, cmn::EAudioLoop::FALSE);
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
-        cmn::EAudioType::SOUND, cmn::EAudioOperation::PLAY, cmn::EAudioLoop::UNCHANGED);
+        cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
 
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
+<<<<<<< HEAD
     /*
     // Dependencies Verification + Create 2 Entities with colliders
     ex::Entity entity1 = game.entities.create();
@@ -145,6 +153,8 @@ int main() {
 	//InputSystem creating
 	InputSystem input;
 
+=======
+>>>>>>> master
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
     Timer fpsTimer;
@@ -185,16 +195,16 @@ int main() {
             entity1.component<Transform>().get()->transform.y);
 =======
         // Calculate FPS based on iterations game loop has completed in 1 second
-        if (fpsTimer.getETime() >= 1.0) {
+        if (fpsTimer.getElapsedTime() >= 1.0) {
             // Update FPS display with fps value
-            fpsTimer.reset();
+            fpsTimer.restart();
             fps = 0;
         }
         else {
             fps++;
         }
 
-        renderer->text.setString(sf::String(std::string(std::to_string(fps))));
+        //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
         while (window.pollEvent(event)) {
             input->setEventType(event);
@@ -229,24 +239,23 @@ int main() {
                 break;
             }
         }
+<<<<<<< HEAD
         /*shape.setPosition(entity1.component<Transform>().get()->transform.x, 
             entity1.component<Transform>().get()->transform.y);*/
 >>>>>>> master
+=======
+>>>>>>> master
 
         /*
-         * Per iteration, clear the window, record delta time, update systems,
-         * and redisplay.
-         */
+        * Per iteration, clear the window, record delta time, update systems,
+        * and redisplay.
+        */
         window.clear();
-        //window.draw(shape); //Graphic for now
-        //window.draw(shape2); //Graphic for now
-        //window.draw(shape3); //Graphic for now
-        //window.draw(sprite);
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
         window.display();
     }
 
-    
+
     return 0;
 }

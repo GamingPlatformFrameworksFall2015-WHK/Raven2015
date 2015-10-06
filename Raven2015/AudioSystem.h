@@ -49,9 +49,13 @@ namespace Raven {
          *
          */
         explicit AudioSystem() {
+<<<<<<< HEAD
             eventToggle = true;
 			soundFired = false;
 			soundFileName = "Resource/Audio/choose.ogg";
+=======
+
+>>>>>>> master
         }
 
         /*
@@ -67,6 +71,7 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override;
 
+<<<<<<< HEAD
 		// Base receive
 		template <typename T>
 		void receiveEvent(const T &aEvent) {
@@ -87,5 +92,9 @@ namespace Raven {
 		std::string soundFileName;
 		bool response(const SoundPlayEvent &event);
 		bool response(const SoundLoadEvent &event);
+=======
+        // Receives and processes AudioEvents
+        void receive(const AudioEvent &event);
+>>>>>>> master
     };
 }
