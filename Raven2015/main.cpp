@@ -37,12 +37,12 @@ public:
     explicit Game(sf::RenderTarget &target) : Game() {}
 
     explicit Game() {
-        systems.add<MovementSystem>();
-        systems.add<AudioSystem>();
-        systems.add<CollisionSystem>();
-        systems.add<InputSystem>();
-        systems.add<GUISystem>();
-        systems.add<RenderingSystem>(systems.system<GUISystem>()->gameWindow); // Required that this comes after GUISystem
+        systems.add<MovementSystem>();  // No dependencies
+        systems.add<AudioSystem>();     // No dependencies
+        systems.add<CollisionSystem>(); // No dependencies
+        systems.add<InputSystem>();     // No dependencies
+        systems.add<GUISystem>(systems.system<InputSystem>()); // Required that this comes after InputSystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>()->getGameWindow()); // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
@@ -66,7 +66,7 @@ int main() {
 
     // Create EntityX manager object
     Game game(requiredWindow);
-    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->gameWindow);
+    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->getGameWindow());
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
@@ -156,16 +156,15 @@ int main() {
             }
         }
 
-        /*
-        * Per iteration, clear the window, record delta time, update systems,
-        * and redisplay.
-        */
-        //window->clear();
+        //
+        // Per iteration, clear the window, record delta time, update systems,
+        // and redisplay.
+        //
+
         game.systems.system<GUISystem>()->clear();
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
         game.systems.system<GUISystem>()->display();
-        //window->display();
     }
 
 

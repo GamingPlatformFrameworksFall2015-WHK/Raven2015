@@ -19,6 +19,7 @@
 #include "SFGUI/SFGUI.hpp"
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Desktop.hpp"
+#include "InputSystem.h"
 
 namespace Raven {
 
@@ -28,30 +29,19 @@ namespace Raven {
 
 
         // Perform initializations
-        explicit GUISystem(std::shared_ptr<sf::RenderWindow> window = nullptr) : 
-                gameWindow(std::shared_ptr<sf::RenderWindow>(
-                    new sf::RenderWindow(sf::VideoMode(600,400),"Viewport"))),
-                editorWindow(std::shared_ptr<sf::RenderWindow>(
-                    new sf::RenderWindow(sf::VideoMode(600,400),"Editor"))),
-                guiWindow(sfg::Window::Create()),
-                desktop(new sfg::Desktop()), 
-                sfgui(new sfg::SFGUI()) {
-
-            guiWindow->SetPosition(sf::Vector2f(50, 50));
-            editorWindow->setPosition(sf::Vector2i(20, 20));
-            desktop->Add(guiWindow);
-
-        }
+        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem);
         
         void clear() {
-            //editorWindow->clear();
-            gameWindow->clear();
+            for (std::pair<int, std::shared_ptr<sf::RenderWindow>> id_window : sfWindowMap) {
+                id_window.second->clear();
+            }
         }
 
         void display() {
-            sfgui->Display(*gameWindow);
-            //editorWindow->display();
-            gameWindow->display();
+            for (std::pair<int, std::shared_ptr<sf::RenderWindow>> id_window : sfWindowMap) {
+                sfgui->Display(*id_window.second);
+                id_window.second->display();
+            }
         }
 
         // Subscribe to events
@@ -64,6 +54,28 @@ namespace Raven {
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
+        // Shortcut method for acquiring the window used for the game
+        std::shared_ptr<sf::RenderWindow> getGameWindow() { return sfWindowMap[ESFWindow::GAME_WINDOW]; }
+
+        // Shortcut method for acquiring the window used for the editor
+        std::shared_ptr<sf::RenderWindow> getEditorWindow() { return sfWindowMap[ESFWindow::EDITOR_WINDOW]; }
+
+        // Shortcut method for acquiring the default GUI window used inside the editor window
+        std::shared_ptr<sfg::Window> getDefaultGUIWindow() { return sfgWindowMap[ESFGWindow::GUI_WINDOW]; }
+
+        // Simplifies the process of creating a render window and its associations with other classes
+        void generateRenderWindow(int id, std::shared_ptr<sf::RenderWindow> window);
+
+        // Simplifies the process of creating a GUI window and its associations with other classes
+        void generateGUIWindow(int id, std::shared_ptr<sfg::Window> window);
+
+        bool mainWindowsAreOpen() {
+            return sfWindowMap[ESFWindow::GAME_WINDOW]->isOpen() &&
+                sfWindowMap[ESFWindow::EDITOR_WINDOW]->isOpen();
+        }
+
+        bool pollEvents();
+
         /*
          * Need to write a map that provides access to several different RenderWindows, or perhaps a
          * vector with some enum to provide access. The main will call a function from the GUISystem
@@ -75,20 +87,29 @@ namespace Raven {
          * are now.
          */
 
-        // A pointer to the window used for the game
-        std::shared_ptr<sf::RenderWindow> gameWindow;
+        // Create enum IDs for the various types of preset RenderWindows that can be accessed
+        enum ESFWindow { GAME_WINDOW, EDITOR_WINDOW };
 
-        // A pointer to the window used for the Editor
-        std::shared_ptr<sf::RenderWindow> editorWindow;
+        // Create enum IDs for the various types of preset SFGUI Windows that can be accessed
+        enum ESFGWindow { GUI_WINDOW };
 
-        // A pointer to the gui "Window" embedded in the editorWindow to display gui contents
-        std::shared_ptr<sfg::Window> guiWindow;
+        // A mapping between an ID and a window used either by the Rendering or GUI systems
+        std::map<int, std::shared_ptr<sf::RenderWindow>> sfWindowMap;
+
+        // A mapping between an ID and a GUI window to be displayed within a given RenderWindow
+        std::map<int, std::shared_ptr<sfg::Window>> sfgWindowMap;
+
+        // A mapping between an ID and an event for polling events simultaneously between multiple windows
+        std::map<int, std::shared_ptr<sf::Event>> eventMap;
 
         // A pointer to the desktop that manages the GUI windows
         std::shared_ptr<sfg::Desktop> desktop;
 
         // A pointer to the SFGUI controller object that manages the dynamic display of sf::RenderWindows
         std::shared_ptr<sfg::SFGUI> sfgui;
+
+        // A pointer to the InputSystem to process user-defined input actions
+        std::shared_ptr<InputSystem> input;
     };
 
 }
