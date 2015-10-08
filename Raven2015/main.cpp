@@ -42,7 +42,7 @@ public:
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
         systems.add<GUISystem>(systems.system<InputSystem>()); // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>()->getGameWindow()); // Required that this comes after GUISystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>()->getViewport()); // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
@@ -66,7 +66,7 @@ int main() {
 
     // Create EntityX manager object
     Game game(requiredWindow);
-    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->getGameWindow());
+    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->getViewport());
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
@@ -101,9 +101,7 @@ int main() {
     sf::Clock mainClock;
     Timer fpsTimer;
     int fps = 0;
-    while (window->isOpen()) {
-
-        sf::Event event;
+    while (game.systems.system<GUISystem>()->mainWindowsAreOpen()) {
 
         // Calculate FPS based on iterations game loop has completed in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
@@ -117,8 +115,9 @@ int main() {
 
         //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
-        while (window->pollEvent(event)) {
+        while (game.systems.system<GUISystem>()->pollEvents()) {
 
+            /*
             // Allow the GUISystem to handle updates for the SFGUI elements
             game.systems.system<GUISystem>()->desktop->HandleEvent(event);
 
@@ -154,6 +153,7 @@ int main() {
             case sf::Event::JoystickMoved:
                 break;
             }
+            */
         }
 
         //

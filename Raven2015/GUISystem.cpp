@@ -14,48 +14,64 @@
 
 namespace Raven {
 
+    // Preset GameWindowType definitions
+    const std::string GameWindowTypes::VIEWPORT_WINDOW = "Viewport";
+    const std::string GameWindowTypes::EDITOR_WINDOW = "Editor";
+
+    // Preset GUIWindowType definitions
+    const std::string GUIWindowTypes::SCENE_HIERARCHY = "Scene Hierarchy";
+
     // Perform initializations
-    GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem) : 
-            desktop(new sfg::Desktop()), 
-            sfgui(new sfg::SFGUI()),
-            input(inputSystem) {
+    GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem) : input(inputSystem) {
 
         // Create all preset types of windows
-        generateRenderWindow(ESFWindow::GAME_WINDOW,
-            std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(600, 400), "Viewport")));
-        generateRenderWindow(ESFWindow::EDITOR_WINDOW,
-            std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(600, 400), "Editor")));
+        generateRenderWindow(GameWindowTypes::VIEWPORT_WINDOW,
+            std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(600, 400), GameWindowTypes::VIEWPORT_WINDOW)));
+        generateRenderWindow(GameWindowTypes::EDITOR_WINDOW,
+            std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(600, 400), GameWindowTypes::EDITOR_WINDOW)));
 
         // Create all preset GUI windows within the editor window
-        generateGUIWindow(ESFGWindow::GUI_WINDOW,
+        generateGUIWindow(GameWindowTypes::EDITOR_WINDOW, GUIWindowTypes::SCENE_HIERARCHY,
             std::shared_ptr<sfg::Window>(sfg::Window::Create()));
 
         // Position the Viewport and the Editor where you want them.
-        sfWindowMap[ESFWindow::EDITOR_WINDOW]->setPosition(sf::Vector2i(20, 20));
-        sfWindowMap[ESFWindow::GAME_WINDOW]->setPosition(sf::Vector2i(200, 200));
+        sfWindowMap[GameWindowTypes::EDITOR_WINDOW]->setPosition(sf::Vector2i(20, 400));
+        sfWindowMap[GameWindowTypes::VIEWPORT_WINDOW]->setPosition(sf::Vector2i(400, 400));
     }
 
-    void GUISystem::generateRenderWindow(int id, std::shared_ptr<sf::RenderWindow> window) {
+    std::shared_ptr<sf::RenderWindow> GUISystem::generateRenderWindow(std::string name, std::shared_ptr<sf::RenderWindow> window) {
         // Keep a record of this exact window
-        sfWindowMap.insert(std::make_pair(id, window));
+        sfWindowMap.insert(std::make_pair(name, window));
         // Create an associated event to poll for events triggered by the window
-        eventMap.insert(std::make_pair(id, std::shared_ptr<sf::Event>(new sf::Event())));
+        eventMap.insert(std::make_pair(name, std::shared_ptr<sf::Event>(new sf::Event())));
+        // Create an associated desktop to maintain and update GUI windows in the new RenderWindow
+        desktopMap.insert(std::make_pair(name, std::shared_ptr<sfg::Desktop>(new sfg::Desktop())));
+
+        return window;
     }
 
-    void GUISystem::generateGUIWindow(int id, std::shared_ptr<sfg::Window> window) {
+    std::shared_ptr<sfg::Window> GUISystem::generateGUIWindow(std::string renderWindowName, 
+        std::string guiWindowName, std::shared_ptr<sfg::Window> window) {
+
+        // Save the key
+        std::pair<std::string, std::string> key = std::make_pair(renderWindowName, guiWindowName);
         // Keep a record of this exact window
-        sfgWindowMap.insert(std::make_pair(id, window));
+        sfgWindowMap.insert(std::make_pair(key, window));
+        // Apply the name specified to the GUI window's label
+        window->SetTitle(guiWindowName);
         // Add it to the desktop so that it will be updated
-        desktop->Add(sfgWindowMap[id]);
+        desktopMap[renderWindowName]->Add(sfgWindowMap[key]); 
+
+        return window;
     }
 
     bool GUISystem::pollEvents() {
-        for (std::pair<int, std::shared_ptr<sf::RenderWindow>> id_window : sfWindowMap) {
-            sf::Event e = *eventMap[id_window.first];
-            if (!id_window.second->pollEvent(e)) {
+        for (std::pair<std::string, std::shared_ptr<sf::RenderWindow>> name_window : sfWindowMap) {
+            std::shared_ptr<sf::Event> e = eventMap[name_window.first];
+            if (!name_window.second->pollEvent(*e)) {
                 return false;
             }
-            desktop->HandleEvent(e);
+            desktopMap[name_window.first]->HandleEvent(*e);
 
             //-----------------------------------------------
             // Call a function that encapsulates the event.type switch statement and simply returns the corresponding action.
@@ -63,52 +79,14 @@ namespace Raven {
             // corresponding action on all entities listening for that action via a Pawn component.
             //-----------------------------------------------
 
-
-            /* ---- LEGACY CODE ----
-
-            // Handle game input using the InputSystem
-            input->setEventType(event);
-            switch (event.type) {
-            case sf::Event::Closed:
-                window->close();
-                break;
-            case sf::Event::KeyPressed: {
-                //call a function that derives the action from 
-                int speed = 10;
-                if (input->getAction(event.key.code) == "move_right") {
-                    //trigger
-                }
-                else if (input->getAction(event.key.code) == "move_down") {
-                    //entity1.component<Transform>().get()->transform.y += speed;
-                }
-                else if (input->getAction(event.key.code) == "move_left") {
-                    //entity1.component<Transform>().get()->transform.x -= speed;
-                }
-                else if (input->getAction(event.key.code) == "move_up") {
-                    //entity1.component<Transform>().get()->transform.y -= speed;
-                }
-                else if (input->getAction(event.key.code) == "exit") {
-                    window->close();
-                }
-                break;
-            }
-            case sf::Event::MouseButtonPressed:
-                break;
-            case sf::Event::JoystickButtonPressed:
-                break;
-            case sf::Event::JoystickMoved:
-                break;
-            }
-
-            */
-
         }
         return true;
     }
 
     void GUISystem::update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) {
-        // Update all GUI widgets associated with the set of GUI windows
-        desktop->Update((float)dt);
+        // Update all GUI widgets associated with the set of GUI windows in all Desktops
+        for (std::pair<std::string, std::shared_ptr<sfg::Desktop>> name_desktop : desktopMap) {
+            desktopMap[name_desktop.first]->Update((float)dt);
+        }
     }
-
 }
