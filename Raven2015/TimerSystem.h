@@ -34,13 +34,13 @@ namespace Raven {
 			std::map<std::string, Timer>::iterator it = timerEvent.timeTable->timerMap.find(timerEvent.timerName);
 
 			if (it != timerEvent.timeTable->timerMap.end()) {
-				if (timerEvent.timerOperation == cmn::ETimerOperation::ADD) {
+				if (timerEvent.timerOperation == cmn::ETimerOperation::TIMER_ADD) {
 					cerr << "Error: Attempt to add timer when timer was found in timerMap." << endl;
 					return true;
 				}
 			}
 			else {
-				if (timerEvent.timerOperation != cmn::ETimerOperation::ADD) {
+				if (timerEvent.timerOperation != cmn::ETimerOperation::TIMER_ADD) {
 					cerr << "Error: Attempt to perform operation on non-existent timer" << endl;
 					return true;
 				}
@@ -49,25 +49,25 @@ namespace Raven {
 			Timer timer = timerEvent.timeTable->timerMap[timerEvent.timerName];
 
 			switch (timerEvent.timerOperation) {
-			case cmn::ETimerOperation::NO_OPERATION:
+			case cmn::ETimerOperation::NO_TIMER_OPERATION:
 				cerr << "Error: Timer event emitted with no operation." << endl;
 				break;
-			case cmn::ETimerOperation::PLAY:
+			case cmn::ETimerOperation::TIMER_START:
 				timer.play();
 				break;
-			case cmn::ETimerOperation::PAUSE:
+			case cmn::ETimerOperation::TIMER_PAUSE:
 				timer.pause();
 				break;
-			case cmn::ETimerOperation::SCAN:
+			case cmn::ETimerOperation::TIMER_SCAN:
 				timer.scan(timerEvent.scanTime);
 				break;
-			case cmn::ETimerOperation::RESET:
-				timer.reset();
+			case cmn::ETimerOperation::TIMER_RESTART:
+				timer.restart();
 				break;
-			case cmn::ETimerOperation::ADD:
+			case cmn::ETimerOperation::TIMER_ADD:
 				timerEvent.timeTable->timerMap[timerEvent.timerName] = timer;
 				break;
-			case cmn::ETimerOperation::REMOVE:
+			case cmn::ETimerOperation::TIMER_REMOVE:
 				timerEvent.timeTable->timerMap.erase(timerEvent.timerName);
 				break;
 			}

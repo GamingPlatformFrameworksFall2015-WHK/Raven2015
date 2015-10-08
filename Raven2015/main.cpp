@@ -77,7 +77,7 @@ int main() {
     efps.assign<Transform>();
     ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
     std::string fpsStr = "FPS";
-    efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+    efps_renderer->texts[fpsStr].reset(new RenderableText("", sf::Vector2f(400.0f, 50.0f),
         "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
     ex::Entity entity2 = game.entities.create();
@@ -92,23 +92,15 @@ int main() {
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
-    Timer fpsTimer;
-    int fps = 0;
+    Timer gameTimer;
+	Timer fpsTimer;
+	const double deltaTime = 0.01;
+	int fps = 0;
+	double currentTime = gameTimer.getElapsedTime();
+	double accumulator = 0.0;
     while (window.isOpen()) {
 
         sf::Event event;
-
-        // Calculate FPS based on iterations game loop has completed in 1 second
-        if (fpsTimer.getElapsedTime() >= 1.0) {
-            // Update FPS display with fps value
-            fpsTimer.restart();
-            fps = 0;
-        }
-        else {
-            fps++;
-        }
-
-        //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
 
         while (window.pollEvent(event)) {
             input->setEventType(event);
@@ -145,13 +137,37 @@ int main() {
         }
 
         /*
-        * Per iteration, clear the window, record delta time, update systems,
-        * and redisplay.
+        * We have a fixed delta time split of 0.01 seconds which means that
+		* we will only update our physics systems 100 times per second.
+		* This seperates our rendering from our physics which will stabilize and 
+		* smooth our frame rate.  The accumulator tracks any leftover time
+		* that needs to be considered for the next update function so that
+		* we do not get jittery displays.
         */
-        window.clear();
-        sf::Time deltaTime = mainClock.restart();
-        game.update(deltaTime.asSeconds());
-        window.display();
+        
+		//If FPS timer has surpassed 1 second, update FPS display and then reset FPS timer and counter
+		if (fpsTimer.getElapsedTime() >= 1.0) {
+			efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
+			fpsTimer.restart();
+			fps = 0;
+		}
+
+		double newTime = gameTimer.getElapsedTime();
+		double frameTime = newTime - currentTime;
+		currentTime = newTime;
+		accumulator += frameTime;
+
+		//If we have reached delta time value, update game systems, increment FPS counter,
+		//subtract delta time from accumulator so we don't lose any leftover time,
+		//and clear window to prepare for next display.
+		while (accumulator >= deltaTime) {
+			fps++;
+			window.clear();
+			game.update(frameTime);
+			accumulator -= deltaTime;
+		}
+		
+		window.display();
     }
 
 
