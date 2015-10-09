@@ -42,18 +42,18 @@ public:
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
         systems.add<GUISystem>(systems.system<InputSystem>()); // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>()->getViewport()); // Required that this comes after GUISystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>()->mainWindow); // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
-        systems.update<MovementSystem>(dt); 
-        systems.update<CollisionSystem>(dt); 
-        systems.update<InputSystem>(dt);
-        systems.update<GUISystem>(dt);
-        systems.update<RenderingSystem>(dt);
+        systems.update<InputSystem>(dt);     // process new instructions for entities
+        systems.update<MovementSystem>(dt);  // move entities
+        systems.update<CollisionSystem>(dt); // check whether entities are now colliding
+        systems.update<RenderingSystem>(dt); // draw all entities to the Viewport
+        systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 };
 
@@ -66,7 +66,7 @@ int main() {
 
     // Create EntityX manager object
     Game game(requiredWindow);
-    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->getViewport());
+    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
@@ -101,7 +101,7 @@ int main() {
     sf::Clock mainClock;
     Timer fpsTimer;
     int fps = 0;
-    while (game.systems.system<GUISystem>()->mainWindowsAreOpen()) {
+    while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
 
         // Calculate FPS based on iterations game loop has completed in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
@@ -113,48 +113,7 @@ int main() {
             fps++;
         }
 
-        //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
-
-        while (game.systems.system<GUISystem>()->pollEvents()) {
-
-            /*
-            // Allow the GUISystem to handle updates for the SFGUI elements
-            game.systems.system<GUISystem>()->desktop->HandleEvent(event);
-
-            // Handle game input using the InputSystem
-            input->setEventType(event);
-            switch (event.type) {
-            case sf::Event::Closed:
-                window->close();
-                break;
-            case sf::Event::KeyPressed: {
-                int speed = 10;
-                if (input->getAction(event.key.code) == "move_right") {
-                    entity1.component<Transform>().get()->transform.x += speed;
-                }
-                else if (input->getAction(event.key.code) == "move_down") {
-                    entity1.component<Transform>().get()->transform.y += speed;
-                }
-                else if (input->getAction(event.key.code) == "move_left") {
-                    entity1.component<Transform>().get()->transform.x -= speed;
-                }
-                else if (input->getAction(event.key.code) == "move_up") {
-                    entity1.component<Transform>().get()->transform.y -= speed;
-                }
-                else if (input->getAction(event.key.code) == "exit") {
-                    window->close();
-                }
-                break;
-            }
-            case sf::Event::MouseButtonPressed:
-                break;
-            case sf::Event::JoystickButtonPressed:
-                break;
-            case sf::Event::JoystickMoved:
-                break;
-            }
-            */
-        }
+        game.systems.system<GUISystem>()->pollEvents();
 
         //
         // Per iteration, clear the window, record delta time, update systems,
