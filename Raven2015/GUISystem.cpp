@@ -14,21 +14,6 @@
 
 namespace Raven {
 
-    // Preset WidgetName definitions
-    const std::string GUIWidgetNames::SCENE_HIERARCHY = "Scene Hierarchy";
-    const std::string GUIWidgetNames::COMPONENT_LIST = "Component List";
-    const std::string GUIWidgetNames::ENTITY_DESIGNER = "Entity Designer";
-    const std::string GUIWidgetNames::PREFAB_LIST = "Prefab List";
-    const std::string GUIWidgetNames::VIEWPORT = "Viewport";
-
-    // Preset GUIWindowType definitions
-    const std::string GUIWidgetTypes::WIDGET = "Widget";
-    const std::string GUIWidgetTypes::WINDOW = "Window";
-    const std::string GUIWidgetTypes::CANVAS = "Canvas";
-    const std::string GUIWidgetTypes::BUTTON = "Button";
-    const std::string GUIWidgetTypes::BOX = "Box";
-
-    // The preset name for the main window of the engine
     const std::string GUISystem::MAIN_WINDOW_NAME = "Raven";
 
     // Perform initializations
@@ -39,23 +24,41 @@ namespace Raven {
         sfgui(new sfg::SFGUI()),
         input(inputSystem) {
 
-        // Create all preset widgets within the editor window
-        generateWidget(GUIWidgetNames::SCENE_HIERARCHY,
-            std::shared_ptr<sfg::Window>(sfg::Window::Create()));
+        // Create the mainGUIWindow
+        mainGUIWindow = makeWidget<sfg::Window>(cmn::PrimaryWidgetNames::MASTER_WINDOW);
+        // Extend the mainGUIWindow to fill and expand throughout the entire window
+
+        // Create the base Table
+        table = makeWidget<sfg::Table>(cmn::PrimaryWidgetNames::MASTER_TABLE);
+
+        // Assign dimensions and settings to the table
+        // TODO:
+
+        // Create the various windows that will go inside the table and allocate regions of space for them
+        // Don't forget to modify the RenderingSystem to also incorporate draw calls to the viewport Canvas
+        // TODO:
+        auto viewport = makeWidget<sfg::Canvas>(cmn::PrimaryWidgetNames::VIEWPORT);
+        
+        // Add all of the various windows to the table
+        // TODO:
+
+        // Add the filled table to the mainGUIWindow
+        mainGUIWindow->Add(table);
 
         // Position the Viewport and the Editor where you want them.
         mainWindow->setPosition(sf::Vector2i(400, 400));
     }
 
-    std::shared_ptr<sfg::Widget> GUISystem::generateWidget(
-        std::string guiWindowName, std::shared_ptr<sfg::Widget> window) {
-
+    template <class T>
+    std::shared_ptr<T> GUISystem::makeWidget(std::string widgetName) {
+        // Create an instance <- works because all Widgets have a static Create() factory method
+        std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
-        WidgetMap.insert(std::make_pair(guiWindowName, window));
+        WidgetMap.insert(std::make_pair(widgetName, widget));
         // Add it to the desktop so that it will be updated
-        desktop->Add(WidgetMap[guiWindowName]); 
-
-        return window;
+        desktop->Add(widget); 
+        // Return the factory-generated widget pointer
+        return widget;
     }
 
     void GUISystem::pollEvents() {

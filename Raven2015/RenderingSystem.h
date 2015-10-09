@@ -25,8 +25,6 @@ namespace Raven {
 
         }
 
-        //void receive(const CollisionEvent &event);
-
         // Initialize loading of textures
         void initialize(entityx::EntityManager &es);
 

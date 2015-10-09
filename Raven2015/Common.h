@@ -89,7 +89,30 @@ namespace Raven {
             void(*deserialize)(std::string &xml);
         };
 
-        //static void ()
+        // Create a static wrapper for the various preset GUI window types
+        struct PrimaryWidgetNames {
+            const static std::string MASTER_WINDOW;     // The name of the top-level widget container
+            const static std::string MASTER_TABLE;      // The name of the table organizing the layout
+            const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
+            const static std::string COMPONENT_LIST;    // The name for the list of possible components to add to an entity
+            const static std::string ENTITY_DESIGNER;   // The name for the window which displays information about the selected entity
+            const static std::string PREFAB_LIST;       // The name for the list of currently defined prefabs
+            const static std::string VIEWPORT;          // The name for the view into the scene 
+        };
+
+        struct GUIWidgetTypes {
+            const static std::string WIDGET;            // The name of the base abstract Widget class
+            const static std::string WINDOW;            // The name of the single-Widget container class
+            const static std::string BOX;               // The name of the multi-Widget container class with a specified orientation
+            const static std::string TABLE;             // The name of the multi-Widget container class with a specified layout
+            const static std::string CANVAS;            // The name of the special Widget that can be drawn to with SFML
+            const static std::string BUTTON;            // The name of the Widget that can be clicked to trigger an action
+        };
+
+        struct CollisionLayerSettings {
+            const static std::string SOLID;             // The layer that indicates the entities should be "pushed out of each other"
+            const static std::string TRIGGER;           // The layer that indicates the entity will react to the collision
+        };
 
     };
 

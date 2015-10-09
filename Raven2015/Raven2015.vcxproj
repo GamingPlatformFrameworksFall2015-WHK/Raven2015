@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />

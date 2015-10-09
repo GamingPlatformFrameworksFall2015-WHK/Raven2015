@@ -27,53 +27,6 @@ namespace Raven {
 
 #pragma region Physics
     
-    /// <summary>
-    /// <para>A description of a given collision layer. Entities may exist within a layer and yet still not</para>
-    /// <para>be collideable within it. Combining an Entity with a CollisionLayer will tell you what types</para>
-    /// <para>of Entities that Entity can collide with while in that layer.</para>
-    /// </summary>
-    struct CollisionLayer {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CollisionLayer"/> struct.
-        /// </summary>
-        /// <param name="isSolid">if set to <c>true</c> [is solid].</param>
-        /// <param name="isTrigger">if set to <c>true</c> [is trigger].</param>
-        /// <param name="collideable">A single collideable Entity, if collision is restricted</param>
-        CollisionLayer(bool isSolid, bool isTrigger, Entity *collideableEntity = nullptr, 
-            ex::BaseComponent *collideableComponent = nullptr)
-            : isSolid(isSolid), isTrigger(isTrigger) {
-        
-            // Need to double-check that this doesn't delete memory unintentionally
-            if (collideableEntity) {
-                collideableEntities.insert(std::shared_ptr<Entity>(collideableEntity));
-            }
-            if (collideableComponent) {
-                collideableComponents.insert(std::shared_ptr<ex::BaseComponent>(collideableComponent));
-            }
-        }
-        
-        /// <summary>
-        /// Determines whether objects in this layer should push each other out of their colliders
-        /// </summary>
-        bool isSolid;
-        
-        /// <summary>
-        /// Determines whether an event should be emitted as a result of collisions on this layer
-        /// </summary>
-        bool isTrigger;
-        
-        /// <summary>
-        /// The set of Entities that can be collided with on this layer
-        /// </summary>
-        std::set<std::shared_ptr<Entity>> collideableEntities;
-        
-        /// <summary>
-        /// The set of components whose owners can be collided with on this layer
-        /// </summary>
-        std::set<std::shared_ptr<ex::BaseComponent>> collideableComponents;
-    };
-
     /*
      * A component enabling a passive physical state. Required for placement.
      */
@@ -211,6 +164,24 @@ namespace Raven {
         /// The range of the y-axis of the collider. Origin in the middle.
         /// </summary>
         float height;
+        
+        /// <summary>
+        /// <para>The set of layers to which the collider is assigned.</para> 
+        /// <para>The collider will "collide" with any BoxCollider that possesses the same entry.</para>
+        /// <para>The value is a boolean pair of options dictating when CollisionEvents are emitted.
+        ///       First="Required". Second="Automatic".</para>
+        /// <para>"Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.</para>
+        /// <para>"Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.</para>
+        /// <para>An "automatic" setting will override any lack of "required" layers</para>
+        /// </summary>
+        std::map<std::string, std::pair<bool, bool>> layers;
+        
+        /// <summary>
+        /// <para>The collision settings. Valid values can be found in Common::CollisionLayerSettings</para>
+        /// <para>SOLID : The layer that indicates the entities should be "pushed out of each other"</para>
+        /// <para>TRIGGER : The layer that indicates the entity will react to the collision</para>
+        /// </summary>
+        std::set<std::string> collisionSettings;
     };
     
     /// <summary>
@@ -730,17 +701,17 @@ namespace Raven {
 
 #pragma endregion
 
-#pragma region Pawn
+#pragma region ActionListener
     
     /// <summary>
     /// A class designed to "listen" for specific actions and provide a response for the entity
     /// </summary>
-    struct Pawn : ex::Component<Pawn> {
+    struct ActionListener : ex::Component<ActionListener> {
         
         /// <summary>
         /// Initializes a new instance of the <see cref="Pawn"/> struct.
         /// </summary>
-        Pawn() : playerId(-1) {}
+        ActionListener() : playerId(-1) {}
         
         /// <summary>
         /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 

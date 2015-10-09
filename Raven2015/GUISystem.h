@@ -22,23 +22,6 @@
 
 namespace Raven {
 
-    // Create a static wrapper for the various preset GUI window types
-    struct GUIWidgetNames {
-        const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
-        const static std::string COMPONENT_LIST;    // The name for the list of possible components to add to an entity
-        const static std::string ENTITY_DESIGNER;   // The name for the window which displays information about the selected entity
-        const static std::string PREFAB_LIST;       // The name for the list of currently defined prefabs
-        const static std::string VIEWPORT;          // The name for the view into the scene 
-    };
-
-    struct GUIWidgetTypes {
-        const static std::string WIDGET;            // The name of the base abstract Widget class
-        const static std::string WINDOW;            // The name of the single-Widget container class
-        const static std::string BOX;               // The name of the multi-Widget container class
-        const static std::string CANVAS;            // The name of the special Widget that can be drawn to with SFML
-        const static std::string BUTTON;            // The name of the Widget that can be clicked to trigger an action
-    };
-
     // A system class that manages the creation of windows, the display of windows (excluding "draw" calls handled
     // by the RenderingSystem), and the updating of GUI widgets within "Desktop" elements linked to RenderWindows
     class GUISystem : public ex::System<GUISystem>,
@@ -69,22 +52,23 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        std::shared_ptr<sfg::Widget> getGUISceneHierarchy() { return WidgetMap[GUIWidgetNames::SCENE_HIERARCHY]; }
+        std::shared_ptr<sfg::Widget> getGUISceneHierarchy() { return WidgetMap[cmn::PrimaryWidgetNames::SCENE_HIERARCHY]; }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        std::shared_ptr<sfg::Widget> getGUIComponentList() { return WidgetMap[GUIWidgetNames::COMPONENT_LIST]; }
+        std::shared_ptr<sfg::Widget> getGUIComponentList() { return WidgetMap[cmn::PrimaryWidgetNames::COMPONENT_LIST]; }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        std::shared_ptr<sfg::Widget> getGUIEntityDesigner() { return WidgetMap[GUIWidgetNames::ENTITY_DESIGNER]; }
+        std::shared_ptr<sfg::Widget> getGUIEntityDesigner() { return WidgetMap[cmn::PrimaryWidgetNames::ENTITY_DESIGNER]; }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        std::shared_ptr<sfg::Widget> getGUIPrefabList() { return WidgetMap[GUIWidgetNames::PREFAB_LIST]; }
+        std::shared_ptr<sfg::Widget> getGUIPrefabList() { return WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST]; }
 
         std::shared_ptr<sfg::Canvas> getViewport() { return 
-            std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[GUIWidgetNames::VIEWPORT].get()); }
+            std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::VIEWPORT].get()); }
 
         // Simplifies the process of creating a GUI window and its associations with other classes
-        std::shared_ptr<sfg::Widget> generateWidget(std::string guiWindowName, std::shared_ptr<sfg::Widget> window);
+        template <class T>
+        std::shared_ptr<T> makeWidget(std::string widgetName);
 
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {
@@ -96,6 +80,7 @@ namespace Raven {
 
         //---------------------Member Variables----------------------
 
+        // A pointer to the RenderWindow representing the actual window created from SFML
         std::shared_ptr<sf::RenderWindow> mainWindow;
 
         // A mapping between a two names and a GUI window to be displayed within a given RenderWindow.
@@ -115,6 +100,12 @@ namespace Raven {
 
         // A pointer to the InputSystem to process user-defined input actions
         std::shared_ptr<InputSystem> input;
+
+        // A pointer to the top-level GUI container for the entire editor
+        std::shared_ptr<sfg::Window> mainGUIWindow;
+
+        // A pointer to the table organizing the content in the mainGUIWindow
+        std::shared_ptr<sfg::Table> table;
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
