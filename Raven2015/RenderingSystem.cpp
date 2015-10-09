@@ -58,7 +58,7 @@ void RenderingSystem::registerAnimation(const std::string &animationName, Animat
     }
 
     // Error checking for window validity
-    if (!renderWindow) {
+    if (!canvas) {
         cerr << "Error: Attempt to register animation prior to initialization of render window." << endl;
         throw 1;
     }
@@ -86,7 +86,7 @@ void RenderingSystem::registerAnimation(const std::string &animationName, Animat
 void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) {
 
     // Error checking for window validity
-    if (!renderWindow) {
+    if (!canvas) {
         cerr << "Error: RenderingSystem::window invalid during attempt to draw on RenderingSystem::update" << endl;
         throw 1;
     }
@@ -184,9 +184,13 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
 
     // Pop every sprite off the heap, drawing them as you go
     std::shared_ptr<Renderable> renderable = nullptr;
+    canvas->Bind();
+    canvas->Clear(sf::Color::Black);
     while (!renderableHeap.empty()) {
-        renderWindow->draw(*renderableHeap.top().drawPtr);
+        canvas->Draw(*renderableHeap.top().drawPtr);
         renderableHeap.pop();
     }
+    canvas->Display();
+    canvas->Unbind();
 }
 

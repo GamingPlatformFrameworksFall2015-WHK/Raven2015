@@ -36,6 +36,7 @@ namespace Raven {
         }
 
         void display() {
+            mainWindow->setActive(true);
             sfgui->Display(*mainWindow);
             mainWindow->display();
         }
@@ -52,23 +53,57 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        std::shared_ptr<sfg::Widget> getGUISceneHierarchy() { return WidgetMap[cmn::PrimaryWidgetNames::SCENE_HIERARCHY]; }
+        std::shared_ptr<sfg::ScrolledWindow> getGUISceneHierarchy() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::SCENE_HIERARCHY].get()); }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        std::shared_ptr<sfg::Widget> getGUIComponentList() { return WidgetMap[cmn::PrimaryWidgetNames::COMPONENT_LIST]; }
+        std::shared_ptr<sfg::ScrolledWindow> getGUIComponentList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::COMPONENT_LIST].get()); }
+
+        // Shortcut method for acquiring the ResourcesList, a list of the different types of assets that exist
+        std::shared_ptr<sfg::ScrolledWindow> getGUIResourcesList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::RESOURCES_LIST].get()); }
+
+        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of content available
+        std::shared_ptr<sfg::Notebook> getGUIContent() { return 
+            std::shared_ptr<sfg::Notebook>((sfg::Notebook*) WidgetMap[cmn::PrimaryWidgetNames::CONTENT].get()); }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        std::shared_ptr<sfg::Widget> getGUIEntityDesigner() { return WidgetMap[cmn::PrimaryWidgetNames::ENTITY_DESIGNER]; }
+        std::shared_ptr<sfg::ScrolledWindow> getGUIEntityDesigner() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::ENTITY_DESIGNER].get()); }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        std::shared_ptr<sfg::Widget> getGUIPrefabList() { return WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST]; }
+        std::shared_ptr<sfg::ScrolledWindow> getGUIPrefabList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST].get()); }
 
-        std::shared_ptr<sfg::Canvas> getViewport() { return 
-            std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::VIEWPORT].get()); }
+        // Shortcut method for acquiring the Viewport, a renderable screen into the game space
+        std::shared_ptr<sfg::Canvas> getViewport() { return
+                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::VIEWPORT].get()); }
+
+        // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Viewport interaction
+        std::shared_ptr<sfg::Box> getToolbar() { return
+                std::shared_ptr<sfg::Box>((sfg::Box*) WidgetMap[cmn::PrimaryWidgetNames::TOOLBAR].get()); }
 
         // Simplifies the process of creating a GUI window and its associations with other classes
         template <class T>
         std::shared_ptr<T> makeWidget(std::string widgetName);
+
+        // Format the Scene Hierarchy widget
+        std::shared_ptr<sfg::ScrolledWindow> formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Component List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatComponentList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Resources List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatResourcesList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Content widget
+        std::shared_ptr<sfg::Notebook> formatContent(std::shared_ptr<sfg::Notebook>);
+        // Format the Entity Designer widget
+        std::shared_ptr<sfg::ScrolledWindow> formatEntityDesigner(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Prefab List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatPrefabList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Viewport widget
+        std::shared_ptr<sfg::Canvas> formatViewport(std::shared_ptr<sfg::Canvas>);
+        // Format the Toolbar widget
+        std::shared_ptr<sfg::Box> formatToolbar(std::shared_ptr<sfg::Box>);
 
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {

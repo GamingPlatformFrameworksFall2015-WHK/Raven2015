@@ -4,10 +4,13 @@ namespace Raven {
 
     namespace Common {
 
-        const std::string PrimaryWidgetNames::MASTER_WINDOW = "Master Window";
+        const std::string PrimaryWidgetNames::MASTER_WINDOW = "Editor";
         const std::string PrimaryWidgetNames::MASTER_TABLE = "Layout Table";
         const std::string PrimaryWidgetNames::SCENE_HIERARCHY = "Scene Hierarchy";
         const std::string PrimaryWidgetNames::COMPONENT_LIST = "Component List";
+        const std::string PrimaryWidgetNames::RESOURCES_LIST = "Assets";
+        const std::string PrimaryWidgetNames::CONTENT = "Content";
+        const std::string PrimaryWidgetNames::TOOLBAR = "Toolbar";
         const std::string PrimaryWidgetNames::ENTITY_DESIGNER = "Entity Designer";
         const std::string PrimaryWidgetNames::PREFAB_LIST = "Prefab List";
         const std::string PrimaryWidgetNames::VIEWPORT = "Viewport";

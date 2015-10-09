@@ -185,7 +185,8 @@ namespace Raven {
     };
     
     /// <summary>
-    /// A Collider with a circle-shaped collision area.
+    /// <para>A Collider with a circle-shaped collision area.</para>
+    /// <para>WARNING: CURRENTLY UNUSED</para>
     /// </summary>
     struct CircleCollider : Collider {
         

@@ -41,8 +41,8 @@ public:
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
-        systems.add<GUISystem>(systems.system<InputSystem>()); // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>()->mainWindow); // Required that this comes after GUISystem
+        systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();

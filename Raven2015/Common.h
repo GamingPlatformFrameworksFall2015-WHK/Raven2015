@@ -95,6 +95,9 @@ namespace Raven {
             const static std::string MASTER_TABLE;      // The name of the table organizing the layout
             const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
             const static std::string COMPONENT_LIST;    // The name for the list of possible components to add to an entity
+            const static std::string RESOURCES_LIST;    // The name for the list of possible resources to be used in the game
+            const static std::string CONTENT;           // The name for the tabbed notebook containing the usable assets
+            const static std::string TOOLBAR;           // The name for the horizontal box containing the button Brushes for the editor
             const static std::string ENTITY_DESIGNER;   // The name for the window which displays information about the selected entity
             const static std::string PREFAB_LIST;       // The name for the list of currently defined prefabs
             const static std::string VIEWPORT;          // The name for the view into the scene 
@@ -113,6 +116,26 @@ namespace Raven {
             const static std::string SOLID;             // The layer that indicates the entities should be "pushed out of each other"
             const static std::string TRIGGER;           // The layer that indicates the entity will react to the collision
         };
+
+        // The default position/dimensions of our various windows
+        const int WINDOW_XPOS = 20;
+        const int WINDOW_YPOS = 20;
+        const float WINDOW_WIDTH = 1200;
+        const float WINDOW_HEIGHT = 800;
+
+        const float TABLE_ROWS = 5;
+        const float TABLE_COLUMNS = 5;
+        const float TABLE_PADDING = 1.f;
+
+        const int SCENE_HIERARCHY_XPOS = 0;
+        const int SCENE_HIERARCHY_YPOS = 0;
+        //const float SCENE_HIERARCHY_WIDTH = 
+
+        //const int VIEWPORT_XPOS = 
+        const float VIEWPORT_WIDTH = 600;
+        const float VIEWPORT_HEIGHT = 400;
+
+
 
     };
 

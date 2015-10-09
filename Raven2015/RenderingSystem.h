@@ -5,6 +5,7 @@
 #include "../EventLibrary.h"
 #include <map>
 #include <queue>
+#include "GUISystem.h"
 
 #define TEXTURE_MAP_T std::map<std::string, sf::Texture>
 
@@ -16,9 +17,8 @@ namespace Raven {
         public ex::Receiver<RenderingSystem> {
     public:
         // Perform initializations
-        explicit RenderingSystem(std::shared_ptr<sf::RenderWindow> window) : renderWindow(window) {
-
-        }
+        explicit RenderingSystem(std::shared_ptr<GUISystem> system)
+            : renderWindow(system->mainWindow), canvas(system->getViewport()) {}
 
         // Subscribe to events
         void configure(entityx::EventManager &event_manager) {
@@ -43,8 +43,11 @@ namespace Raven {
         // A mapping between animation names and Animation assets
         ANIMATION_MAP_T animationMap;
 
-        // A pointer to the window used for rendering
+        // A pointer to the window that displays the widgets
         std::shared_ptr<sf::RenderWindow> renderWindow;
+
+        // A pointer to the widget used for rendering
+        std::shared_ptr<sfg::Canvas> canvas;
 
         // A Renderable min-heap for determining draw order of text, shapes, and sprites
         std::priority_queue<Renderable> renderableHeap;
