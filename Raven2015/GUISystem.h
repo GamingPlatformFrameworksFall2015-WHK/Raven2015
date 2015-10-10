@@ -62,7 +62,7 @@ namespace Raven {
 
         // Shortcut method for acquiring the ResourcesList, a list of the different types of assets that exist
         std::shared_ptr<sfg::ScrolledWindow> getGUIResourcesList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::RESOURCES_LIST].get()); }
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::TEXTURE_LIST].get()); }
 
         // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of content available
         std::shared_ptr<sfg::Notebook> getGUIContent() { return 
@@ -76,11 +76,11 @@ namespace Raven {
         std::shared_ptr<sfg::ScrolledWindow> getGUIPrefabList() { return 
             std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST].get()); }
 
-        // Shortcut method for acquiring the Viewport, a renderable screen into the game space
-        std::shared_ptr<sfg::Canvas> getViewport() { return
-                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::VIEWPORT].get()); }
+        // Shortcut method for acquiring the Canvas, a renderable screen into the game space
+        std::shared_ptr<sfg::Canvas> getCanvas() { return
+                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::CANVAS].get()); }
 
-        // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Viewport interaction
+        // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
         std::shared_ptr<sfg::Box> getToolbar() { return
                 std::shared_ptr<sfg::Box>((sfg::Box*) WidgetMap[cmn::PrimaryWidgetNames::TOOLBAR].get()); }
 
@@ -88,6 +88,8 @@ namespace Raven {
         template <class T>
         std::shared_ptr<T> makeWidget(std::string widgetName);
 
+        // Format the Master Table widget
+        //std::shared_ptr<sfg::Table> formatMasterTable(std::shared_ptr<sfg::Table>);
         // Format the Scene Hierarchy widget
         std::shared_ptr<sfg::ScrolledWindow> formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow>);
         // Format the Component List widget
@@ -100,8 +102,8 @@ namespace Raven {
         std::shared_ptr<sfg::ScrolledWindow> formatEntityDesigner(std::shared_ptr<sfg::ScrolledWindow>);
         // Format the Prefab List widget
         std::shared_ptr<sfg::ScrolledWindow> formatPrefabList(std::shared_ptr<sfg::ScrolledWindow>);
-        // Format the Viewport widget
-        std::shared_ptr<sfg::Canvas> formatViewport(std::shared_ptr<sfg::Canvas>);
+        // Format the Canvas widget
+        std::shared_ptr<sfg::Canvas> formatCanvas(std::shared_ptr<sfg::Canvas>);
         // Format the Toolbar widget
         std::shared_ptr<sfg::Box> formatToolbar(std::shared_ptr<sfg::Box>);
 

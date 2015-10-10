@@ -728,4 +728,60 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region ComponentLibrary
+
+    class ComponentLibrary {
+    public:
+        const static std::string NULL_COMPONENT;
+        const static std::string TRANSFORM;
+        const static std::string RIGIDBODY;
+        const static std::string BOX_COLLIDER;
+        const static std::string SOUND_MAKER;
+        const static std::string MUSIC_MAKER;
+        const static std::string RENDERER;
+        const static std::string TIME_TABLE;
+        const static std::string CORE_BEHAVIOR;
+        const static std::string ACTION_LISTENER;
+
+        static ex::Entity attachComponent(ex::Entity newOwner, std::string componentName) {
+            if (componentName == TRANSFORM) {
+                newOwner.assign<Transform>();
+            }
+            else if (componentName == RIGIDBODY) {
+                newOwner.assign<Rigidbody>();
+            }
+            else if (componentName == BOX_COLLIDER) {
+                newOwner.assign<BoxCollider>();
+
+            }
+            else if (componentName == SOUND_MAKER) {
+                newOwner.assign<SoundMaker>();
+
+            }
+            else if (componentName == MUSIC_MAKER) {
+                newOwner.assign<MusicMaker>();
+
+            }
+            else if (componentName == RENDERER) {
+                newOwner.assign<Renderer>();
+
+            }
+            else if (componentName == TIME_TABLE) {
+                newOwner.assign<TimeTable>();
+
+            }
+            else if (componentName == CORE_BEHAVIOR) {
+                newOwner.assign<CoreBehavior>();
+
+            }
+            else if (componentName == ACTION_LISTENER) {
+                newOwner.assign<ActionListener>();
+
+            }
+            return newOwner;
+        }
+    };
+
+#pragma endregion
+
 }

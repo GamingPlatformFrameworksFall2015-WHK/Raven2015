@@ -95,12 +95,15 @@ namespace Raven {
             const static std::string MASTER_TABLE;      // The name of the table organizing the layout
             const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
             const static std::string COMPONENT_LIST;    // The name for the list of possible components to add to an entity
-            const static std::string RESOURCES_LIST;    // The name for the list of possible resources to be used in the game
+            const static std::string TEXTURE_LIST;      // The name for the list of textures to be used in the game
+            const static std::string MUSIC_LIST;        // The name for the list of music to be used in the game
+            const static std::string SOUND_LIST;        // The name for the list of sounds to be used in the game
+            const static std::string FONT_LIST;         // The name for the list of fonts to be used in the game
             const static std::string CONTENT;           // The name for the tabbed notebook containing the usable assets
             const static std::string TOOLBAR;           // The name for the horizontal box containing the button Brushes for the editor
             const static std::string ENTITY_DESIGNER;   // The name for the window which displays information about the selected entity
             const static std::string PREFAB_LIST;       // The name for the list of currently defined prefabs
-            const static std::string VIEWPORT;          // The name for the view into the scene 
+            const static std::string CANVAS;            // The name for the view into the scene 
         };
 
         struct GUIWidgetTypes {
@@ -122,18 +125,19 @@ namespace Raven {
         const int WINDOW_YPOS = 20;
         const float WINDOW_WIDTH = 1200;
         const float WINDOW_HEIGHT = 800;
+        const float MAIN_GUI_WINDOW_PADDING = 100;
 
-        const float TABLE_ROWS = 5;
-        const float TABLE_COLUMNS = 5;
-        const float TABLE_PADDING = 1.f;
+        const size_t TABLE_ROWS = 6;
+        const size_t TABLE_COLUMNS = 5;
+        const float TABLE_EDGE_PADDING = 50.f;
 
         const int SCENE_HIERARCHY_XPOS = 0;
         const int SCENE_HIERARCHY_YPOS = 0;
         //const float SCENE_HIERARCHY_WIDTH = 
 
-        //const int VIEWPORT_XPOS = 
-        const float VIEWPORT_WIDTH = 600;
-        const float VIEWPORT_HEIGHT = 400;
+        //const int CANVAS_XPOS = 
+        const float CANVAS_WIDTH = 600;
+        const float CANVAS_HEIGHT = 400;
 
 
 

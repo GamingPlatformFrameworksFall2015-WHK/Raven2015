@@ -166,6 +166,7 @@
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="ComponentLibrary.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
@@ -178,6 +179,7 @@
     <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="TimerSystem.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="WidgetLibrary.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioSystem.h" />
@@ -205,6 +207,7 @@
     <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="WidgetLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg" />

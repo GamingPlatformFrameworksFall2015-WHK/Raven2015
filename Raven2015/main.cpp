@@ -52,7 +52,7 @@ public:
         systems.update<InputSystem>(dt);     // process new instructions for entities
         systems.update<MovementSystem>(dt);  // move entities
         systems.update<CollisionSystem>(dt); // check whether entities are now colliding
-        systems.update<RenderingSystem>(dt); // draw all entities to the Viewport
+        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 };
