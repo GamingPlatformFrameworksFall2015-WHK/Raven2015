@@ -415,7 +415,7 @@ namespace Raven {
             : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
             frameId(frameId), sprite() {
         
-            cout << "renderSprite contructor entering" << endl;
+            cout << "renderSprite constructor entering" << endl;
             drawPtr = &sprite;
         }
 
@@ -710,9 +710,9 @@ namespace Raven {
     struct ActionListener : ex::Component<ActionListener> {
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="Pawn"/> struct.
+        /// Initializes a new instance of the <see cref="ActionListener"/> struct.
         /// </summary>
-        ActionListener() : playerId(-1) {}
+        ActionListener(int pid = -1) : playerId(pid) {}
         
         /// <summary>
         /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 

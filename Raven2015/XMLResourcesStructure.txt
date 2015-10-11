@@ -1,0 +1,115 @@
+*RavenGame //An asterisk(*) indicates that the entry is a Node. Otherwise, it is an Element with a value inside of it
+	*Assets //It is assumed that anything with "Item" as its sub-node can have a variable number of children nodes
+		*Textures //map<string, string>
+			*Item Name="" //"*Item" element with attribute "Name" equal to what is inside the ""
+				FilePath
+		*Music //map<string, string>
+			*Item Name=""
+				FilePath
+		*Sounds //map<string, string>
+			*Item Name=""
+				FilePath
+		*Fonts //map<string, string>
+			*Item Name=""
+				FilePath
+		*Animations  //map<string, Animation>
+			*Item Name=""
+				TextureName //Will use a map between texture Names and their exact file paths when instantiating an Animation
+				FrameCount
+				FrameWidth
+				FrameHeight
+				AnimationSpeed
+				IsLooping
+		*Renderables //No translated type
+			*RenderableTexts //map<string, RenderableText>
+				*Item Name=""
+					*RenderLayers
+						*Item
+							LayerName //string
+					RenderPriority //int	
+					TextContent //string
+					FontName //string
+			*RenderableRectangles //map<string, RenderableRectangle>
+				*Item Name=""
+					*RenderLayers
+						*Item
+							LayerName //string
+					RenderPriority //int
+					... //Not really usable unless we add stuff here I think...
+			*RenderableCircles //map<string, RenderableCircle>
+				*Item Name=""
+					*RenderLayers
+						*Item
+							LayerName //string
+					RenderPriority //int
+					... //Not really usable unless we add stuff here I think...
+			*RenderableSprites //map<string, RenderableSprite>
+				*Item Name=""
+					TextureName //Same deal as with the Animation's TextureName
+					AnimationName //Same deal, but now using the Animation Item's Name. "" = no animation necessary
+					*RenderLayers
+						*Item
+							LayerName //string
+					RenderPriority //int
+	*Prefabs
+		*Entity //all "items" under this heading are optional EXCEPT Data and Transform
+			*Data
+				Name //string
+			*Transform
+				*Transform
+					X //float
+					Y //float
+				Rotation //float
+			*Rigidbody
+				*Velocity
+					X //float
+					Y //float
+				*Acceleration
+					X //float
+					Y //float
+				RadialVelocity //float
+			*BoxCollider
+				Width //float
+				Height //float
+				XOffset //float
+				YOffset //float
+				*Layers
+					*Item Name=""
+						Required //bool
+						Automatic //bool
+				*Settings
+					Solid //bool
+					Trigger //bool
+			*SoundMaker
+				*Item
+					SoundName
+			*MusicMaker
+				*Item
+					MusicName
+			*Renderer
+				*Texts
+					*Item
+						TextName //string
+				*Rectangles
+					*Item
+						RectangleName //string
+				*Circles
+					*Item
+						CircleName //string
+				*Sprites
+					*Item
+						SpriteName //string
+			*TimeTable //Will not be allowed to have preset values associated with it.
+			*CoreBehavior //Modifications to the functions within will be handled within the code, not the editor
+			*ActionListener
+				PlayerID //int
+				//Might want to add the following in case we want users to be able to modify what actions are being listened to from editor
+				*Actions
+					*Item
+						ActionName //string
+		*Entity
+			...
+		*Entity
+			...
+				
+					

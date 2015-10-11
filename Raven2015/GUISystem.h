@@ -19,6 +19,7 @@
 #include "SFGUI/SFGUI.hpp"
 #include "SFGUI/Widgets.hpp"
 #include "InputSystem.h"
+#include "WidgetLibrary.h"
 
 namespace Raven {
 
@@ -54,35 +55,47 @@ namespace Raven {
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
         std::shared_ptr<sfg::ScrolledWindow> getGUISceneHierarchy() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::SCENE_HIERARCHY].get()); }
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::SCENE_HIERARCHY].get()); }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
         std::shared_ptr<sfg::ScrolledWindow> getGUIComponentList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::COMPONENT_LIST].get()); }
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::COMPONENT_LIST].get()); }
 
-        // Shortcut method for acquiring the ResourcesList, a list of the different types of assets that exist
-        std::shared_ptr<sfg::ScrolledWindow> getGUIResourcesList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::TEXTURE_LIST].get()); }
+        // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
+        std::shared_ptr<sfg::ScrolledWindow> getGUITextureList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::TEXTURE_LIST].get()); }
 
-        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of content available
+        // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
+        std::shared_ptr<sfg::ScrolledWindow> getGUIMusicList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::MUSIC_LIST].get()); }
+
+        // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
+        std::shared_ptr<sfg::ScrolledWindow> getGUISoundList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::SOUND_LIST].get()); }
+
+        // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
+        std::shared_ptr<sfg::ScrolledWindow> getGUIFontList() { return 
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::FONT_LIST].get()); }
+
+        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
         std::shared_ptr<sfg::Notebook> getGUIContent() { return 
-            std::shared_ptr<sfg::Notebook>((sfg::Notebook*) WidgetMap[cmn::PrimaryWidgetNames::CONTENT].get()); }
+            std::shared_ptr<sfg::Notebook>((sfg::Notebook*) WidgetMap[cmn::GUIWidgetNames::CONTENT].get()); }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
         std::shared_ptr<sfg::ScrolledWindow> getGUIEntityDesigner() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::ENTITY_DESIGNER].get()); }
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::ENTITY_DESIGNER].get()); }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
         std::shared_ptr<sfg::ScrolledWindow> getGUIPrefabList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST].get()); }
+            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::GUIWidgetNames::PREFAB_LIST].get()); }
 
         // Shortcut method for acquiring the Canvas, a renderable screen into the game space
         std::shared_ptr<sfg::Canvas> getCanvas() { return
-                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::CANVAS].get()); }
+                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::GUIWidgetNames::CANVAS].get()); }
 
         // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
         std::shared_ptr<sfg::Box> getToolbar() { return
-                std::shared_ptr<sfg::Box>((sfg::Box*) WidgetMap[cmn::PrimaryWidgetNames::TOOLBAR].get()); }
+                std::shared_ptr<sfg::Box>((sfg::Box*) WidgetMap[cmn::GUIWidgetNames::TOOLBAR].get()); }
 
         // Simplifies the process of creating a GUI window and its associations with other classes
         template <class T>
@@ -94,8 +107,14 @@ namespace Raven {
         std::shared_ptr<sfg::ScrolledWindow> formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow>);
         // Format the Component List widget
         std::shared_ptr<sfg::ScrolledWindow> formatComponentList(std::shared_ptr<sfg::ScrolledWindow>);
-        // Format the Resources List widget
-        std::shared_ptr<sfg::ScrolledWindow> formatResourcesList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Texture List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatTextureList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Music List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatMusicList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Sound List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatSoundList(std::shared_ptr<sfg::ScrolledWindow>);
+        // Format the Font List widget
+        std::shared_ptr<sfg::ScrolledWindow> formatFontList(std::shared_ptr<sfg::ScrolledWindow>);
         // Format the Content widget
         std::shared_ptr<sfg::Notebook> formatContent(std::shared_ptr<sfg::Notebook>);
         // Format the Entity Designer widget
@@ -120,12 +139,6 @@ namespace Raven {
         // A pointer to the RenderWindow representing the actual window created from SFML
         std::shared_ptr<sf::RenderWindow> mainWindow;
 
-        // A mapping between a two names and a GUI window to be displayed within a given RenderWindow.
-        // The first name is the name of the RenderWindow to which the SFGUI window is assigned.
-        // That same name acts as a key to the Desktop that updates the stored SFGUI window.
-        // The second name is the name of the actual sfg::Widget GUI window.
-        std::map<std::string, std::shared_ptr<sfg::Widget>> WidgetMap;
-
         // A mapping between a name and an event for polling events simultaneously between multiple windows
         std::shared_ptr<sf::Event> event;
 
@@ -146,6 +159,14 @@ namespace Raven {
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
+
+        private:
+        // A mapping between a two names and a GUI window to be displayed within a given RenderWindow.
+        // The first name is the name of the RenderWindow to which the SFGUI window is assigned.
+        // That same name acts as a key to the Desktop that updates the stored SFGUI window.
+        // The second name is the name of the actual sfg::Widget GUI window.
+        std::map<std::string, std::shared_ptr<sfg::Widget>> WidgetMap;
+
     };
 
 }

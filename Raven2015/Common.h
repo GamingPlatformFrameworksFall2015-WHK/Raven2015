@@ -17,8 +17,10 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::cin;
+using namespace tinyxml2;
 
 namespace ex = entityx;
+
 namespace Raven {
 
     namespace Common {
@@ -90,7 +92,7 @@ namespace Raven {
         };
 
         // Create a static wrapper for the various preset GUI window types
-        struct PrimaryWidgetNames {
+        struct GUIWidgetNames {
             const static std::string MASTER_WINDOW;     // The name of the top-level widget container
             const static std::string MASTER_TABLE;      // The name of the table organizing the layout
             const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
@@ -147,4 +149,3 @@ namespace Raven {
 
 namespace cmn = Raven::Common;
 namespace rvn = Raven;
-
