@@ -4,6 +4,7 @@ namespace Raven {
 
     namespace Common {
 
+        /*
         const std::string GUIWidgetNames::MASTER_WINDOW = "Editor";
         const std::string GUIWidgetNames::MASTER_TABLE = "Layout Table";
         const std::string GUIWidgetNames::SCENE_HIERARCHY = "Scene Hierarchy";
@@ -27,6 +28,7 @@ namespace Raven {
 
         const std::string CollisionLayerSettings::SOLID = "Solid";
         const std::string CollisionLayerSettings::TRIGGER = "Trigger";
+        */
 
     }
 }

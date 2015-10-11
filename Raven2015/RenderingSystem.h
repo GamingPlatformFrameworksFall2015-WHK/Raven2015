@@ -47,7 +47,7 @@ namespace Raven {
         std::shared_ptr<sf::RenderWindow> renderWindow;
 
         // A pointer to the widget used for rendering
-        std::shared_ptr<sfg::Canvas> canvas;
+        std::shared_ptr<Canvas> canvas;
 
         // A Renderable min-heap for determining draw order of text, shapes, and sprites
         std::priority_queue<Renderable> renderableHeap;
