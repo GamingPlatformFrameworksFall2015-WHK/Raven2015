@@ -52,9 +52,11 @@
 							LayerName //string
 					RenderPriority //int
 	*Prefabs
-		*Entity //all "items" under this heading are optional EXCEPT Data and Transform
+		*Entity Name="" //all "items" under this heading are optional EXCEPT Data and Transform
 			*Data
 				Name //string
+				PrefabName //string //The name of the prefab this entity is tracking/emulating
+				PrefabSynced //bool //Will be assumed to be true in this context
 			*Transform
 				*Transform
 					X //float
@@ -111,5 +113,11 @@
 			...
 		*Entity
 			...
+	*Level Name=""
+		*Item
+			PrefabName //string //If an empty string is given here, it will be assumed that a fully defined Entity follows
+			*Entity
+				...
+	
 				
 					
