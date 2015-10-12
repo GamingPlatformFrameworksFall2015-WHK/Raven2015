@@ -25,12 +25,21 @@
 
 namespace Raven {
 
+#pragma region Data
+
+    struct Data : public ex::Component<Data> {
+        std::string name;
+        std::shared_ptr<ex::Entity> prefab;
+    };
+
+#pragma endregion
+
 #pragma region Physics
     
     /*
      * A component enabling a passive physical state. Required for placement.
      */
-    struct Transform : public ex::Component<Transform> {
+    struct Transform : public ex::Component<Transform>, public cmn::Serializable {
 
         // Default constructor
         Transform(const float transformX = 0.0f, const float transformY = 0.0f,
@@ -40,10 +49,6 @@ namespace Raven {
             transform.y = transformY;
         }
 
-        // Primary custom constructor. Requires placement with optional rotation.
-        Transform(const sf::Vector2f &transform, float rotation = 0.0)
-            : transform(transform), rotation(rotation) {}
-
         // The x and y coordinates of the entity's Origin.
         sf::Vector2f transform;
 
@@ -52,6 +57,26 @@ namespace Raven {
          * Assumes that 0 begins at the right, running counterclockwise.
          */
         float rotation;
+
+        virtual std::string serialize(std::string tab) override {
+            return
+                tab + "<Transform>\r\n" +
+                tab + "  <Transform>\r\n" +
+                tab + "    <X>" + std::to_string(this->transform.x) + "</X>\r\n" +
+                tab + "    <Y>" + std::to_string(this->transform.y) + "</Y>\r\n" +
+                tab + "  </Transform>\r\n" +
+                tab + "  <Rotation>" + std::to_string(this->rotation) + "</Rotation>\r\n" +
+                tab + "</Transform>\r\n";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            XMLNode* t = node->FirstChild();
+            t->FirstChildElement("X")->QueryFloatText(&(this->transform.x));
+            t->FirstChildElement("Y")->QueryFloatText(&this->transform.y);
+            node->FirstChildElement("Rotation")->QueryFloatText(&this->rotation);
+        }
+
+        virtual std::string getElementName() override { return "Transform"; }
     };
 
     /*

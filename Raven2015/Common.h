@@ -12,6 +12,7 @@
 #include <iostream>
 #include "entityx\config.h"
 #include "tinyxml2.h"
+#include "entityx/Entity.h"
 
 using std::cout;
 using std::cerr;
@@ -81,14 +82,14 @@ namespace Raven {
             // Default Null Constructor
             Serializable() {}
 
-            // Primary enforcement of abstract class
-            virtual ~Serializable() = 0;
-
             // Allow the ISerializable to output an XML string representation of its properties
-            std::string(*serialize)();
+            virtual std::string serialize(std::string tab) = 0;
 
             // Allow the ISerializable to assign new values to its properties via an XML string
-            void(*deserialize)(std::string &xml);
+            virtual void deserialize(XMLNode* node) = 0;
+
+            // Returns the text within the Node that represents the contents of the serializable object
+            virtual std::string getElementName() = 0;
         };
 
         // The default position/dimensions of our various windows
