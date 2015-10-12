@@ -37,11 +37,8 @@ namespace Raven {
 
         //Update data and perform logic every "tick"
         void update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) override;
-        
-        /// <summary>
-        /// Responses the specified KeyboardEvent.
-        /// </summary>
-        /// <param name="event">The event.</param>
+                        
+        // Receives KeyboardEvents
         void receive(const KeyboardEvent &event);
 
         /*

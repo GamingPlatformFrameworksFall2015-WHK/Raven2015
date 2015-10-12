@@ -27,29 +27,33 @@
 #include "CollisionSystem.h"
 #include "InputSystem.h"
 #include "RenderingSystem.h"
+#include "GUISystem.h"
 #include "entityx/deps/Dependencies.h"
 
 using namespace Raven;
 
 class Game : public ex::EntityX {
 public:
-    explicit Game(sf::RenderTarget &target) {
-        systems.add<MovementSystem>();
-        systems.add<AudioSystem>();
-        systems.add<CollisionSystem>();
-        systems.add<InputSystem>();
-        systems.add<RenderingSystem>();
+    explicit Game(sf::RenderTarget &target) : Game() {}
+
+    explicit Game() {
+        systems.add<MovementSystem>();  // No dependencies
+        systems.add<AudioSystem>();     // No dependencies
+        systems.add<CollisionSystem>(); // No dependencies
+        systems.add<InputSystem>();     // No dependencies
+        systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-        systems.add<ex::deps::Dependency<CircleCollider, Rigidbody, Transform>>();
         systems.configure();
     }
 
     void update(ex::TimeDelta dt) {
-        systems.update<MovementSystem>(dt); 
-        systems.update<CollisionSystem>(dt); 
-        systems.update<InputSystem>(dt);
-        systems.update<RenderingSystem>(dt);
+        systems.update<InputSystem>(dt);     // process new instructions for entities
+        systems.update<MovementSystem>(dt);  // move entities
+        systems.update<CollisionSystem>(dt); // check whether entities are now colliding
+        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
+        systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 };
 
@@ -57,9 +61,12 @@ int main() {
 
     std::srand((unsigned int)std::time(nullptr));
 
-    // Create game window
-    sf::RenderWindow window(sf::VideoMode(600, 400), "Raven Test");
-    Game game(window);
+    // Create EntityX-required game window (but won't be used)
+    sf::RenderWindow requiredWindow;
+
+    // Create EntityX manager object
+    Game game(requiredWindow);
+    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
@@ -67,7 +74,7 @@ int main() {
     ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
     renderer->sprites["BlueDot"].reset(new RenderableSprite(
         "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
-    game.systems.system<RenderingSystem>()->initialize(game.entities, window);
+    game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
@@ -94,9 +101,7 @@ int main() {
     sf::Clock mainClock;
     Timer fpsTimer;
     int fps = 0;
-    while (window.isOpen()) {
-
-        sf::Event event;
+    while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
 
         // Calculate FPS based on iterations game loop has completed in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
@@ -108,50 +113,17 @@ int main() {
             fps++;
         }
 
-        //efps_renderer->texts["FPS"].text.setString(sf::String(std::to_string(fps)));
+        game.systems.system<GUISystem>()->pollEvents();
 
-        while (window.pollEvent(event)) {
-            input->setEventType(event);
-            switch (event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed: {
-                int speed = 10;
-                if (input->getAction(event.key.code) == "move_right") {
-                    entity1.component<Transform>().get()->transform.x += speed;
-                }
-                else if (input->getAction(event.key.code) == "move_down") {
-                    entity1.component<Transform>().get()->transform.y += speed;
-                }
-                else if (input->getAction(event.key.code) == "move_left") {
-                    entity1.component<Transform>().get()->transform.x -= speed;
-                }
-                else if (input->getAction(event.key.code) == "move_up") {
-                    entity1.component<Transform>().get()->transform.y -= speed;
-                }
-                else if (input->getAction(event.key.code) == "exit") {
-                    window.close();
-                }
-                break;
-            }
-            case sf::Event::MouseButtonPressed:
-                break;
-            case sf::Event::JoystickButtonPressed:
-                break;
-            case sf::Event::JoystickMoved:
-                break;
-            }
-        }
+        //
+        // Per iteration, clear the window, record delta time, update systems,
+        // and redisplay.
+        //
 
-        /*
-        * Per iteration, clear the window, record delta time, update systems,
-        * and redisplay.
-        */
-        window.clear();
+        game.systems.system<GUISystem>()->clear();
         sf::Time deltaTime = mainClock.restart();
         game.update(deltaTime.asSeconds());
-        window.display();
+        game.systems.system<GUISystem>()->display();
     }
 
 

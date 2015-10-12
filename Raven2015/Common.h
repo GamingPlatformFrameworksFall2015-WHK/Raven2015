@@ -7,9 +7,11 @@
 #define FPS_60_TICK_TIME 0.0166666666666f
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
+#define NO_ACTION_STR "NO ACTION"
 
 #include <iostream>
 #include "entityx\config.h"
+#include "tinyxml2.h"
 
 using std::cout;
 using std::cerr;
@@ -28,7 +30,7 @@ namespace Raven {
         enum EAudioOperation { NO_AUDIO_OPERATION, AUDIO_LOAD, AUDIO_UNLOAD, AUDIO_PLAY, AUDIO_PAUSE, AUDIO_STOP };
 
         // An enumeration type detailing the possible operations for timers.
-        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN };
+        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN, TIMER_REMOVE, TIMER_ADD };
 
         // An enumeration type detailing how a loop state should be assigned.
         enum ELoop { LOOP_FALSE, LOOP_TRUE, LOOP_UNCHANGED };
@@ -87,7 +89,57 @@ namespace Raven {
             void(*deserialize)(std::string &xml);
         };
 
-        //static void ()
+        // Create a static wrapper for the various preset GUI window types
+        struct PrimaryWidgetNames {
+            const static std::string MASTER_WINDOW;     // The name of the top-level widget container
+            const static std::string MASTER_TABLE;      // The name of the table organizing the layout
+            const static std::string SCENE_HIERARCHY;   // The name for the list of named entities present in the scene
+            const static std::string COMPONENT_LIST;    // The name for the list of possible components to add to an entity
+            const static std::string TEXTURE_LIST;      // The name for the list of textures to be used in the game
+            const static std::string MUSIC_LIST;        // The name for the list of music to be used in the game
+            const static std::string SOUND_LIST;        // The name for the list of sounds to be used in the game
+            const static std::string FONT_LIST;         // The name for the list of fonts to be used in the game
+            const static std::string CONTENT;           // The name for the tabbed notebook containing the usable assets
+            const static std::string TOOLBAR;           // The name for the horizontal box containing the button Brushes for the editor
+            const static std::string ENTITY_DESIGNER;   // The name for the window which displays information about the selected entity
+            const static std::string PREFAB_LIST;       // The name for the list of currently defined prefabs
+            const static std::string CANVAS;            // The name for the view into the scene 
+        };
+
+        struct GUIWidgetTypes {
+            const static std::string WIDGET;            // The name of the base abstract Widget class
+            const static std::string WINDOW;            // The name of the single-Widget container class
+            const static std::string BOX;               // The name of the multi-Widget container class with a specified orientation
+            const static std::string TABLE;             // The name of the multi-Widget container class with a specified layout
+            const static std::string CANVAS;            // The name of the special Widget that can be drawn to with SFML
+            const static std::string BUTTON;            // The name of the Widget that can be clicked to trigger an action
+        };
+
+        struct CollisionLayerSettings {
+            const static std::string SOLID;             // The layer that indicates the entities should be "pushed out of each other"
+            const static std::string TRIGGER;           // The layer that indicates the entity will react to the collision
+        };
+
+        // The default position/dimensions of our various windows
+        const int WINDOW_XPOS = 20;
+        const int WINDOW_YPOS = 20;
+        const float WINDOW_WIDTH = 1200;
+        const float WINDOW_HEIGHT = 800;
+        const float MAIN_GUI_WINDOW_PADDING = 100;
+
+        const size_t TABLE_ROWS = 6;
+        const size_t TABLE_COLUMNS = 5;
+        const float TABLE_EDGE_PADDING = 50.f;
+
+        const int SCENE_HIERARCHY_XPOS = 0;
+        const int SCENE_HIERARCHY_YPOS = 0;
+        //const float SCENE_HIERARCHY_WIDTH = 
+
+        //const int CANVAS_XPOS = 
+        const float CANVAS_WIDTH = 600;
+        const float CANVAS_HEIGHT = 400;
+
+
 
     };
 

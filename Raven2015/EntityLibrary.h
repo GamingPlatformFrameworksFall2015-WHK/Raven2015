@@ -12,7 +12,6 @@
 */
 #pragma once
 
-#include "Common.h"
 #include "entityx\Entity.h"
 #include "ComponentLibrary.h"
 
@@ -38,10 +37,11 @@ namespace Raven {
         }
 
     };
-
     /*
-     * Actors are entities that have a precise location in the game space
-     */
+
+    //
+    // Actors are entities that have a precise location in the game space
+    //
     class Actor : public Entity {
     public:
         // Default Constructor
@@ -50,5 +50,27 @@ namespace Raven {
         }
     };
 
+    //
+    // Agents are Actors that listen for user-defined input actions and react accordingly by default
+    //
+    class Agent : public Actor {
+    public:
+        // Default Constructor
+        Agent() : Actor() {
+            assign<ActionListener>();
+        }
+    };
+
+    //
+    // Automatons are Actors that react to system-defined events
+    //
+    class Automaton : public Actor {
+    public:
+        // Default Constructor
+        Automaton() : Actor() {
+            assign<CoreBehavior>();
+        }
+    };
+    */
 
 }

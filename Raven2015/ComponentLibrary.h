@@ -20,12 +20,13 @@
 #include <map>                          // For std::map
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For entityx::Component
-#include "Common.h"                     // For EAudioType
+#include "EntityLibrary.h"              // For Entity
+#include "Common.h"                     // For etc.
 
 namespace Raven {
 
 #pragma region Physics
-
+    
     /*
      * A component enabling a passive physical state. Required for placement.
      */
@@ -163,10 +164,29 @@ namespace Raven {
         /// The range of the y-axis of the collider. Origin in the middle.
         /// </summary>
         float height;
+        
+        /// <summary>
+        /// <para>The set of layers to which the collider is assigned.</para> 
+        /// <para>The collider will "collide" with any BoxCollider that possesses the same entry.</para>
+        /// <para>The value is a boolean pair of options dictating when CollisionEvents are emitted.
+        ///       First="Required". Second="Automatic".</para>
+        /// <para>"Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.</para>
+        /// <para>"Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.</para>
+        /// <para>An "automatic" setting will override any lack of "required" layers</para>
+        /// </summary>
+        std::map<std::string, std::pair<bool, bool>> layers;
+        
+        /// <summary>
+        /// <para>The collision settings. Valid values can be found in Common::CollisionLayerSettings</para>
+        /// <para>SOLID : The layer that indicates the entities should be "pushed out of each other"</para>
+        /// <para>TRIGGER : The layer that indicates the entity will react to the collision</para>
+        /// </summary>
+        std::set<std::string> collisionSettings;
     };
     
     /// <summary>
-    /// A Collider with a circle-shaped collision area.
+    /// <para>A Collider with a circle-shaped collision area.</para>
+    /// <para>WARNING: CURRENTLY UNUSED</para>
     /// </summary>
     struct CircleCollider : Collider {
         
@@ -558,9 +578,9 @@ namespace Raven {
         /// <summary>
         /// Rewind or advance the timer by a given amount        
         /// </summary>
-        /// <param name="scanDis">The distance to be scanned left or right in the timeline</param>
-        void scan(ex::TimeDelta scanDistance) {
-            elapsedTime += scanDistance;
+        /// <param name="scanDistance">The distance to be scanned left or right in the timeline</param>
+        void scan(ex::TimeDelta scanDistancetance) {
+            elapsedTime += scanDistancetance;
         }
 
         /// <summary>
@@ -682,5 +702,86 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region ActionListener
+    
+    /// <summary>
+    /// A class designed to "listen" for specific actions and provide a response for the entity
+    /// </summary>
+    struct ActionListener : ex::Component<ActionListener> {
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Pawn"/> struct.
+        /// </summary>
+        ActionListener() : playerId(-1) {}
+        
+        /// <summary>
+        /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
+        /// </summary>
+        /// <remarks>Will need to replace std::string if the format of actions ever changes</remarks>
+        std::map<std::string, void(*)(ex::Entity &entity)> actionMap;
+        
+        /// <summary>
+        /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
+        /// </summary>
+        int playerId;
+    };
+
+#pragma endregion
+
+#pragma region ComponentLibrary
+
+    class ComponentLibrary {
+    public:
+        const static std::string NULL_COMPONENT;
+        const static std::string TRANSFORM;
+        const static std::string RIGIDBODY;
+        const static std::string BOX_COLLIDER;
+        const static std::string SOUND_MAKER;
+        const static std::string MUSIC_MAKER;
+        const static std::string RENDERER;
+        const static std::string TIME_TABLE;
+        const static std::string CORE_BEHAVIOR;
+        const static std::string ACTION_LISTENER;
+
+        static ex::Entity attachComponent(ex::Entity newOwner, std::string componentName) {
+            if (componentName == TRANSFORM) {
+                newOwner.assign<Transform>();
+            }
+            else if (componentName == RIGIDBODY) {
+                newOwner.assign<Rigidbody>();
+            }
+            else if (componentName == BOX_COLLIDER) {
+                newOwner.assign<BoxCollider>();
+
+            }
+            else if (componentName == SOUND_MAKER) {
+                newOwner.assign<SoundMaker>();
+
+            }
+            else if (componentName == MUSIC_MAKER) {
+                newOwner.assign<MusicMaker>();
+
+            }
+            else if (componentName == RENDERER) {
+                newOwner.assign<Renderer>();
+
+            }
+            else if (componentName == TIME_TABLE) {
+                newOwner.assign<TimeTable>();
+
+            }
+            else if (componentName == CORE_BEHAVIOR) {
+                newOwner.assign<CoreBehavior>();
+
+            }
+            else if (componentName == ACTION_LISTENER) {
+                newOwner.assign<ActionListener>();
+
+            }
+            return newOwner;
+        }
+    };
+
+#pragma endregion
 
 }

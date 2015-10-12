@@ -27,8 +27,13 @@ void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 }
 
+/// <summary>
+/// Receives KeyboardEvents
+/// </summary>
+/// <param name="event">The event.</param>
 void InputSystem::receive(const KeyboardEvent &event) {
-    cout << "Key was pressed : " + event.action << endl;
+    cout << "Key was pressed : " + 
+        (event.action == "" ? NO_ACTION_STR : event.action) << endl;
 }
 
 int InputSystem::setEventType(sf::Event event) {
