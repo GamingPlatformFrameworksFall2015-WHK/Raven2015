@@ -3,6 +3,7 @@
 namespace Raven {
 
     const std::string ComponentLibrary::NULL_COMPONENT = "NULL_COMPONENT";
+    const std::string ComponentLibrary::DATA = "Data";
     const std::string ComponentLibrary::TRANSFORM = "Transform";
     const std::string ComponentLibrary::RIGIDBODY = "Rigidbody";
     const std::string ComponentLibrary::BOX_COLLIDER = "BoxCollider";

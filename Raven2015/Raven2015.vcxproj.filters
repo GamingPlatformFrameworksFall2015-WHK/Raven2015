@@ -105,6 +105,9 @@
     <ClCompile Include="WidgetLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="XMLSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventLibrary.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="WidgetLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

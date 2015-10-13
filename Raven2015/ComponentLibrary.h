@@ -27,9 +27,69 @@ namespace Raven {
 
 #pragma region Data
 
-    struct Data : public ex::Component<Data> {
+    struct Data : public ex::Component<Data>, public cmn::Serializable {
         std::string name;
         std::shared_ptr<ex::Entity> prefab;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+            layersContent +=
+            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+            tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+            tab + "<BoxCollider>\r\n" +
+            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+            tab + "  <Layers>\r\n" +
+            layersContent +
+            tab + "  </Layers>\r\n" +
+            tab + "  <Settings>\r\n" +
+            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+            tab + "  </Settings>\r\n" +
+            tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+            std::string layerName = t->Attribute("Name");
+            bool required, automatic;
+            t->FirstChildElement("Required")->QueryBoolText(&required);
+            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+            bool val;
+            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "Data"; }
     };
 
 #pragma endregion
@@ -241,10 +301,10 @@ namespace Raven {
             std::string layersContent = "";
             for (std::pair<std::string, std::pair<bool, bool>> layer : layers) {
                 layersContent +=
-                    tab + "  <" + layer.first + ">\r\n" +
-                    tab + "    <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-                    tab + "    <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-                    tab + "  </" + layer.first + ">\r\n";
+                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+                    tab + "    </Layer>\r\n";
             }
             bool solid = collisionSettings.find("Solid") != collisionSettings.end();
             bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
@@ -266,13 +326,28 @@ namespace Raven {
         }
 
         virtual void deserialize(XMLNode* node) override {
-            XMLNode* t = node->FirstChildElement("Velocity");
-            /*t->FirstChildElement("X")->QueryFloatText(&(this->velocity.x));
-            t->FirstChildElement("Y")->QueryFloatText(&this->velocity.y);
-            t = node->FirstChildElement("Acceleration");
-            t->FirstChildElement("X")->QueryFloatText(&(this->acceleration.x));
-            t->FirstChildElement("Y")->QueryFloatText(&this->acceleration.y);
-            node->FirstChildElement("RadialVelocity")->QueryFloatText(&this->radialVelocity);*/
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+                std::string layerName = t->Attribute("Name");
+                bool required, automatic;
+                t->FirstChildElement("Required")->QueryBoolText(&required);
+                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::CollisionInformation::settings) {
+                bool val;
+                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+                if (val) collisionSettings.insert(setting);
+            }
         }
 
         virtual std::string getElementName() override { return "BoxCollider"; }
@@ -293,7 +368,7 @@ namespace Raven {
     /// <para>A component that stores the names of tracks for sf::Sound.</para>
     /// <para>sf::Sound is optimized for small audio tracks (a few seconds).</para>
     /// </summary>
-    struct SoundMaker : public AudioMaker {
+    struct SoundMaker : public AudioMaker, public cmn::Serializable {
 
         /// <summary>
         /// Default constructor
@@ -309,13 +384,73 @@ namespace Raven {
         /// An object for performing sound operations on a buffer.
         /// </summary>
         sf::Sound sound;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+                layersContent +=
+                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+                    tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+                tab + "<BoxCollider>\r\n" +
+                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+                tab + "  <Layers>\r\n" +
+                layersContent +
+                tab + "  </Layers>\r\n" +
+                tab + "  <Settings>\r\n" +
+                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+                tab + "  </Settings>\r\n" +
+                tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+                std::string layerName = t->Attribute("Name");
+                bool required, automatic;
+                t->FirstChildElement("Required")->QueryBoolText(&required);
+                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+                bool val;
+                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+                if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "SoundMaker"; }
     };
 
     /// <summary>
     /// <para>A component that stores the names of tracks for sf::Music.</para>
     /// <para>sf::Music is optimized for large audio tracks (~30 seconds+).</para>
     /// </summary>
-    struct MusicMaker : public AudioMaker {
+    struct MusicMaker : public AudioMaker, public cmn::Serializable {
 
         /// <summary>
         /// Default constructor
@@ -326,6 +461,66 @@ namespace Raven {
         /// A mapping between music file names and their stream storage objects
         /// </summary>
         MUSICMAP_T musicMap;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+                layersContent +=
+                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+                    tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+                tab + "<BoxCollider>\r\n" +
+                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+                tab + "  <Layers>\r\n" +
+                layersContent +
+                tab + "  </Layers>\r\n" +
+                tab + "  <Settings>\r\n" +
+                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+                tab + "  </Settings>\r\n" +
+                tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+                std::string layerName = t->Attribute("Name");
+                bool required, automatic;
+                t->FirstChildElement("Required")->QueryBoolText(&required);
+                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+                bool val;
+                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+                if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "MusicMaker"; }
     };
 
 #pragma endregion
@@ -400,14 +595,14 @@ namespace Raven {
     struct RenderableText : public Renderable {
 
         RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
-            const std::string &fontFile = "", const sf::Color &color = sf::Color::White,
+            const std::string &fontFilePath = "", const sf::Color &color = sf::Color::White,
             cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority) {
+            : Renderable(renderLayer, renderPriority), fontFilePath(fontFilePath) {
 
             drawPtr = &text;
 
-            if (!font.loadFromFile(fontFile)) {
-                cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
+            if (!font.loadFromFile(fontFilePath)) {
+                cerr << "Error: RenderableText failed to load font file <" + fontFilePath + ">" << endl;
                 throw 1;
             }
 
@@ -421,6 +616,11 @@ namespace Raven {
         /// A Font used to format text
         /// </summary>
         sf::Font font;
+        
+        /// <summary>
+        /// The Font file path
+        /// </summary>
+        std::string fontFilePath;
 
         /// <summary>
         /// A Text used to draw text to the window        
@@ -506,7 +706,7 @@ namespace Raven {
     /// <summary>
     /// A component used to store renderable assets. Each asset is mapped by a name
     /// </summary>
-    struct Renderer : public ex::Component<Renderer> {
+    struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
 
         Renderer() {
 
@@ -535,6 +735,66 @@ namespace Raven {
         /// Maps a string name to a given Sprite to be rendered        
         /// </summary>
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+            layersContent +=
+            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+            tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+            tab + "<BoxCollider>\r\n" +
+            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+            tab + "  <Layers>\r\n" +
+            layersContent +
+            tab + "  </Layers>\r\n" +
+            tab + "  <Settings>\r\n" +
+            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+            tab + "  </Settings>\r\n" +
+            tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+            std::string layerName = t->Attribute("Name");
+            bool required, automatic;
+            t->FirstChildElement("Required")->QueryBoolText(&required);
+            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+            bool val;
+            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "Renderer"; }
     };
 
      /// <summary>
@@ -701,7 +961,7 @@ namespace Raven {
         bool isPlaying;
     };
 
-    struct TimeTable : public ex::Component<TimeTable> {        
+    struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeTable"/> struct.
         /// </summary>
@@ -712,6 +972,66 @@ namespace Raven {
         /// <remarks>Needs to be ported to a TimerSystem and keep just the names of owned timers</remarks>
         /// </summary>
         std::map<std::string, Timer> timerMap;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+            layersContent +=
+            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+            tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+            tab + "<BoxCollider>\r\n" +
+            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+            tab + "  <Layers>\r\n" +
+            layersContent +
+            tab + "  </Layers>\r\n" +
+            tab + "  <Settings>\r\n" +
+            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+            tab + "  </Settings>\r\n" +
+            tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+            std::string layerName = t->Attribute("Name");
+            bool required, automatic;
+            t->FirstChildElement("Required")->QueryBoolText(&required);
+            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+            bool val;
+            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "TimeTable"; }
     };
 
 #pragma endregion
@@ -722,7 +1042,7 @@ namespace Raven {
     /// <summary>
     /// A baseline Behavior component with functionality that many entities will likely reference.
     /// </summary>
-    struct CoreBehavior : public ex::Component<CoreBehavior> {
+    struct CoreBehavior : public ex::Component<CoreBehavior>, public cmn::Serializable {
         
         /// <summary>
         /// Initializes a new instance of the <see cref="CoreBehavior"/> struct.
@@ -760,6 +1080,66 @@ namespace Raven {
         /// </summary>
         void(*postUpdate)(ex::TimeDelta dt);
 
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+            layersContent +=
+            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+            tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+            tab + "<BoxCollider>\r\n" +
+            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+            tab + "  <Layers>\r\n" +
+            layersContent +
+            tab + "  </Layers>\r\n" +
+            tab + "  <Settings>\r\n" +
+            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+            tab + "  </Settings>\r\n" +
+            tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+            std::string layerName = t->Attribute("Name");
+            bool required, automatic;
+            t->FirstChildElement("Required")->QueryBoolText(&required);
+            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+            bool val;
+            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "CoreBehavior"; }
+
     };
 
 #pragma endregion
@@ -769,7 +1149,7 @@ namespace Raven {
     /// <summary>
     /// A class designed to "listen" for specific actions and provide a response for the entity
     /// </summary>
-    struct ActionListener : ex::Component<ActionListener> {
+    struct ActionListener : ex::Component<ActionListener>, public cmn::Serializable {
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ActionListener"/> struct.
@@ -786,6 +1166,66 @@ namespace Raven {
         /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
         /// </summary>
         int playerId;
+
+        virtual std::string serialize(std::string tab) override {
+            /*
+            std::string layersContent = "";
+            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
+            layersContent +=
+            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
+            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+            tab + "    </Layer>\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+            tab + "<BoxCollider>\r\n" +
+            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+            tab + "  <Layers>\r\n" +
+            layersContent +
+            tab + "  </Layers>\r\n" +
+            tab + "  <Settings>\r\n" +
+            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+            tab + "  </Settings>\r\n" +
+            tab + "</BoxCollider>\r\n";
+            */
+            return "";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            /*
+            node->FirstChildElement("Width")->QueryFloatText(&this->width);
+            node->FirstChildElement("Height")->QueryFloatText(&this->height);
+            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
+            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
+
+            XMLElement* t = node->FirstChildElement("Layer");
+            layers.clear();
+            do {
+            std::string layerName = t->Attribute("Name");
+            bool required, automatic;
+            t->FirstChildElement("Required")->QueryBoolText(&required);
+            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
+            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
+            } while (t = t->NextSiblingElement("Layer"));
+
+            t = node->FirstChildElement("Settings");
+            collisionSettings.clear();
+            for (std::string setting : cmn::collisionSettingPossibilities) {
+            bool val;
+            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            if (val) collisionSettings.insert(setting);
+            }
+            */
+        }
+
+        virtual std::string getElementName() override { return "ActionListener"; }
     };
 
 #pragma endregion
@@ -795,6 +1235,7 @@ namespace Raven {
     class ComponentLibrary {
     public:
         const static std::string NULL_COMPONENT;
+        const static std::string DATA;
         const static std::string TRANSFORM;
         const static std::string RIGIDBODY;
         const static std::string BOX_COLLIDER;
@@ -806,7 +1247,10 @@ namespace Raven {
         const static std::string ACTION_LISTENER;
 
         static ex::Entity attachComponent(ex::Entity newOwner, std::string componentName) {
-            if (componentName == TRANSFORM) {
+            if (componentName == DATA) {
+                newOwner.assign<Data>();
+            }
+            else if (componentName == TRANSFORM) {
                 newOwner.assign<Transform>();
             }
             else if (componentName == RIGIDBODY) {

@@ -30,5 +30,9 @@ namespace Raven {
         const std::string CollisionLayerSettings::TRIGGER = "Trigger";
         */
 
+        const std::string Serializable::t = "  ";
+
+        const std::set<std::string> CollisionInformation::settings({ "Solid", "Trigger" });
+
     }
 }

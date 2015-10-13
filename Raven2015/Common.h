@@ -90,6 +90,8 @@ namespace Raven {
 
             // Returns the text within the Node that represents the contents of the serializable object
             virtual std::string getElementName() = 0;
+
+            static const std::string t;
         };
 
         // The default position/dimensions of our various windows
@@ -111,7 +113,12 @@ namespace Raven {
         const float CANVAS_WIDTH = 600;
         const float CANVAS_HEIGHT = 400;
 
+        struct CollisionInformation {
 
+            static const std::set<std::string> settings;
+
+        };
+        //const std::set<std::string> collisionSettingPossibilities("Solid", "Trigger");
 
     };
 
