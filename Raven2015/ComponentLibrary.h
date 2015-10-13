@@ -82,7 +82,7 @@ namespace Raven {
     /*
      * A component enabling a dynamic physical state. Required for movement.
      */
-    struct Rigidbody : public ex::Component<Rigidbody> {
+    struct Rigidbody : public ex::Component<Rigidbody>, public cmn::Serializable {
 
         // Default Constructor. All fields initialized to zero.
         Rigidbody(const float velocityX = 0.0f, const float velocityY = 0.0f,
@@ -113,6 +113,33 @@ namespace Raven {
 
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
+
+        virtual std::string serialize(std::string tab) override {
+            return
+                tab + "<Rigidbody>\r\n" +
+                tab + "  <Velocity>\r\n" +
+                tab + "    <X>" + std::to_string(this->velocity.x) + "</X>\r\n" +
+                tab + "    <Y>" + std::to_string(this->velocity.y) + "</Y>\r\n" +
+                tab + "  </Velocity>\r\n" +
+                tab + "  <Acceleration>\r\n" +
+                tab + "    <X>" + std::to_string(this->acceleration.x) + "</X>\r\n" +
+                tab + "    <Y>" + std::to_string(this->acceleration.y) + "</Y>\r\n" +
+                tab + "  </Acceleration>\r\n" +
+                tab + "  <RadialVelocity>" + std::to_string(this->radialVelocity) + "</RadialVelocity>\r\n" +
+                tab + "</Rigidbody>\r\n";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            XMLNode* t = node->FirstChildElement("Velocity");
+            t->FirstChildElement("X")->QueryFloatText(&(this->velocity.x));
+            t->FirstChildElement("Y")->QueryFloatText(&this->velocity.y);
+            t = node->FirstChildElement("Acceleration");
+            t->FirstChildElement("X")->QueryFloatText(&(this->acceleration.x));
+            t->FirstChildElement("Y")->QueryFloatText(&this->acceleration.y);
+            node->FirstChildElement("RadialVelocity")->QueryFloatText(&this->radialVelocity);
+        }
+
+        virtual std::string getElementName() override { return "Rigidbody"; }
     };
     
     /// <summary>
@@ -134,6 +161,7 @@ namespace Raven {
 
         // The x-y coordinate of the collider's center relative to its transform.
         sf::Vector2f originOffset;
+
     };
         
     /// <summary>
@@ -144,7 +172,7 @@ namespace Raven {
     /// <summary>
     /// A Collider with a box-shaped collision area
     /// </summary>
-    struct BoxCollider : Collider {
+    struct BoxCollider : public Collider, public cmn::Serializable {
 
          /// <summary>
          /// Initializes a new instance of the <see cref="BoxCollider"/> struct.
@@ -207,40 +235,49 @@ namespace Raven {
         /// <para>TRIGGER : The layer that indicates the entity will react to the collision</para>
         /// </summary>
         std::set<std::string> collisionSettings;
+
+        virtual std::string serialize(std::string tab) override {
+
+            std::string layersContent = "";
+            for (std::pair<std::string, std::pair<bool, bool>> layer : layers) {
+                layersContent +=
+                    tab + "  <" + layer.first + ">\r\n" +
+                    tab + "    <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
+                    tab + "    <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
+                    tab + "  </" + layer.first + ">\r\n";
+            }
+            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
+            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+
+            return
+                tab + "<BoxCollider>\r\n" +
+                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
+                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
+                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
+                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
+                tab + "  <Layers>\r\n" +
+                layersContent +
+                tab + "  </Layers>\r\n" +
+                tab + "  <Settings>\r\n" +
+                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
+                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
+                tab + "  </Settings>\r\n" +
+                tab + "</BoxCollider>\r\n";
+        }
+
+        virtual void deserialize(XMLNode* node) override {
+            XMLNode* t = node->FirstChildElement("Velocity");
+            /*t->FirstChildElement("X")->QueryFloatText(&(this->velocity.x));
+            t->FirstChildElement("Y")->QueryFloatText(&this->velocity.y);
+            t = node->FirstChildElement("Acceleration");
+            t->FirstChildElement("X")->QueryFloatText(&(this->acceleration.x));
+            t->FirstChildElement("Y")->QueryFloatText(&this->acceleration.y);
+            node->FirstChildElement("RadialVelocity")->QueryFloatText(&this->radialVelocity);*/
+        }
+
+        virtual std::string getElementName() override { return "BoxCollider"; }
     };
     
-    /// <summary>
-    /// <para>A Collider with a circle-shaped collision area.</para>
-    /// <para>WARNING: CURRENTLY UNUSED</para>
-    /// </summary>
-    struct CircleCollider : Collider {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CircleCollider"/> struct.
-        /// </summary>
-        /// <remarks>Defaults radius to 1/2 the standard unit in Common</remarks>
-        /// <param name="radius">The radius</param>
-        /// <param name="x">The x coordinate</param>
-        /// <param name="y">The y coordinate</param>
-        CircleCollider(const float radius = 0.5*(cmn::STD_UNITX),
-            const float x = 0.0f, const float y = 0.0f)
-            : radius(radius) {
-
-            originOffset.x = x;
-            originOffset.y = y;
-        }
-        
-        /// <summary>
-        /// Finalizes an instance of the <see cref="CircleCollider"/> class.
-        /// </summary>
-        virtual ~CircleCollider() override {}
-        
-        /// <summary>
-        /// The radius of the circular collision area
-        /// </summary>
-        float radius;
-    };
-
 #pragma endregion
 
 #pragma region Audio
