@@ -23,7 +23,7 @@
 		*Renderables //No translated type
 			*RenderableTexts //map<string, RenderableText>
 				*Item Name=""
-					*RenderLayer //int (enum)
+					RenderLayer //int (enum)
 					RenderPriority //int	
 					TextContent //string
 					FontFilePath //string
@@ -39,10 +39,10 @@
 					... //Not really usable unless we add stuff here I think...
 			*RenderableSprites //map<string, RenderableSprite>
 				*Item Name=""
-					TextureFilePath //Same deal as with the Animation's TextureFilePath
-					AnimationName //Same deal, but now using the Animation Item's Name. "" = no animation necessary
 					RenderLayer //int (enum)
 					RenderPriority //int
+					TextureFilePath //Same deal as with the Animation's TextureFilePath
+					AnimationName //Same deal, but now using the Animation Item's Name. "" = no animation necessary
 	*Prefabs
 		*Entity Name="" //all "items" under this heading are optional EXCEPT Data and Transform
 			*Data
@@ -100,7 +100,7 @@
 		*Entity
 			...
 	*Level Name=""
-		*Item
+		*Entities
 			PrefabName //string //If an empty string is given here, it will be assumed that a fully defined Entity follows
 			*Entity
 				...
