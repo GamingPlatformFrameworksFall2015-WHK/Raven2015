@@ -67,8 +67,10 @@ namespace Raven {
             bool checkForPrefabs);
         void deserializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
             bool checkForPrefabs);
+        std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
+        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
 
-        std::string getAssetName(std::string assetFilePath);
+        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
 
     };
 

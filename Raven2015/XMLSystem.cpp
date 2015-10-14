@@ -2,72 +2,21 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem()
-    {
-    }
-
-
-    XMLSystem::~XMLSystem()
-    {
-    }
+    XMLSystem::XMLSystem() {}
 
 #pragma region Serialization
 
     std::string XMLSystem::serializeTextureFilePathSet(std::string tab) {
-        std::string textureContent = "";
-        for (auto texture : textureFilePathSet) {
-            textureContent +=
-                tab + "  <Item Name=\"" + getAssetName(texture) + "\">\r\n" +
-                tab + "    <FilePath>" + texture + "</FilePath>\r\n" +
-                tab + "  </Item>\r\n";
-        }
-
-        return
-            tab + "<Textures>\r\n" +
-            textureContent +
-            tab + "</Textures>\r\n";
+        return serializeFilePathSet(textureFilePathSet, "Textures", tab);
     }
     std::string XMLSystem::serializeMusicFilePathSet(std::string tab) {
-        std::string musicContent = "";
-        for (auto music : musicFilePathSet) {
-            musicContent +=
-                tab + "  <Item Name=\"" + getAssetName(music) + "\">\r\n" +
-                tab + "    <FilePath>" + music + "</FilePath>\r\n" +
-                tab + "  </Item>\r\n";
-        }
-
-        return
-            tab + "<Music>\r\n" +
-            musicContent +
-            tab + "</Music>\r\n";
+        return serializeFilePathSet(musicFilePathSet, "Music", tab);
     }
     std::string XMLSystem::serializeSoundFilePathSet(std::string tab) {
-        std::string soundContent = "";
-        for (auto sound : soundFilePathSet) {
-            soundContent +=
-                tab + "  <Item Name=\"" + getAssetName(sound) + "\">\r\n" +
-                tab + "    <FilePath>" + sound + "</FilePath>\r\n" +
-                tab + "  </Item>\r\n";
-        }
-
-        return
-            tab + "<Sounds>\r\n" +
-            soundContent +
-            tab + "</Sounds>\r\n";
+        return serializeFilePathSet(soundFilePathSet, "Sounds", tab);
     }
     std::string XMLSystem::serializeFontFilePathSet(std::string tab) {
-        std::string fontContent = "";
-        for (auto font : fontFilePathSet) {
-            fontContent +=
-                tab + "  <Item Name=\"" + getAssetName(font) + "\">\r\n" +
-                tab + "    <FilePath>" + font + "</FilePath>\r\n" +
-                tab + "  </Item>\r\n";
-        }
-
-        return
-            tab + "<Fonts>\r\n" +
-            fontContent +
-            tab + "</Fonts>\r\n";
+        return serializeFilePathSet(fontFilePathSet, "Fonts", tab);
     }
     std::string XMLSystem::serializeAnimationMap(std::string tab) {
         std::string animationContent = "";
@@ -177,16 +126,16 @@ namespace Raven {
 #pragma region Deserialization
 
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
-
+        deserializeFilePathSet(textureFilePathSet, node);
     }
     void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {
-
+        deserializeFilePathSet(musicFilePathSet, node);
     }
     void XMLSystem::deserializeSoundFilePathSet(XMLNode* node) {
-
+        deserializeFilePathSet(soundFilePathSet, node);
     }
     void XMLSystem::deserializeFontFilePathSet(XMLNode* node) {
-
+        deserializeFilePathSet(fontFilePathSet, node);
     }
     void XMLSystem::deserializeAnimationMap(XMLNode* node) {
 
@@ -214,31 +163,46 @@ namespace Raven {
 
 #pragma region FileNameMappings
 
-    std::string XMLSystem::getAssetName(std::string assetFilePath) {
-        return assetFilePath.substr(assetFilePath.find_last_of('/')+1);
+    std::string XMLSystem::getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension) {
+        int nameStart = assetFilePath.find_last_of('/')+1;
+        if (!includeExtension) {
+            return assetFilePath.substr(nameStart);
+        }
+        else {
+            return assetFilePath.substr(nameStart, assetFilePath.find_last_of('.') - nameStart);
+        }
     }
 
 #pragma endregion
 
-#pragma region ComponentTranslation
+#pragma region SerializationHelpers
 
     std::string XMLSystem::serializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, std::string tab,
             bool checkForPrefabs) {
 
         std::string entityContent = "";
         for (auto name_entity : map) {
+            auto data = name_entity.second->component<Data>();
 
-            std::string prefabName = "";
-            if (checkForPrefabs && prefabMap.find(name_entity.first) != prefabMap.end()) {
-                //entityContent += tab + "<PrefabName>" + prefabMap[name_entity.first] + "</PrefabName>\r\n";
+            // If we assume that the prefabMap is filled, check whether our entity's prefab's name can be found in the list of prefabs.
+            // If we DO find an entry (meaning the entity is linked to a given prefab), then check whether it has been modified from the
+            // original.
+            if (checkForPrefabs && prefabMap.find(data->prefabName) != prefabMap.end() && !data->modified) {
+                // If we found an entry and it hasn't been modified, then just input the name of the 
+                // entity (i.e. prefab) and leave it at that
+                entityContent += tab + "  <PrefabName>" + name_entity.first + "</PrefabName>\r\n";
             }
             else {
+                // Else, if we did not find an entry, or if we did, but it didn't precisely match the original prefab,
+                // then we need to outline the exact details of the Entity's structure.
+                // Note: Future implementations could speed this process by adding "modified" booleans to each individual component instead
 
                 entityContent +=
                     tab + "  <Entity Name=\"" + name_entity.first + "\">\r\n";
                 
                 // save current tab length
                 std::string tempTab = tab;
+                // Increment the tab length so that all successive serializations are tabbed by 1 more
                 tab += "  ";
 
                 if (name_entity.second->has_component<Data>()) {
@@ -288,6 +252,28 @@ namespace Raven {
 
 
     }
+
+    std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
+        std::string content = "";
+        for (auto path : filePathSet) {
+            content += tab + "  <FilePath>" + path + "</FilePath>\r\n";
+        }
+
+        return
+            tab + "<" + wrapperElement + ">\r\n" +
+            content +
+            tab + "</" + wrapperElement + ">\r\n";
+    }
+
+    void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node) {
+        filePathSet.clear();
+        XMLElement* path = node->FirstChildElement("FilePath");
+        while (path) {
+            filePathSet.insert(path->GetText());
+            path = path->NextSiblingElement("FilePath");
+        }
+    }
+
 #pragma endregion
 
 }

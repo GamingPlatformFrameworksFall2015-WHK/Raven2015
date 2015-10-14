@@ -46,13 +46,20 @@ namespace Raven {
         static std::map<Signature, std::string> signatureStrings;
     } FTL;
 
+    // A struct to encapsulate a function pointer. The Signature informs how the get() should be typed assuming
+    // a same-typed function address is assigned to fptr.
     struct Function {
 
         Function(FTL::Signature s, void* ptr = nullptr) : sig(s), fptr(ptr) {}
 
+        // A pointer to any function address
         void* fptr;
+        // A variable-representation (since typenames cannot themselves be a "value") of a function pointer typedef
         FTL::Signature sig;
-
+        
+        // A method that casts the wrapped function pointer to the given type
+        // GREAT CARE should be taken to ensure that the type provided in the template matches the stored function 
+        // address's signature.
         template <typename sig_t>
         sig_t get() { return (sig_t)fptr; }
 
@@ -61,15 +68,6 @@ namespace Raven {
     typedef struct FunctionLibrary
     {
         static std::map<std::string, Function> functions;
-
-        template <typename sig>
-        sig cast(Function f) {
-            switch (f.sig) {
-            case FTL::int_ret_std$Vector$oInt$c_IntPtr:
-
-                break;
-            }
-        }
     } FL;
 }
 
