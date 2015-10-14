@@ -48,7 +48,7 @@
 			*Data
 				Name //string
 				PrefabName //string //The name of the prefab this entity is tracking/emulating
-				PrefabSynced //bool //Will be assumed to be true in this context
+				Modified //bool //Will be assumed to be true in this context since this is the prefab list
 			*Transform
 				*Transform
 					X //float

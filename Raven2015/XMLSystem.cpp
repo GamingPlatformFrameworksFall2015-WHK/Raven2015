@@ -13,12 +13,12 @@ namespace Raven {
 
 #pragma region Serialization
 
-    std::string XMLSystem::serializeTextureFileMap(std::string tab) {
+    std::string XMLSystem::serializeTextureFilePathSet(std::string tab) {
         std::string textureContent = "";
-        for (auto texture : textureFileMap) {
+        for (auto texture : textureFilePathSet) {
             textureContent +=
-                tab + "  <Item Name=\"" + texture.first + "\">\r\n" +
-                tab + "    <FilePath>" + texture.second + "</FilePath>\r\n" +
+                tab + "  <Item Name=\"" + getAssetName(texture) + "\">\r\n" +
+                tab + "    <FilePath>" + texture + "</FilePath>\r\n" +
                 tab + "  </Item>\r\n";
         }
 
@@ -27,12 +27,12 @@ namespace Raven {
             textureContent +
             tab + "</Textures>\r\n";
     }
-    std::string XMLSystem::serializeMusicFileMap(std::string tab) {
+    std::string XMLSystem::serializeMusicFilePathSet(std::string tab) {
         std::string musicContent = "";
-        for (auto music : musicFileMap) {
+        for (auto music : musicFilePathSet) {
             musicContent +=
-                tab + "  <Item Name=\"" + music.first + "\">\r\n" +
-                tab + "    <FilePath>" + music.second + "</FilePath>\r\n" +
+                tab + "  <Item Name=\"" + getAssetName(music) + "\">\r\n" +
+                tab + "    <FilePath>" + music + "</FilePath>\r\n" +
                 tab + "  </Item>\r\n";
         }
 
@@ -41,12 +41,12 @@ namespace Raven {
             musicContent +
             tab + "</Music>\r\n";
     }
-    std::string XMLSystem::serializeSoundFileMap(std::string tab) {
+    std::string XMLSystem::serializeSoundFilePathSet(std::string tab) {
         std::string soundContent = "";
-        for (auto sound : soundFileMap) {
+        for (auto sound : soundFilePathSet) {
             soundContent +=
-                tab + "  <Item Name=\"" + sound.first + "\">\r\n" +
-                tab + "    <FilePath>" + sound.second + "</FilePath>\r\n" +
+                tab + "  <Item Name=\"" + getAssetName(sound) + "\">\r\n" +
+                tab + "    <FilePath>" + sound + "</FilePath>\r\n" +
                 tab + "  </Item>\r\n";
         }
 
@@ -55,12 +55,12 @@ namespace Raven {
             soundContent +
             tab + "</Sounds>\r\n";
     }
-    std::string XMLSystem::serializeFontFileMap(std::string tab) {
+    std::string XMLSystem::serializeFontFilePathSet(std::string tab) {
         std::string fontContent = "";
-        for (auto font : fontFileMap) {
+        for (auto font : fontFilePathSet) {
             fontContent +=
-                tab + "  <Item Name=\"" + font.first + "\">\r\n" +
-                tab + "    <FilePath>" + font.second + "</FilePath>\r\n" +
+                tab + "  <Item Name=\"" + getAssetName(font) + "\">\r\n" +
+                tab + "    <FilePath>" + font + "</FilePath>\r\n" +
                 tab + "  </Item>\r\n";
         }
 
@@ -160,26 +160,32 @@ namespace Raven {
             "</Prefabs>\r\n";
     }
     std::string XMLSystem::serializeLevelMap(std::string tab) {
-        return 
-            "<Entities>\r\n" +
-            serializeEntitiesHelper(prefabMap, tab, true) + //do need to 'check for prefabs' to skip recreation of entity
-            "</Entities>\r\n";
+        std::string levelContent = "";
+        for (auto level : levelMap) {
+            levelContent +=
+                tab + "<Level Name\"" + level.first + "\">\r\n" +
+                tab + "  <Entities>\r\n" +
+                serializeEntitiesHelper(level.second, tab + "  ", true) + //do need to 'check for prefabs' to skip recreation of entity
+                tab + "  </Entities>\r\n" +
+                tab + "</Level>\r\n";
+        }
+        return levelContent;
     }
 
 #pragma endregion
 
 #pragma region Deserialization
 
-    void XMLSystem::deserializeTextureFileMap(XMLNode* node) {
+    void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
 
     }
-    void XMLSystem::deserializeMusicFileMap(XMLNode* node) {
+    void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {
 
     }
-    void XMLSystem::deserializeSoundFileMap(XMLNode* node) {
+    void XMLSystem::deserializeSoundFilePathSet(XMLNode* node) {
 
     }
-    void XMLSystem::deserializeFontFileMap(XMLNode* node) {
+    void XMLSystem::deserializeFontFilePathSet(XMLNode* node) {
 
     }
     void XMLSystem::deserializeAnimationMap(XMLNode* node) {
@@ -208,89 +214,70 @@ namespace Raven {
 
 #pragma region FileNameMappings
 
-    std::string XMLSystem::getTextureName(std::string textureFileName) {
-        for (auto name_filepath : textureFileMap) {
-            if (name_filepath.second == textureFileName) {
-                return name_filepath.first;
-            }
-        }
-        return "";
-    }
-
-    std::string XMLSystem::getMusicName(std::string musicFileName) {
-        for (auto name_filepath : musicFileMap) {
-            if (name_filepath.second == musicFileName) {
-                return name_filepath.first;
-            }
-        }
-        return "";
-    }
-
-    std::string XMLSystem::getSoundName(std::string soundFileName) {
-        for (auto name_filepath : soundFileMap) {
-            if (name_filepath.second == soundFileName) {
-                return name_filepath.first;
-            }
-        }
-        return "";
-    }
-
-    std::string XMLSystem::getFontName(std::string fontFileName) {
-        for (auto name_filepath : fontFileMap) {
-            if (name_filepath.second == fontFileName) {
-                return name_filepath.first;
-            }
-        }
-        return "";
+    std::string XMLSystem::getAssetName(std::string assetFilePath) {
+        return assetFilePath.substr(assetFilePath.find_last_of('/')+1);
     }
 
 #pragma endregion
 
 #pragma region ComponentTranslation
 
-
     std::string XMLSystem::serializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, std::string tab,
             bool checkForPrefabs) {
 
         std::string entityContent = "";
-        for (auto entity : map) {
-            entityContent +=
-                tab + "  <Entity Name=\"" + entity.first + "\">\r\n";
+        for (auto name_entity : map) {
 
-            if (entity.second->has_component<Data>()) {
-                entityContent += entity.second->component<Data>()->serialize(tab);
+            std::string prefabName = "";
+            if (checkForPrefabs && prefabMap.find(name_entity.first) != prefabMap.end()) {
+                //entityContent += tab + "<PrefabName>" + prefabMap[name_entity.first] + "</PrefabName>\r\n";
             }
-            if (entity.second->has_component<Transform>()) {
-                entityContent += entity.second->component<Transform>()->serialize(tab);
-            }
-            if (entity.second->has_component<Rigidbody>()) {
-                entityContent += entity.second->component<Rigidbody>()->serialize(tab);
-            }
-            if (entity.second->has_component<BoxCollider>()) {
-                entityContent += entity.second->component<BoxCollider>()->serialize(tab);
-            }
-            if (entity.second->has_component<SoundMaker>()) {
-                entityContent += entity.second->component<SoundMaker>()->serialize(tab);
-            }
-            if (entity.second->has_component<MusicMaker>()) {
-                entityContent += entity.second->component<MusicMaker>()->serialize(tab);
-            }
-            if (entity.second->has_component<Renderer>()) {
-                entityContent += entity.second->component<Renderer>()->serialize(tab);
-            }
-            if (entity.second->has_component<TimeTable>()) {
-                entityContent += entity.second->component<TimeTable>()->serialize(tab);
-            }
-            if (entity.second->has_component<CoreBehavior>()) {
-                entityContent += entity.second->component<CoreBehavior>()->serialize(tab);
-            }
-            if (entity.second->has_component<ActionListener>()) {
-                entityContent += entity.second->component<ActionListener>()->serialize(tab);
-            }
+            else {
 
-            entityContent +=
-                tab + "  </Entity>\r\n";
+                entityContent +=
+                    tab + "  <Entity Name=\"" + name_entity.first + "\">\r\n";
+                
+                // save current tab length
+                std::string tempTab = tab;
+                tab += "  ";
 
+                if (name_entity.second->has_component<Data>()) {
+                    entityContent += name_entity.second->component<Data>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<Transform>()) {
+                    entityContent += name_entity.second->component<Transform>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<Rigidbody>()) {
+                    entityContent += name_entity.second->component<Rigidbody>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<BoxCollider>()) {
+                    entityContent += name_entity.second->component<BoxCollider>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<SoundMaker>()) {
+                    entityContent += name_entity.second->component<SoundMaker>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<MusicMaker>()) {
+                    entityContent += name_entity.second->component<MusicMaker>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<Renderer>()) {
+                    entityContent += name_entity.second->component<Renderer>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<TimeTable>()) {
+                    entityContent += name_entity.second->component<TimeTable>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<CoreBehavior>()) {
+                    entityContent += name_entity.second->component<CoreBehavior>()->serialize(tab);
+                }
+                if (name_entity.second->has_component<ActionListener>()) {
+                    entityContent += name_entity.second->component<ActionListener>()->serialize(tab);
+                }
+
+                // reinstate tab length
+                tab = tempTab;
+
+                entityContent +=
+                    tab + "  </Entity>\r\n";
+            }
         }
 
         return entityContent;
