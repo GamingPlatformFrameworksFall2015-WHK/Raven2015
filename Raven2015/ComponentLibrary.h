@@ -29,64 +29,22 @@ namespace Raven {
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
         std::string name;
-        std::shared_ptr<ex::Entity> prefab;
+        std::string prefabName;
+        bool modified;
 
         virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-            layersContent +=
-            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-            tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
-
             return
-            tab + "<BoxCollider>\r\n" +
-            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <Layers>\r\n" +
-            layersContent +
-            tab + "  </Layers>\r\n" +
-            tab + "  <Settings>\r\n" +
-            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-            tab + "  </Settings>\r\n" +
-            tab + "</BoxCollider>\r\n";
-            */
-            return "";
+                tab + "<Data>\r\n" +
+                tab + "  <Name>" + this->name + "</Name>\r\n" +
+                tab + "  <PrefabName>" + this->prefabName + "</PrefabName>\r\n" +
+                tab + "  <Modified>" + std::to_string(this->modified) + "</Modified>\r\n" +
+                tab + "</Data>\r\n";
         }
 
         virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-            std::string layerName = t->Attribute("Name");
-            bool required, automatic;
-            t->FirstChildElement("Required")->QueryBoolText(&required);
-            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-            if (val) collisionSettings.insert(setting);
-            }
-            */
+            name = node->FirstChildElement("Name")->GetText();
+            prefabName = node->FirstChildElement("PrefabName")->GetText();
+            node->FirstChildElement("Modified")->QueryBoolText(&this->modified);
         }
 
         virtual std::string getElementName() override { return "Data"; }

@@ -13,6 +13,7 @@
 #include "entityx\config.h"
 #include "tinyxml2.h"
 #include "entityx/Entity.h"
+#include <map>
 
 using std::cout;
 using std::cerr;
@@ -118,8 +119,6 @@ namespace Raven {
             static const std::set<std::string> settings;
 
         };
-        //const std::set<std::string> collisionSettingPossibilities("Solid", "Trigger");
-
     };
 
 }

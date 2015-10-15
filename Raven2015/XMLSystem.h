@@ -14,14 +14,14 @@ namespace Raven {
         XMLSystem();
         ~XMLSystem();
 
+        // Maintains the set of asset file paths
+        std::set<std::string> textureFilePathSet;
         // Maps the user-defined asset name to the file path
-        std::map<std::string, std::string> textureFileMap;
+        std::set<std::string> musicFilePathSet;
         // Maps the user-defined asset name to the file path
-        std::map<std::string, std::string> musicFileMap;
+        std::set<std::string> soundFilePathSet;
         // Maps the user-defined asset name to the file path
-        std::map<std::string, std::string> soundFileMap;
-        // Maps the user-defined asset name to the file path
-        std::map<std::string, std::string> fontFileMap;
+        std::set<std::string> fontFilePathSet;
         // Maps the user-defined asset name to the Animation
         std::map<std::string, std::shared_ptr<Animation>> animationMap;
         // Maps the user-defined asset name to the RenderableText
@@ -39,10 +39,10 @@ namespace Raven {
         // Essentially maps a level name to a set of named entities that may or may not be prefabs
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
-        std::string serializeTextureFileMap(std::string tab);
-        std::string serializeMusicFileMap(std::string tab);
-        std::string serializeSoundFileMap(std::string tab);
-        std::string serializeFontFileMap(std::string tab);
+        std::string serializeTextureFilePathSet(std::string tab);
+        std::string serializeMusicFilePathSet(std::string tab);
+        std::string serializeSoundFilePathSet(std::string tab);
+        std::string serializeFontFilePathSet(std::string tab);
         std::string serializeAnimationMap(std::string tab);
         std::string serializeRenderableTextMap(std::string tab);
         std::string serializeRenderableRectangleMap(std::string tab);
@@ -51,10 +51,10 @@ namespace Raven {
         std::string serializePrefabMap(std::string tab);
         std::string serializeLevelMap(std::string tab);
 
-        void deserializeTextureFileMap(XMLNode* node);
-        void deserializeMusicFileMap(XMLNode* node);
-        void deserializeSoundFileMap(XMLNode* node);
-        void deserializeFontFileMap(XMLNode* node);
+        void deserializeTextureFilePathSet(XMLNode* node);
+        void deserializeMusicFilePathSet(XMLNode* node);
+        void deserializeSoundFilePathSet(XMLNode* node);
+        void deserializeFontFilePathSet(XMLNode* node);
         void deserializeAnimationMap(XMLNode* node);
         void deserializeRenderableTextMap(XMLNode* node);
         void deserializeRenderableRectangleMap(XMLNode* node);
@@ -67,11 +67,10 @@ namespace Raven {
             bool checkForPrefabs);
         void deserializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
             bool checkForPrefabs);
+        std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
+        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
 
-        std::string getTextureName(std::string textureFileName);
-        std::string getMusicName(std::string musicFileName);
-        std::string getSoundName(std::string soundFileName);
-        std::string getFontName(std::string fontFileName);
+        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
 
     };
 

@@ -1,19 +1,15 @@
 *RavenGame //An asterisk(*) indicates that the entry is a Node. Otherwise, it is an Element with a value inside of it
 	*Assets //It is assumed that anything with "Item" as its sub-node can have a variable number of children nodes
 		*Textures //map<string, string>
-			*Item Name="" //"*Item" element with attribute "Name" equal to what is inside the ""
-				FilePath
+			FilePath
 		*Music //map<string, string>
-			*Item Name=""
-				FilePath
+			FilePath
 		*Sounds //map<string, string>
-			*Item Name=""
-				FilePath
+			FilePath
 		*Fonts //map<string, string>
-			*Item Name=""
-				FilePath
+			FilePath
 		*Animations  //map<string, Animation>
-			*Item Name=""
+			*Item Name="myName"
 				TextureFilePath
 				FrameCount //(size)
 				FrameWidth
@@ -44,11 +40,11 @@
 					TextureFilePath //Same deal as with the Animation's TextureFilePath
 					AnimationName //Same deal, but now using the Animation Item's Name. "" = no animation necessary
 	*Prefabs
-		*Entity Name="" //all "items" under this heading are optional EXCEPT Data and Transform
+		*Entity //all "items" under this heading are optional EXCEPT Data and Transform
 			*Data
 				Name //string
 				PrefabName //string //The name of the prefab this entity is tracking/emulating
-				PrefabSynced //bool //Will be assumed to be true in this context
+				Modified //bool //Will be assumed to be true in this context since this is the prefab list
 			*Transform
 				*Transform
 					X //float
