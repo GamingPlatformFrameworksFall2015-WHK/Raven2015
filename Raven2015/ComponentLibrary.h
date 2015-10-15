@@ -21,6 +21,7 @@
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For entityx::Component
 #include "EntityLibrary.h"              // For Entity
+#include "FunctionLibrary.h"            
 #include "Common.h"                     // For etc.
 
 namespace Raven {
@@ -1107,7 +1108,7 @@ namespace Raven {
     /// <summary>
     /// A class designed to "listen" for specific actions and provide a response for the entity
     /// </summary>
-    struct ActionListener : ex::Component<ActionListener>, public cmn::Serializable {
+    struct ActionListener : ex::Component<ActionListener>, public cmn::Serializable, public ex::Receiver<ActionListener> {
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ActionListener"/> struct.
@@ -1118,7 +1119,7 @@ namespace Raven {
         /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
         /// </summary>
         /// <remarks>Will need to replace std::string if the format of actions ever changes</remarks>
-        std::map<std::string, void(*)(ex::Entity &entity)> actionMap;
+        std::map<std::string, Function> actionMap;
         
         /// <summary>
         /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
