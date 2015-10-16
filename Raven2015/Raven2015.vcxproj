@@ -188,6 +188,7 @@
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ComponentLibrary.h" />
+    <ClInclude Include="DataAssetLibrary.h" />
     <ClInclude Include="EntityLibrary.h" />
     <ClInclude Include="entityx\3rdparty\catch.hpp" />
     <ClInclude Include="entityx\3rdparty\simplesignal.h" />

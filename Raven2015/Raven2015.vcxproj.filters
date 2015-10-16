@@ -203,6 +203,9 @@
     <ClInclude Include="WidgetLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
+    <ClInclude Include="DataAssetLibrary.h">
+      <Filter>Header Files\Libraries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg">
