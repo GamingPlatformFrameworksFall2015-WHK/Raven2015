@@ -97,9 +97,10 @@
 			...
 	*Level Name=""
 		*Entities
-			PrefabName //string //If an empty string is given here, it will be assumed that a fully defined Entity follows
-			*Entity
-				...
+			*Item
+				PrefabName //string //If an empty string is given here, it will be assumed that a fully defined Entity follows
+				*Entity
+					...
 	
 				
 					
