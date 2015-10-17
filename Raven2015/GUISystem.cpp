@@ -172,12 +172,14 @@ namespace Raven {
         auto tl = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME));
         auto ml = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME));
         auto sl = formatSoundList(makeWidget<SOUND_LIST_WTYPE>(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME));
-        auto fl = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LINE_WTYPE), FONT_LIST_NAME));
+        auto fl = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME));
+        //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
         c->AppendPage(cl, Label::Create(COMPONENT_LIST_NAME));
         c->AppendPage(tl, Label::Create(TEXTURE_LIST_NAME));
         c->AppendPage(ml, Label::Create(MUSIC_LIST_NAME));
         c->AppendPage(sl, Label::Create(SOUND_LIST_NAME));
         c->AppendPage(fl, Label::Create(FONT_LIST_NAME));
+        //c->AppendPage(ll, Label::Create(LEVEL_LIST_NAME));
 
         return c;
     }

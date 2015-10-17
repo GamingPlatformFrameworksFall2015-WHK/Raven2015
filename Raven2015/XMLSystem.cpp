@@ -11,15 +11,19 @@ namespace Raven {
     std::string XMLSystem::serializeTextureFilePathSet(std::string tab) {
         return serializeFilePathSet(textureFilePathSet, "Textures", tab);
     }
+
     std::string XMLSystem::serializeMusicFilePathSet(std::string tab) {
         return serializeFilePathSet(musicFilePathSet, "Music", tab);
     }
+    
     std::string XMLSystem::serializeSoundFilePathSet(std::string tab) {
         return serializeFilePathSet(soundFilePathSet, "Sounds", tab);
     }
+
     std::string XMLSystem::serializeFontFilePathSet(std::string tab) {
         return serializeFilePathSet(fontFilePathSet, "Fonts", tab);
     }
+
     std::string XMLSystem::serializeAnimationMap(std::string tab) {
         std::string animationContent = "";
         for (auto animation : animationMap) {
@@ -39,6 +43,7 @@ namespace Raven {
             animationContent +
             tab + "</Animations>\r\n";
     }
+
     std::string XMLSystem::serializeRenderableTextMap(std::string tab) {
         std::string renderableTextContent = "";
         for (auto renderableText : renderableTextMap) {
@@ -57,6 +62,7 @@ namespace Raven {
             tab + "</RenderableTexts>\r\n";
 
     }
+
     std::string XMLSystem::serializeRenderableRectangleMap(std::string tab) {
         std::string renderableRectangleContent = "";
         for (auto renderableRectangle : renderableRectangleMap) {
@@ -72,6 +78,7 @@ namespace Raven {
             renderableRectangleContent +
             tab + "</RenderableRectangles>\r\n";
     }
+
     std::string XMLSystem::serializeRenderableCircleMap(std::string tab) {
         std::string renderableCircleContent = "";
         for (auto renderableCircle : renderableCircleMap) {
@@ -87,6 +94,7 @@ namespace Raven {
             renderableCircleContent +
             tab + "</RenderableCircles>\r\n";
     }
+
     std::string XMLSystem::serializeRenderableSpriteMap(std::string tab) {
         std::string renderableSpriteContent = "";
         for (auto renderableSprite : renderableSpriteMap) {
@@ -104,12 +112,14 @@ namespace Raven {
             renderableSpriteContent +
             tab + "</RenderableSprites>\r\n";
     }
+
     std::string XMLSystem::serializePrefabMap(std::string tab) {
         return 
             "<Prefabs>\r\n" +
             serializeEntitiesHelper(prefabMap, tab, false) + //no need to 'check for prefabs' since they all are
             "</Prefabs>\r\n";
     }
+
     std::string XMLSystem::serializeLevelMap(std::string tab) {
         std::string levelContent = "";
         for (auto level : levelMap) {
@@ -130,15 +140,19 @@ namespace Raven {
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
         deserializeFilePathSet(textureFilePathSet, node);
     }
+
     void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {
         deserializeFilePathSet(musicFilePathSet, node);
     }
+
     void XMLSystem::deserializeSoundFilePathSet(XMLNode* node) {
         deserializeFilePathSet(soundFilePathSet, node);
     }
+
     void XMLSystem::deserializeFontFilePathSet(XMLNode* node) {
         deserializeFilePathSet(fontFilePathSet, node);
     }
+
     void XMLSystem::deserializeAnimationMap(XMLNode* node) {
         animationMap.clear();
         XMLElement* item = node->FirstChildElement("Item");
@@ -167,6 +181,7 @@ namespace Raven {
             item = item->NextSiblingElement("Item");
         }
     }
+
     void XMLSystem::deserializeRenderableTextMap(XMLNode* node) {
         renderableTextMap.clear();
         XMLElement* item = node->FirstChildElement("Item");
@@ -414,26 +429,33 @@ namespace Raven {
             // Add & deserialize mandatory components
             XMLElement* e = item->FirstChildElement("Data");
             ptr->assign<Data>()->deserialize(e);
-            XMLElement* e = item->FirstChildElement("Transform");
+            e = item->FirstChildElement("Transform");
             ptr->assign<Transform>()->deserialize(e);
-            XMLElement* e = item->FirstChildElement("Rigidbody");
+            e = item->FirstChildElement("Rigidbody");
             ptr->assign<Rigidbody>()->deserialize(e);
 
             // Add & deserialize optional components
-            XMLElement* e = item->FirstChildElement("BoxCollider");
-            e ? ptr->assign<BoxCollider>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("SoundMaker");
-            e ? ptr->assign<SoundMaker>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("MusicMaker");
-            e ? ptr->assign<MusicMaker>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("Renderer");
-            e ? ptr->assign<Renderer>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("TimeTable");
-            e ? ptr->assign<TimeTable>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("CoreBehavior");    //Soon to be obsolete
-            e ? ptr->assign<CoreBehavior>()->deserialize(e) : nullptr;
-            XMLElement* e = item->FirstChildElement("ActionListener");
-            e ? ptr->assign<ActionListener>()->deserialize(e) : nullptr;
+            if (e = item->FirstChildElement("BoxCollider")) {
+                ptr->assign<BoxCollider>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("SoundMaker")) {
+                ptr->assign<SoundMaker>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("MusicMaker")) {
+                ptr->assign<MusicMaker>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("Renderer")) {
+                ptr->assign<Renderer>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("TimeTable")) {
+                ptr->assign<TimeTable>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("CoreBehavior")) {    //Soon to be obsolete
+                ptr->assign<CoreBehavior>()->deserialize(e);
+            }
+            if (e = item->FirstChildElement("ActionListener")) {
+                ptr->assign<ActionListener>()->deserialize(e);
+            }
 
             item = item->NextSiblingElement("Item");
         }

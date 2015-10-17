@@ -13,15 +13,16 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>            // For sf::Vector2f
+#include <SFML/Graphics.hpp>            // For sf::Sprite
 #include <SFML/Audio/Sound.hpp>         // For sf::Sound
 #include <SFML/Audio/Music.hpp>         // For sf::Music
 #include <SFML/Audio/SoundBuffer.hpp>   // For sf::SoundBuffer
 #include <map>                          // For std::map
 #include <string>                       // For std::string
-#include "entityx\Entity.h"             // For entityx::Component
+#include "entityx\Entity.h"             // For ex::Component
 #include "EntityLibrary.h"              // For Entity
-#include "FunctionLibrary.h"            
+#include "FunctionLibrary.h"            // For FL, FTL
+#include "DataAssetLibrary.h"           // For Renderable, Timer
 #include "Common.h"                     // For etc.
 
 namespace Raven {
@@ -33,20 +34,9 @@ namespace Raven {
         std::string prefabName;
         bool modified;
 
-        virtual std::string serialize(std::string tab) override {
-            return
-                tab + "<Data>\r\n" +
-                tab + "  <Name>" + this->name + "</Name>\r\n" +
-                tab + "  <PrefabName>" + this->prefabName + "</PrefabName>\r\n" +
-                tab + "  <Modified>" + std::to_string(this->modified) + "</Modified>\r\n" +
-                tab + "</Data>\r\n";
-        }
+        virtual std::string serialize(std::string tab) override;
 
-        virtual void deserialize(XMLNode* node) override {
-            name = node->FirstChildElement("Name")->GetText();
-            prefabName = node->FirstChildElement("PrefabName")->GetText();
-            node->FirstChildElement("Modified")->QueryBoolText(&this->modified);
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "Data"; }
     };
@@ -55,9 +45,7 @@ namespace Raven {
 
 #pragma region Physics
     
-    /*
-     * A component enabling a passive physical state. Required for placement.
-     */
+    // A component enabling a passive physical state. Required for placement.
     struct Transform : public ex::Component<Transform>, public cmn::Serializable {
 
         // Default constructor
@@ -71,36 +59,18 @@ namespace Raven {
         // The x and y coordinates of the entity's Origin.
         sf::Vector2f transform;
 
-        /*
-         * The orientation of the entity, measured in degrees.
-         * Assumes that 0 begins at the right, running counterclockwise.
-         */
+        // The orientation of the entity, measured in degrees.
+        // Assumes that 0 begins at the right, running counterclockwise.
         float rotation;
 
-        virtual std::string serialize(std::string tab) override {
-            return
-                tab + "<Transform>\r\n" +
-                tab + "  <Transform>\r\n" +
-                tab + "    <X>" + std::to_string(this->transform.x) + "</X>\r\n" +
-                tab + "    <Y>" + std::to_string(this->transform.y) + "</Y>\r\n" +
-                tab + "  </Transform>\r\n" +
-                tab + "  <Rotation>" + std::to_string(this->rotation) + "</Rotation>\r\n" +
-                tab + "</Transform>\r\n";
-        }
+        virtual std::string serialize(std::string tab) override;
 
-        virtual void deserialize(XMLNode* node) override {
-            XMLNode* t = node->FirstChild();
-            t->FirstChildElement("X")->QueryFloatText(&(this->transform.x));
-            t->FirstChildElement("Y")->QueryFloatText(&this->transform.y);
-            node->FirstChildElement("Rotation")->QueryFloatText(&this->rotation);
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "Transform"; }
     };
 
-    /*
-     * A component enabling a dynamic physical state. Required for movement.
-     */
+    // A component enabling a dynamic physical state. Required for movement.
     struct Rigidbody : public ex::Component<Rigidbody>, public cmn::Serializable {
 
         // Default Constructor. All fields initialized to zero.
@@ -114,12 +84,7 @@ namespace Raven {
             acceleration.y = accelerationY;
         }
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Rigidbody"/> struct.
-        /// </summary>
-        /// <param name="velocity">The velocity.</param>
-        /// <param name="acceleration">The acceleration.</param>
-        /// <param name="radialVelocity">The radial velocity. (Optional)</param>
+        // Initializes a new instance of the <see cref="Rigidbody"/> struct.
         Rigidbody(const sf::Vector2f &velocity, const sf::Vector2f &acceleration,
             const float radialVelocity = 0.0f) : velocity(velocity),
             acceleration(acceleration), radialVelocity(radialVelocity) {}
@@ -133,73 +98,34 @@ namespace Raven {
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
 
-        virtual std::string serialize(std::string tab) override {
-            return
-                tab + "<Rigidbody>\r\n" +
-                tab + "  <Velocity>\r\n" +
-                tab + "    <X>" + std::to_string(this->velocity.x) + "</X>\r\n" +
-                tab + "    <Y>" + std::to_string(this->velocity.y) + "</Y>\r\n" +
-                tab + "  </Velocity>\r\n" +
-                tab + "  <Acceleration>\r\n" +
-                tab + "    <X>" + std::to_string(this->acceleration.x) + "</X>\r\n" +
-                tab + "    <Y>" + std::to_string(this->acceleration.y) + "</Y>\r\n" +
-                tab + "  </Acceleration>\r\n" +
-                tab + "  <RadialVelocity>" + std::to_string(this->radialVelocity) + "</RadialVelocity>\r\n" +
-                tab + "</Rigidbody>\r\n";
-        }
+        virtual std::string serialize(std::string tab) override;
 
-        virtual void deserialize(XMLNode* node) override {
-            XMLNode* t = node->FirstChildElement("Velocity");
-            t->FirstChildElement("X")->QueryFloatText(&(this->velocity.x));
-            t->FirstChildElement("Y")->QueryFloatText(&this->velocity.y);
-            t = node->FirstChildElement("Acceleration");
-            t->FirstChildElement("X")->QueryFloatText(&(this->acceleration.x));
-            t->FirstChildElement("Y")->QueryFloatText(&this->acceleration.y);
-            node->FirstChildElement("RadialVelocity")->QueryFloatText(&this->radialVelocity);
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "Rigidbody"; }
     };
     
-    /// <summary>
-    /// <para>An abstract component used to identify collision areas.</para>
-    /// <para>The originOffset's x and y values are relative to its Transform.</para>
-    /// </summary>
+    // An abstract component used to identify collision areas.
+    // The originOffset's x and y values are relative to its Transform.
     struct Collider : public ex::Component<Collider> {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Collider"/> struct.
-        /// </summary>
+        // Initializes a new instance of the <see cref="Collider"/> struct.
         Collider() {}
                 
-        /// <summary>
-        /// Abstract definition for virtual destructor to finalize an instance of 
-        /// the abstract <see cref="Collider" /> class.
-        /// </summary>
+        // Abstract definition for virtual destructor to finalize an instance of 
+        // the abstract Collider class.
         virtual ~Collider() = 0;
 
         // The x-y coordinate of the collider's center relative to its transform.
         sf::Vector2f originOffset;
-
     };
         
-    /// <summary>
-    /// Inline empty implementation of <see cref="Collider"/>'s pure virtual deconstructor
-    /// </summary>
+    // Inline empty implementation of Collider's pure virtual deconstructor
     inline Collider::~Collider() {}
     
-    /// <summary>
-    /// A Collider with a box-shaped collision area
-    /// </summary>
+    // A Collider with a box-shaped collision area
     struct BoxCollider : public Collider, public cmn::Serializable {
 
-         /// <summary>
-         /// Initializes a new instance of the <see cref="BoxCollider"/> struct.
-         /// </summary>
-         /// <param name="width">The width. Defaults to Common::STD_UNITX</param>
-         /// <param name="height">The height. Defaults to Common::STD_UNITY</param>
-         /// <param name="x">The x coordinate.</param>
-         /// <param name="y">The y coordinate.</param>
+         // Initializes a new instance of the <see cref="BoxCollider"/> struct.
         BoxCollider(const float width = cmn::STD_UNITX,
             const float height = cmn::STD_UNITY,
             const float x = 0.0f, const float y = 0.0f)
@@ -209,12 +135,7 @@ namespace Raven {
             originOffset.y = y;
         }
         
-        /// <summary>
-        /// Initializes a new scaled instance of the <see cref="BoxCollider"/> struct.
-        /// </summary>
-        /// <param name="scale">The scale.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
+        // Initializes a new scaled instance of the <see cref="BoxCollider"/> struct.
         BoxCollider(const float scale, const float x = 0.0f,
             const float y = 0.0f)
             : BoxCollider(cmn::STD_UNITX, cmn::STD_UNITY, x, y) {
@@ -222,92 +143,32 @@ namespace Raven {
             height *= scale;
         }
         
-        /// <summary>
-        /// Finalizes an instance of the <see cref="BoxCollider"/> class.
-        /// </summary>
+        // Finalizes an instance of the <see cref="BoxCollider"/> class.
         virtual ~BoxCollider() override {}
         
-        /// <summary>
-        /// The range of the x-axis of the collider. Origin in the middle.
-        /// </summary>
+        // The range of the x-axis of the collider. Origin in the middle.
         float width;
         
-        /// <summary>
-        /// The range of the y-axis of the collider. Origin in the middle.
-        /// </summary>
+        // The range of the y-axis of the collider. Origin in the middle.
         float height;
         
-        /// <summary>
-        /// <para>The set of layers to which the collider is assigned.</para> 
-        /// <para>The collider will "collide" with any BoxCollider that possesses the same entry.</para>
-        /// <para>The value is a boolean pair of options dictating when CollisionEvents are emitted.
-        ///       First="Required". Second="Automatic".</para>
-        /// <para>"Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.</para>
-        /// <para>"Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.</para>
-        /// <para>An "automatic" setting will override any lack of "required" layers</para>
-        /// </summary>
+        // The set of layers to which the collider is assigned. 
+        // The collider will "collide" with any BoxCollider that possesses the same entry.
+        // The value is a boolean pair of options dictating when CollisionEvents are emitted.
+        //     First="Required". Second="Automatic".
+        // "Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.
+        // "Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.
+        // An "automatic" setting will override any lack of "required" layers
         std::map<std::string, std::pair<bool, bool>> layers;
         
-        /// <summary>
-        /// <para>The collision settings. Valid values can be found in Common::CollisionLayerSettings</para>
-        /// <para>SOLID : The layer that indicates the entities should be "pushed out of each other"</para>
-        /// <para>TRIGGER : The layer that indicates the entity will react to the collision</para>
-        /// </summary>
+        // The collision settings. Valid values can be found in Common::CollisionLayerSettings
+        // SOLID : The layer that indicates the entities should be "pushed out of each other"
+        // TRIGGER : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
 
-        virtual std::string serialize(std::string tab) override {
+        virtual std::string serialize(std::string tab) override;
 
-            std::string layersContent = "";
-            for (std::pair<std::string, std::pair<bool, bool>> layer : layers) {
-                layersContent +=
-                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-                    tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
-
-            return
-                tab + "<BoxCollider>\r\n" +
-                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-                tab + "  <Layers>\r\n" +
-                layersContent +
-                tab + "  </Layers>\r\n" +
-                tab + "  <Settings>\r\n" +
-                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-                tab + "  </Settings>\r\n" +
-                tab + "</BoxCollider>\r\n";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-                std::string layerName = t->Attribute("Name");
-                bool required, automatic;
-                t->FirstChildElement("Required")->QueryBoolText(&required);
-                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::CollisionInformation::settings) {
-                bool val;
-                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-                if (val) collisionSettings.insert(setting);
-            }
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "BoxCollider"; }
     };
@@ -316,168 +177,38 @@ namespace Raven {
 
 #pragma region Audio
 
-    /// <summary>
-    /// <para>A component that acts as a base class for audio-storage data</para>
-    /// </summary>
-    struct AudioMaker : public ex::Component<AudioMaker> {
+    // A component that acts as a base class for audio-storage data
+    struct AudioMaker : public ex::Component<AudioMaker> {};
 
-    };
-
-    /// <summary>
-    /// <para>A component that stores the names of tracks for sf::Sound.</para>
-    /// <para>sf::Sound is optimized for small audio tracks (a few seconds).</para>
-    /// </summary>
+    // A component that stores the names of small tracks (< 30 seconds) for sf::Sound.
     struct SoundMaker : public AudioMaker, public cmn::Serializable {
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
         SoundMaker()  {}
 
-        /// <summary>
-        /// A mapping between sound file names and the buffers for their storage
-        /// </summary>
+        // A mapping between sound file names and the buffers for their storage
         SOUNDMAP_T soundMap;
 
-        /// <summary>
-        /// An object for performing sound operations on a buffer.
-        /// </summary>
+        // An object for performing sound operations on a buffer.
         sf::Sound sound;
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-                layersContent +=
-                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-                    tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-                tab + "<BoxCollider>\r\n" +
-                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-                tab + "  <Layers>\r\n" +
-                layersContent +
-                tab + "  </Layers>\r\n" +
-                tab + "  <Settings>\r\n" +
-                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-                tab + "  </Settings>\r\n" +
-                tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-                std::string layerName = t->Attribute("Name");
-                bool required, automatic;
-                t->FirstChildElement("Required")->QueryBoolText(&required);
-                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-                bool val;
-                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-                if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "SoundMaker"; }
     };
 
-    /// <summary>
-    /// <para>A component that stores the names of tracks for sf::Music.</para>
-    /// <para>sf::Music is optimized for large audio tracks (~30 seconds+).</para>
-    /// </summary>
+    // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
     struct MusicMaker : public AudioMaker, public cmn::Serializable {
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
         MusicMaker() {}
 
-        /// <summary>
-        /// A mapping between music file names and their stream storage objects
-        /// </summary>
+        // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-                layersContent +=
-                    tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-                    tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-                    tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-                    tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-                tab + "<BoxCollider>\r\n" +
-                tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-                tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-                tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-                tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-                tab + "  <Layers>\r\n" +
-                layersContent +
-                tab + "  </Layers>\r\n" +
-                tab + "  <Settings>\r\n" +
-                tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-                tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-                tab + "  </Settings>\r\n" +
-                tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-                std::string layerName = t->Attribute("Name");
-                bool required, automatic;
-                t->FirstChildElement("Required")->QueryBoolText(&required);
-                t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-                layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-                bool val;
-                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-                if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "MusicMaker"; }
     };
@@ -486,509 +217,45 @@ namespace Raven {
 
 #pragma region Rendering
 
-     /// <summary>
-     /// <para>A wrapper class around drawable assets to allow for sorting.</para>
-     /// <para>Sorting is based on layer first, priority second.</para>
-     /// <para>A low priority means it will be drawn first, i.e. below other objects</para>
-     /// </summary>
-    struct Renderable {
 
-        Renderable(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : renderLayer(renderLayer), renderPriority(renderPriority), drawPtr(nullptr) {}
-
-        /// <summary>
-        /// A Drawable pointer used SOLELY for generic drawing (errors occurred otherwise)
-        /// </summary>
-        sf::Drawable* drawPtr;
-
-        /// <summary>
-        /// The rendering layer for macro-sorting of render content
-        /// </summary>
-        cmn::ERenderingLayer renderLayer;
-
-
-        /// <summary>
-        /// The drawing-order priority within the rendering layer. Top-most = high priority
-        /// </summary>
-        int renderPriority;
-
-        /// <summary>
-        /// <para>Assuming usage of priority queue with fixed max-heap functionality</para>
-        /// <para>Need to have a 'less-than' operator that places higher priorities at minimum values</para>
-        /// <para>Therefore, it simply references the 'greater-than' operator to achieve the desired inversion</para>
-        /// </summary>
-        /// <param name="other">The Renderable to compare against</param>
-        /// <returns>Whether this Renderable is "greater-than" than the other</returns>
-        bool operator<(const Renderable &other) const {
-            return *this > other;
-        }
-        
-        /// <summary>
-        /// <para>Helps to sort Renderables based on layer and priority.</para>
-        /// <para>Higher priorities are given minimal values b/c
-        /// priority queues pop off items max-first</para>
-        /// </summary>
-        /// <param name="other">The Renderable to compare against</param>
-        /// <returns>Whether this Renderable is "greater" than the other</returns>
-        bool operator>(const Renderable &other) const {
-            if (renderLayer > other.renderLayer) {
-                return true;
-            }
-            else if (renderLayer == other.renderLayer) {
-                if (renderPriority > other.renderPriority) {
-                    return true;
-                }
-            /// else if (renderPriority == other.renderPriority)
-            ///     Behavior undefined. No guarantees for which
-            ///     object will be drawn on top
-            /// }
-            ///
-            }
-            return false;
-        }
-    };
-
-    /// <summary>
-    /// A sortable Text for rendering
-    /// </summary>
-    struct RenderableText : public Renderable {
-
-        RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
-            const std::string &fontFilePath = "", const sf::Color &color = sf::Color::White,
-            cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority), fontFilePath(fontFilePath) {
-
-            drawPtr = &text;
-
-            if (!font.loadFromFile(fontFilePath)) {
-                cerr << "Error: RenderableText failed to load font file <" + fontFilePath + ">" << endl;
-                throw 1;
-            }
-
-            text.setString(textContent);
-            text.setColor(color);
-            text.setPosition(position);
-            text.setFont(font);
-        }
-
-        /// <summary>
-        /// A Font used to format text
-        /// </summary>
-        sf::Font font;
-        
-        /// <summary>
-        /// The Font file path
-        /// </summary>
-        std::string fontFilePath;
-
-        /// <summary>
-        /// A Text used to draw text to the window        
-        /// </summary>
-        sf::Text text;
-    };
-
-    /// <summary>
-    /// A base class for sortable Shapes for rendering
-    /// </summary>
-    struct RenderableShape : public Renderable {
-
-        RenderableShape(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority) {}
-
-    };
-
-    /// <summary>
-    /// A base class for sortable Circles for rendering
-    /// </summary>
-    struct RenderableCircle : public RenderableShape {
-
-        RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority) {
-        
-            drawPtr = &circle;
-        }
-
-        sf::CircleShape circle;
-    };
-
-    /// <summary>
-    /// A base class for sortable Rectangles for rendering
-    /// </summary>
-    struct RenderableRectangle : public RenderableShape {
-
-        RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority) {
-        
-            drawPtr = &rectangle;
-        }
-
-        sf::RectangleShape rectangle;
-    };
-
-    /// <summary>
-    /// A base class for sortable Sprites for rendering & animation
-    /// </summary>
-    struct RenderableSprite : public Renderable {
-
-        RenderableSprite(const std::string &textureFileName = "",
-            const std::string &animName = "", const int frameId = 0,
-            const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
-            frameId(frameId), sprite() {
-        
-            cout << "renderSprite constructor entering" << endl;
-            drawPtr = &sprite;
-        }
-
-        /// <summary>
-        /// The source texture file for the current sprite(sheet)        
-        /// </summary>
-        std::string textureFileName;
-
-        /// <summary>
-        /// The name of the animation in use. Empty string ("") indicates no animation necessary
-        /// </summary>
-        std::string animName;
-
-        /// <summary>
-        /// The index of the frame of the animation currently being displayed. Only significant if animation is necessary
-        /// </summary>
-        int frameId;
-
-        /// <summary>
-        /// The sprite to be sorted
-        /// </summary>
-        sf::Sprite sprite;
-    };
-
-
-    /// <summary>
-    /// A component used to store renderable assets. Each asset is mapped by a name
-    /// </summary>
+    // A component used to store renderable assets. Each asset is mapped by a name
     struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
 
-        Renderer() {
+        Renderer() {}
 
-            //Implement details of XML serialization and deserialization here
-
-        }
-
-        //virtual ~Renderer() override {}
-
-        /// <summary>
-        /// Maps a string name to a given Text to be rendered        
-        /// </summary>
+        // Maps a string name to a given Text to be rendered        
         std::map<std::string, std::shared_ptr<RenderableText>> texts;
 
-        /// <summary>
-        /// Maps a string name to a given Rectangle to be rendered        
-        /// </summary>
+        // Maps a string name to a given Rectangle to be rendered        
         std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
 
-        /// <summary>
-        /// Maps a string name to a given Circle to be rendered        
-        /// </summary>
+        // Maps a string name to a given Circle to be rendered        
         std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
 
-        /// <summary>
-        /// Maps a string name to a given Sprite to be rendered        
-        /// </summary>
+        // Maps a string name to a given Sprite to be rendered        
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-            layersContent +=
-            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-            tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-            tab + "<BoxCollider>\r\n" +
-            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <Layers>\r\n" +
-            layersContent +
-            tab + "  </Layers>\r\n" +
-            tab + "  <Settings>\r\n" +
-            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-            tab + "  </Settings>\r\n" +
-            tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-            std::string layerName = t->Attribute("Name");
-            bool required, automatic;
-            t->FirstChildElement("Required")->QueryBoolText(&required);
-            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-            if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "Renderer"; }
-    };
-
-     /// <summary>
-     /// <para>A helper class to contain information regarding a given Animation.</para>
-     /// <para>A given texture (as a spritesheet) may contain several animation frames.</para>
-     /// </summary>
-    struct Animation {
-
-         /// <summary>
-         /// <para>Initializes a new instance of the <see cref="Animation"/> struct.</para>
-         /// <para>Assume any given "spritesheet" AKA "animation texture" is purely a single animation
-         /// with only horizontal translation between frames.</para>
-         /// </summary>
-         /// <param name="textureFileName">Name of the texture file.</param>
-         /// <param name="size">The size.</param>
-         /// <param name="isLooping">if set to <c>true</c> [is looping].</param>
-         /// <param name="animationSpeed">The animation speed.</param>
-         /// <param name="frameWidth">Width of the frame.</param>
-         /// <param name="frameHeight">Height of the frame.</param>
-        Animation(std::string textureFileName = "", int size = 0, bool isLooping = false, float animationSpeed = 1.0f,
-                int frameWidth = cmn::STD_UNITX, int frameHeight = cmn::STD_UNITY)
-                : textureFileName(textureFileName), size(size), isLooping(isLooping), animationSpeed(animationSpeed),
-                animationProgress(0.0f), frameWidth(frameWidth), frameHeight(frameHeight) {
-
-            // Ensure that we have one viewing rectangle (sf::IntRect) into the texture for each sprite frame
-            frames.resize(size);
-
-            // Ensure that each successive window is placed over the next frame of the spritesheet animation in turn
-            for (int i = 0; i < frames.size(); ++i) {
-                frames[i].width = frameWidth;
-                frames[i].height = frameHeight;
-                frames[i].left += i*frameWidth;
-            }
-        }
-
-        /// <summary>
-        /// The sections of the texture the animation draws from for each sprite        
-        /// </summary>
-        std::vector<sf::IntRect> frames;
-        
-        /// <summary>
-        /// Whether the sprite animation should stop at the end or loop back to the start        
-        /// </summary>
-        bool isLooping;
-
-        /// <summary>
-        /// The width of each frame in the imported spritesheet texture        
-        /// </summary>
-        int frameWidth;
-
-        /// <summary>
-        /// The height of each frame in the imported spritesheet texture        
-        /// </summary>
-        int frameHeight;
-
-        /// <summary>
-        /// The number of frames in the spritesheet animation        
-        /// </summary>
-        int size;
-
-        /// <summary>
-        /// The speed of the animation (how many ticks per 1 iteration of the animation loop?)        
-        /// </summary>
-        double animationSpeed;
-
-        /// <summary>
-        /// The current progress towards reaching the animationSpeed threshold
-        /// </summary>
-        double animationProgress;
-
-        /// <summary>
-        /// The name of the texture file referenced by the animation (the spritesheet, single line)        
-        /// </summary>
-        std::string textureFileName;
     };
 
 #pragma endregion
 
 #pragma region Timers
 
-    /// <summary>
-    /// A wrapper for an sf::Clock and ex::TimeDelta that allows a higher level of control over the clock
-    /// </summary>
-    struct Timer {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Timer"/> struct.
-        /// </summary>
-        /// <param name="clock">The clock.</param>
-        /// <param name="deltaTime">The delta time.</param>
-        /// <param name="isPlaying">if set to <c>true</c> [is playing].</param>
-        Timer(sf::Clock clock = sf::Clock(), ex::TimeDelta deltaTime = 0.0, bool isPlaying = true)
-            : elapsedTime(deltaTime), isPlaying(isPlaying) {}
-        
-        /// <summary>
-        /// Gets the elapsed time.
-        /// </summary>
-        /// <returns>The time since the last restart operation</returns>
-        ex::TimeDelta getElapsedTime() {
-            return elapsedTime + clock.getElapsedTime().asSeconds();
-        }
-
-        /// <summary>
-        /// Rewind or advance the timer by a given amount        
-        /// </summary>
-        /// <param name="scanDistance">The distance to be scanned left or right in the timeline</param>
-        void scan(ex::TimeDelta scanDistancetance) {
-            elapsedTime += scanDistancetance;
-        }
-
-        /// <summary>
-        /// Pause timer only if timer is currently playing        
-        /// </summary>
-        void pause() {
-            if (isPlaying) {
-                elapsedTime += clock.restart().asSeconds();
-                isPlaying = false;
-            }
-            else {
-                cerr << "Timer already paused." << endl;
-            }
-        }
-
-        /// <summary>
-        /// Play timer only if timer is currently paused        
-        /// </summary>
-        void play() {
-            if (!isPlaying) {
-                clock.restart();
-                isPlaying = true;
-            }
-            else {
-                cerr << "Timer is already playing." << endl;
-            }
-        }
-                
-        /// <summary>
-        /// Restarts the timer, returning the time up to that point
-        /// </summary>
-        /// <returns>The accumulated time up till the point of restart</returns>
-        ex::TimeDelta restart() {
-            ex::TimeDelta time = getElapsedTime();
-            elapsedTime = 0.0;
-            clock.restart();
-            return time;
-        }
-
-
-
-    private:        
-        /// <summary>
-        /// An sf::Clock to assist in recording time
-        /// </summary>
-        sf::Clock clock;
-        
-        /// <summary>
-        /// Record of elapsed time
-        /// </summary>
-        ex::TimeDelta elapsedTime;
-        
-        /// <summary>
-        /// Current state of timer
-        /// </summary>
-        bool isPlaying;
-    };
-
     struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TimeTable"/> struct.
-        /// </summary>
+        // Initializes a new instance of the <see cref="TimeTable"/> struct.
         TimeTable() {}
         
-        /// <summary>
-        /// Maps a name to current timers
-        /// <remarks>Needs to be ported to a TimerSystem and keep just the names of owned timers</remarks>
-        /// </summary>
+        // Maps a name to current timers
         std::map<std::string, Timer> timerMap;
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-            layersContent +=
-            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-            tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-            tab + "<BoxCollider>\r\n" +
-            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <Layers>\r\n" +
-            layersContent +
-            tab + "  </Layers>\r\n" +
-            tab + "  <Settings>\r\n" +
-            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-            tab + "  </Settings>\r\n" +
-            tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-            std::string layerName = t->Attribute("Name");
-            bool required, automatic;
-            t->FirstChildElement("Required")->QueryBoolText(&required);
-            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-            if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "TimeTable"; }
     };
@@ -998,104 +265,34 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    /// <summary>
-    /// A baseline Behavior component with functionality that many entities will likely reference.
-    /// </summary>
+    // A baseline Behavior component with functionality that many entities will likely reference.
     struct CoreBehavior : public ex::Component<CoreBehavior>, public cmn::Serializable {
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CoreBehavior"/> struct.
-        /// </summary>
+        // Initializes a new instance of the <see cref="CoreBehavior"/> struct.
         CoreBehavior() : awake(nullptr), beginPlay(nullptr), onCollisionEnter(nullptr), onCollisionExit(nullptr),
             preUpdate(nullptr), postUpdate(nullptr) {}
         
-        /// <summary>
-        /// Called when the entity instance is loaded
-        /// </summary>
+        // Called when the entity instance is loaded
         void(*awake)();        
 
-        /// <summary>
-        /// Called when the game begins
-        /// </summary>
+        // Called when the game begins
         void(*beginPlay)();        
 
-        /// <summary>
-        /// Called if the entity has a Collider and has start colliding with another entity's Collider
-        /// </summary>
+        // Called if the entity has a Collider and has start colliding with another entity's Collider
         void(*onCollisionEnter)(ex::Entity &other);        
 
-        /// <summary>
-        /// Called if the entity has a Collider and has stopped colliding with another entity's Collider
-        /// </summary>
+        // Called if the entity has a Collider and has stopped colliding with another entity's Collider
         void(*onCollisionExit)(ex::Entity &other);        
 
-        /// <summary>
-        /// Called at the beginning of each frame before other System updates
-        /// </summary>
+        // Called at the beginning of each frame before other System updates
         void(*preUpdate)(ex::TimeDelta dt);        
 
-        /// <summary>
-        /// Called at the end of each frame after other System updates
-        /// </summary>
+        // Called at the end of each frame after other System updates
         void(*postUpdate)(ex::TimeDelta dt);
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-            layersContent +=
-            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-            tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-            tab + "<BoxCollider>\r\n" +
-            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <Layers>\r\n" +
-            layersContent +
-            tab + "  </Layers>\r\n" +
-            tab + "  <Settings>\r\n" +
-            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-            tab + "  </Settings>\r\n" +
-            tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-            std::string layerName = t->Attribute("Name");
-            bool required, automatic;
-            t->FirstChildElement("Required")->QueryBoolText(&required);
-            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-            if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "CoreBehavior"; }
 
@@ -1105,84 +302,21 @@ namespace Raven {
 
 #pragma region ActionListener
     
-    /// <summary>
-    /// A class designed to "listen" for specific actions and provide a response for the entity
-    /// </summary>
+    // A class designed to "listen" for specific actions and provide a response for the entity
     struct ActionListener : ex::Component<ActionListener>, public cmn::Serializable, public ex::Receiver<ActionListener> {
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActionListener"/> struct.
-        /// </summary>
+        // Initializes a new instance of the <see cref="ActionListener"/> struct.
         ActionListener(int pid = -1) : playerId(pid) {}
         
-        /// <summary>
-        /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
-        /// </summary>
-        /// <remarks>Will need to replace std::string if the format of actions ever changes</remarks>
+        // Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
         std::map<std::string, Function> actionMap;
         
-        /// <summary>
-        /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
-        /// </summary>
+        // The player identifier. Assumed to be non-negative. -1 indicates "null" value
         int playerId;
 
-        virtual std::string serialize(std::string tab) override {
-            /*
-            std::string layersContent = "";
-            for (std::pair<std::string, std::shared_ptr<sf::SoundBuffer>> layer : soundMap) {
-            layersContent +=
-            tab + "    <Layer Name=\"" + layer.first + "\">\r\n" +
-            tab + "      <Required>" + std::to_string(layer.second.first) + "</Required>\r\n" +
-            tab + "      <Automatic>" + std::to_string(layer.second.second) + "</Automatic>\r\n" +
-            tab + "    </Layer>\r\n";
-            }
-            bool solid = collisionSettings.find("Solid") != collisionSettings.end();
-            bool trigger = collisionSettings.find("Trigger") != collisionSettings.end();
+        virtual std::string serialize(std::string tab) override;
 
-            return
-            tab + "<BoxCollider>\r\n" +
-            tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
-            tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
-            tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
-            tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <Layers>\r\n" +
-            layersContent +
-            tab + "  </Layers>\r\n" +
-            tab + "  <Settings>\r\n" +
-            tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
-            tab + "    <Trigger>" + std::to_string(trigger) + "</Trigger>\r\n" +
-            tab + "  </Settings>\r\n" +
-            tab + "</BoxCollider>\r\n";
-            */
-            return "";
-        }
-
-        virtual void deserialize(XMLNode* node) override {
-            /*
-            node->FirstChildElement("Width")->QueryFloatText(&this->width);
-            node->FirstChildElement("Height")->QueryFloatText(&this->height);
-            node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
-            node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
-
-            XMLElement* t = node->FirstChildElement("Layer");
-            layers.clear();
-            do {
-            std::string layerName = t->Attribute("Name");
-            bool required, automatic;
-            t->FirstChildElement("Required")->QueryBoolText(&required);
-            t->FirstChildElement("Automatic")->QueryBoolText(&automatic);
-            layers.insert(std::make_pair(layerName, std::make_pair(required, automatic)));
-            } while (t = t->NextSiblingElement("Layer"));
-
-            t = node->FirstChildElement("Settings");
-            collisionSettings.clear();
-            for (std::string setting : cmn::collisionSettingPossibilities) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
-            if (val) collisionSettings.insert(setting);
-            }
-            */
-        }
+        virtual void deserialize(XMLNode* node) override;
 
         virtual std::string getElementName() override { return "ActionListener"; }
     };
@@ -1233,15 +367,12 @@ namespace Raven {
             }
             else if (componentName == TIME_TABLE) {
                 newOwner.assign<TimeTable>();
-
             }
             else if (componentName == CORE_BEHAVIOR) {
                 newOwner.assign<CoreBehavior>();
-
             }
             else if (componentName == ACTION_LISTENER) {
                 newOwner.assign<ActionListener>();
-
             }
             return newOwner;
         }
