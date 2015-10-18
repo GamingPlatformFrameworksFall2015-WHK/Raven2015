@@ -146,6 +146,11 @@ namespace Raven {
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
-    };
+
+		void brushToolbarButtonClick(sfg::Button::Ptr clickedButton);
+		void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton);
+		void canvasClickHandler();
+		sfg::Label::Ptr currentBrush = sfg::Label::Create("Create");
+	};
 
 }

@@ -25,7 +25,8 @@ namespace Raven {
 
         //Perform initializations
         explicit InputSystem() {
-            eventTypeId = 0;
+            movementThresX = 0;
+			movementThresY = 0;
             key = "";
             read_file(CONFIG);
         }
@@ -52,7 +53,7 @@ namespace Raven {
             return mouse_map[button];
         }
 
-        int setEventType(sf::Event);
+        int handleEvent(sf::Event);
 
     private:
         std::map<sf::Keyboard::Key, std::string> key_map{
@@ -71,7 +72,8 @@ namespace Raven {
             { sf::Mouse::Button::Left,	"left_click"},
         };
 
-        int eventTypeId;
+        int movementThresX;
+		int movementThresY;
         std::string key;
 
         void insert_input(sf::Keyboard::Key key, std::string action);

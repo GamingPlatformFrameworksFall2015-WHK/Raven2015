@@ -20,9 +20,14 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
     ex::TimeDelta dt) {
-    if (eventTypeId == 0) { //look a keyboard event
-        events.emit<KeyboardEvent>(key);
-        eventTypeId = 5; //so there's no event atm
+	
+    if (movementThresX != 0 || movementThresY != 0) { //look a keyboard event
+		es.each<BoxCollider>([&](ex::Entity entity, BoxCollider &collider) {
+			entity.component<Transform>().get()->transform.x += movementThresX;
+			entity.component<Transform>().get()->transform.y += movementThresY;
+		});
+        movementThresX = 0;
+		movementThresY = 0;
     }
 
 }
@@ -36,23 +41,37 @@ void InputSystem::receive(const KeyboardEvent &event) {
         (event.action == "" ? NO_ACTION_STR : event.action) << endl;
 }
 
-int InputSystem::setEventType(sf::Event event) {
+int InputSystem::handleEvent(sf::Event event) {	
     switch (event.type) {
         case sf::Event::KeyPressed: {
             key = getAction(event.key.code);
-            eventTypeId = 0;
+			int speed = 10;
+			
+			if (key == "move_right") {
+				movementThresX += speed;				
+			}
+			else if (key == "move_down") {
+				movementThresY += speed;				
+			}
+			else if (key == "move_left") {
+				movementThresX -= speed;
+			}
+			else if (key == "move_up") {
+				movementThresY -= speed;	
+			}
             break;
         }
         case sf::Event::MouseButtonPressed: {
-            eventTypeId = 1;
+			sf::Vector2i position = sf::Mouse::getPosition();
+			//cout << event.mouseButton.x << " " << event.mouseButton.y << endl;
             break;
         }
         case sf::Event::JoystickButtonPressed: {
-            eventTypeId = 2;
+            movementThresX = 2;
             break;
         }
         case sf::Event::JoystickMoved: {
-            eventTypeId = 3;
+            movementThresX = 3;
             break;
         }
     }
