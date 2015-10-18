@@ -160,13 +160,10 @@ namespace Raven {
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
 
-        private:
-        // A mapping between a two names and a GUI window to be displayed within a given RenderWindow.
-        // The first name is the name of the RenderWindow to which the SFGUI window is assigned.
-        // That same name acts as a key to the Desktop that updates the stored SFGUI window.
-        // The second name is the name of the actual sfg::Widget GUI window.
-        std::map<std::string, std::shared_ptr<sfg::Widget>> WidgetMap;
-
+		void brushToolbarButtonClick(sfg::Button::Ptr clickedButton);
+		void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton);
+		void canvasClickHandler();
+		sfg::Label::Ptr currentBrush = sfg::Label::Create("Create");
     };
 
 }

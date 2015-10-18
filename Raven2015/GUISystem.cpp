@@ -87,13 +87,17 @@ namespace Raven {
     void GUISystem::pollEvents() {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
-
+            if ((*event).type == sf::Event::Closed) {
+                mainWindow->close();
+            }
             //-----------------------------------------------
             // Call a function that encapsulates the event.type switch statement and simply returns the corresponding action.
             // Use the value returned by this function to then call another function that will emit an event that triggers the
             // corresponding action on all entities listening for that action via a Pawn component.
             //-----------------------------------------------
-
+            //if(WidgetMap["Canvas"]->OnMouseLeftPress)
+            //cout << WidgetMap["Canvas"]->GetAbsolutePosition().x << " " << WidgetMap["Canvas"]->GetAbsolutePosition().y << endl;
+            input->handleEvent(*event);
         }
     }
 
@@ -106,7 +110,37 @@ namespace Raven {
     std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow> sh) {
         sh->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        sh->AddWithViewport(ButtonList::Create());
+        auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
+        auto hbox1 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
+        auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        hbox1->Pack(button, true, false);
+        auto hbox2 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
+        button = sfg::Button::Create("Entity 2");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        hbox2->Pack(button, true, false);
+        button = sfg::Button::Create("Entity 3");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        auto hbox3 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
+        hbox3->Pack(button, true, false);
+        vbox->Pack(hbox1, true, true);
+        vbox->Pack(hbox2, true, true);
+        vbox->Pack(hbox3, true, true);
+
+        sh->AddWithViewport(vbox);
+
+        /*auto box = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
+        auto button1 = sfg::Button::Create();
+        auto button2 = sfg::Button::Create();
+        auto label = sfg::Label::Create();
+        button1->SetLabel("Foo");
+        button2->SetLabel("Bar");
+        label->SetText("Baz");
+        box->Pack(button1);
+        box->Pack(label);
+        box->Pack(button2);
+        box->SetSpacing(0.5f);
+        sh->AddWithViewport(box);*/
 
         return sh;
     }
@@ -188,7 +222,7 @@ namespace Raven {
     
     // Format the Canvas widget
     std::shared_ptr<sfg::Canvas> GUISystem::formatCanvas(std::shared_ptr<sfg::Canvas> v) {
-
+        v->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::canvasClickHandler, this));
         return v;
     }
 
@@ -196,12 +230,14 @@ namespace Raven {
     std::shared_ptr<sfg::Box> GUISystem::formatToolbar(std::shared_ptr<sfg::Box> t) {
 
         t = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
-        auto currentBrush = sfg::Label::Create("Create");
         auto brushList = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = sfg::Button::Create("Create");
+        createBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, createBrush));
         auto deleteBrush = sfg::Button::Create("Delete");
+        deleteBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, deleteBrush));
         auto moveBrush = sfg::Button::Create("Move");
+        moveBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, moveBrush));
         auto toggleGridTracking = sfg::CheckButton::Create("Grid Tracking Enabled");
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
@@ -215,5 +251,19 @@ namespace Raven {
         return t;
     }
 
+    void GUISystem::brushToolbarButtonClick(sfg::Button::Ptr clickedButton) {
+        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        currentBrush->SetText(clickedButton->GetLabel().toAnsiString());
+    }
 
+    void GUISystem::canvasClickHandler() {
+        sf::Vector2i position = sf::Mouse::getPosition();
+        cout << currentBrush->GetText().toAnsiString() << " at " << position.x << " " << position.y << endl;
+    }
+
+    void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton) {
+        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
 }
