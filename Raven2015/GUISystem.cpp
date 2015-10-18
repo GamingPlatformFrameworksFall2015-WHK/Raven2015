@@ -77,7 +77,7 @@ namespace Raven {
         // Create an instance <- works because all Widgets have a static Create() factory method
         std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
-        WidgetMap.insert(std::make_pair(widgetName, widget));
+        widgetMap.insert(std::make_pair(widgetName, widget));
         // Add it to the desktop so that it will be updated
         desktop->Add(widget); 
         // Return the factory-generated widget pointer
@@ -95,8 +95,8 @@ namespace Raven {
             // Use the value returned by this function to then call another function that will emit an event that triggers the
             // corresponding action on all entities listening for that action via a Pawn component.
             //-----------------------------------------------
-            //if(WidgetMap["Canvas"]->OnMouseLeftPress)
-            //cout << WidgetMap["Canvas"]->GetAbsolutePosition().x << " " << WidgetMap["Canvas"]->GetAbsolutePosition().y << endl;
+            //if(widgetMap["Canvas"]->OnMouseLeftPress)
+            //cout << widgetMap["Canvas"]->GetAbsolutePosition().x << " " << widgetMap["Canvas"]->GetAbsolutePosition().y << endl;
             input->handleEvent(*event);
         }
     }

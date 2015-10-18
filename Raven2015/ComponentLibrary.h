@@ -20,7 +20,6 @@
 #include <map>                          // For std::map
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For entityx::Component
-#include "EntityLibrary.h"              // For Entity
 #include "Common.h"                     // For etc.
 
 namespace Raven {

@@ -71,7 +71,7 @@ int main() {
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
     entity1.assign<BoxCollider>();
-    ex::ComponentHandle<Renderer> renderer = entity1.assign<Renderer>();
+    ex::ComponentHandle<rvn::Renderer> renderer = entity1.assign<rvn::Renderer>();
     renderer->sprites["BlueDot"].reset(new RenderableSprite(
         "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
     game.systems.system<RenderingSystem>()->initialize(game.entities);
@@ -82,7 +82,7 @@ int main() {
 
     ex::Entity efps = game.entities.create();
     efps.assign<Transform>();
-    ex::ComponentHandle<Renderer> efps_renderer = efps.assign<Renderer>();
+    ex::ComponentHandle<rvn::Renderer> efps_renderer = efps.assign<rvn::Renderer>();
     std::string fpsStr = "FPS";
     efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
         "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
