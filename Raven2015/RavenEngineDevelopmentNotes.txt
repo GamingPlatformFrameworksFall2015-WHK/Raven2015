@@ -1,0 +1,5 @@
+RavenEngineDevelopmentNotes
+
+Still need to add data to RenderableRectangle and RenderableCircle assets.
+Currently can only be serialized as default forms (no mods to dimensions/color/transparency/etc)
+

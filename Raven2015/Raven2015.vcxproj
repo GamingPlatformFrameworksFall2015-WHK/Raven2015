@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +86,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\game2admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -119,7 +119,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-main-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfgui-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-main-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,28 +159,35 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>sfml-main.lib;sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-network.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfgui.lib;sfml-main.lib;sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-network.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="Common.cpp" />
+    <ClCompile Include="ComponentLibrary.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
     <ClCompile Include="entityx-master\entityx\help\Timer.cc" />
     <ClCompile Include="entityx-master\entityx\System.cc" />
+    <ClCompile Include="GUISystem.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="RenderingSystem.cpp" />
+    <ClCompile Include="TimerSystem.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="WidgetLibrary.cpp" />
+    <ClCompile Include="XMLSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ComponentLibrary.h" />
+    <ClInclude Include="DataAssetLibrary.h" />
     <ClInclude Include="EntityLibrary.h" />
     <ClInclude Include="entityx\3rdparty\catch.hpp" />
     <ClInclude Include="entityx\3rdparty\simplesignal.h" />
@@ -196,11 +203,14 @@
     <ClInclude Include="entityx\System.h" />
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
+    <ClInclude Include="GUISystem.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MovementSystem.h" />
     <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="WidgetLibrary.h" />
+    <ClInclude Include="XMLSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg" />

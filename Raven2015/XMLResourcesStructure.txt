@@ -1,0 +1,109 @@
+*RavenGame //An asterisk(*) indicates that the entry is a Node. Otherwise, it is an Element with a value inside of it
+	*Assets //It is assumed that anything with "Item" as its sub-node can have a variable number of children nodes
+		*Textures //map<string, string>
+			FilePath
+		*Music //map<string, string>
+			FilePath
+		*Sounds //map<string, string>
+			FilePath
+		*Fonts //map<string, string>
+			FilePath
+		*Animations  //map<string, Animation>
+			*Item Name="myName"
+				TextureFilePath
+				FrameCount //(size)
+				FrameWidth
+				FrameHeight
+				AnimationSpeed
+				IsLooping
+		*Renderables //No translated type
+			*RenderableTexts //map<string, RenderableText>
+				*Item Name=""
+					RenderLayer //int (enum)
+					RenderPriority //int	
+					TextContent //string
+					FontFilePath //string
+			*RenderableRectangles //map<string, RenderableRectangle>
+				*Item Name=""
+					RenderLayer //int (enum)
+					RenderPriority //int
+					... //Not really usable unless we add stuff here I think...
+			*RenderableCircles //map<string, RenderableCircle>
+				*Item Name=""
+					RenderLayer //int (enum)
+					RenderPriority //int
+					... //Not really usable unless we add stuff here I think...
+			*RenderableSprites //map<string, RenderableSprite>
+				*Item Name=""
+					RenderLayer //int (enum)
+					RenderPriority //int
+					TextureFilePath //Same deal as with the Animation's TextureFilePath
+					AnimationName //Same deal, but now using the Animation Item's Name. "" = no animation necessary
+	*Prefabs
+		*Entity //all "items" under this heading are optional EXCEPT Data and Transform
+			*Data
+				Name //string
+				PrefabName //string //The name of the prefab this entity is tracking/emulating
+				Modified //bool //Will be assumed to be true in this context since this is the prefab list
+			*Transform
+				*Transform
+					X //float
+					Y //float
+				Rotation //float
+			*Rigidbody
+				*Velocity
+					X //float
+					Y //float
+				*Acceleration
+					X //float
+					Y //float
+				RadialVelocity //float
+			*BoxCollider
+				Width //float
+				Height //float
+				XOffset //float
+				YOffset //float
+				*Layers
+					*Layer Name=""
+						Required //bool
+						Automatic //bool
+				*Settings
+					Solid //bool
+					Fixed //bool
+			*SoundMaker
+				SoundFilePath
+			*MusicMaker
+				MusicFilePath
+			*Renderer
+				*Texts
+					TextName //string
+				*Rectangles
+					RectangleName //string
+				*Circles
+					CircleName //string
+				*Sprites
+					SpriteName //string
+			*TimeTable //Will not be allowed to have preset values associated with it.
+			*CoreBehavior //Modifications to the functions within will be handled within the code, not the editor
+			*ActionListener
+				PlayerID //int
+				//Might want to add the following in case we want users to be able to modify what actions are being listened to from editor
+				*Actions
+					*Item
+						ActionName //string
+						Signature //int (enum)
+						FunctionName //string
+		*Entity
+			...
+		*Entity
+			...
+	*Levels
+		*Level Name=""
+			*Entities
+				*Item
+					PrefabName //string //If an empty string is given here, it will be assumed that a fully defined Entity follows
+					*Entity
+						...
+	
+				
+					
