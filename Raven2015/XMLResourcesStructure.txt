@@ -69,11 +69,11 @@
 						Automatic //bool
 				*Settings
 					Solid //bool
-					Trigger //bool
+					Fixed //bool
 			*SoundMaker
-				SoundName
+				SoundFilePath
 			*MusicMaker
-				MusicName
+				MusicFilePath
 			*Renderer
 				*Texts
 					TextName //string
@@ -91,6 +91,8 @@
 				*Actions
 					*Item
 						ActionName //string
+						Signature //int (enum)
+						FunctionName //string
 		*Entity
 			...
 		*Entity

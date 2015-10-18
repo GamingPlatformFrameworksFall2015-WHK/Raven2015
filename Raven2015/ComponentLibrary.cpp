@@ -125,7 +125,15 @@ namespace Raven {
 #pragma region Audio
 
     std::string SoundMaker::serialize(std::string tab) {
-        return "";
+        std::string soundContent = "";
+        for (auto soundFilePath_soundBuffer : soundMap) {
+            soundContent +=
+                tab + "  <SoundFilePath>" + soundFilePath_soundBuffer.first + "</SoundFilePath>\r\n";
+        }
+        return
+            tab + "<SoundMaker>\r\n" +
+            soundContent +
+            tab + "</SoundMaker>\r\n";
     }
 
     void SoundMaker::deserialize(XMLNode* node) {
@@ -133,7 +141,15 @@ namespace Raven {
     }
 
     std::string MusicMaker::serialize(std::string tab) {
-        return "";
+        std::string musicContent = "";
+        for (auto musicFilePath_musicBuffer : musicMap) {
+            musicContent +=
+                tab + "  <MusicFilePath>" + musicFilePath_musicBuffer.first + "</MusicFilePath>\r\n";
+        }
+        return
+            tab + "<MusicMaker>\r\n" +
+            musicContent +
+            tab + "</MusicMaker>\r\n";
     }
 
     void MusicMaker::deserialize(XMLNode* node) {
@@ -145,7 +161,37 @@ namespace Raven {
 #pragma region Rendering
 
     std::string Renderer::serialize(std::string tab) {
-        return "";
+        std::string textContent = "";
+        std::string rectangleContent = "";
+        std::string circleContent = "";
+        std::string spriteContent = "";
+        for (auto assetName_renderable : texts) {
+            textContent += tab + "    <TextName>" + assetName_renderable.first + "</TextName>\r\n";
+        }
+        for (auto assetName_renderable : rectangles) {
+            rectangleContent += tab + "    <RectangleName>" + assetName_renderable.first + "</RectangleName>\r\n";
+        }
+        for (auto assetName_renderable : circles) {
+            circleContent += tab + "    <CircleName>" + assetName_renderable.first + "</CircleName>\r\n";
+        }
+        for (auto assetName_renderable : sprites) {
+            spriteContent += tab + "    <SpriteName>" + assetName_renderable.first + "</SpriteName>\r\n";
+        }
+        return
+            tab + "<Renderer>\r\n" +
+            tab + "  <Texts>\r\n" +
+            textContent +
+            tab + "  </Texts>\r\n" +
+            tab + "  <Rectangles>\r\n" +
+            rectangleContent +
+            tab + "  </Rectangles>\r\n" +
+            tab + "  <Circles>\r\n" +
+            circleContent +
+            tab + "  </Circles>\r\n" +
+            tab + "  <Sprites>\r\n" +
+            spriteContent +
+            tab + "  </Sprites>\r\n" +
+            tab + "</Renderables>\r\n";
     }
 
     void Renderer::deserialize(XMLNode* node) {
@@ -157,51 +203,29 @@ namespace Raven {
 #pragma region Timers
 
     std::string TimeTable::serialize(std::string tab) {
-        return "";
+        return ""; //object never serialized
     }
 
-    void TimeTable::deserialize(XMLNode* node) {
-
-    }
+    void TimeTable::deserialize(XMLNode* node) {}
 
 #pragma endregion
 
 #pragma region Behaviors
 
-
-    std::string CoreBehavior::serialize(std::string tab) {
-        return "";
-    }
-
-    void CoreBehavior::deserialize(XMLNode* node) {
-
-    }
-
 #pragma endregion
 
-#pragma region ActionListener
-
-    std::string ActionListener::serialize(std::string tab) {
-        return "";
+    std::string ComponentLibrary::serializeEntity(ex::Entity e, std::string tab) {
+        std::string str =
+            tab + "<Entity>\r\n";
+        std::string tempTab = tab;  // save tab
+        tab += "  ";                // increment tab
+        SERIALIZE_COMPONENTS(e, str)// process components
+        tab = tempTab;              // reinstate tab
+        return str +=
+            tab + "</Entity>\r\n";
     }
 
-    void ActionListener::deserialize(XMLNode* node) {
-
+    void ComponentLibrary::deserializeEntity(ex::Entity e, XMLNode* node) {
+        DESERIALIZE_COMPONENTS(e, node)
     }
-
-
-#pragma endregion
-
-    const std::string ComponentLibrary::NULL_COMPONENT = "NULL_COMPONENT";
-    const std::string ComponentLibrary::DATA = "Data";
-    const std::string ComponentLibrary::TRANSFORM = "Transform";
-    const std::string ComponentLibrary::RIGIDBODY = "Rigidbody";
-    const std::string ComponentLibrary::BOX_COLLIDER = "BoxCollider";
-    const std::string ComponentLibrary::SOUND_MAKER = "SoundMaker";
-    const std::string ComponentLibrary::MUSIC_MAKER = "MusicMaker";
-    const std::string ComponentLibrary::RENDERER = "Renderer";
-    const std::string ComponentLibrary::TIME_TABLE = "TimeTable";
-    const std::string ComponentLibrary::CORE_BEHAVIOR = "CoreBehavior";
-    const std::string ComponentLibrary::ACTION_LISTENER = "ActionListener";
-
 }

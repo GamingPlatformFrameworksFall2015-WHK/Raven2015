@@ -21,11 +21,45 @@
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For ex::Component
 #include "EntityLibrary.h"              // For Entity
-#include "FunctionLibrary.h"            // For FL, FTL
 #include "DataAssetLibrary.h"           // For Renderable, Timer
 #include "Common.h"                     // For etc.
 
+
 namespace Raven {
+
+// Helper macros /*************************************************************************************************/
+#define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
+#define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
+/******************************************************************************************************************/
+
+// Update-Necessary Macros : altering the types of components that exist requires that the user update these macros
+#define COMPONENT_TYPES(t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+#define SERIALIZE_COMPONENTS(e, str) \
+            SERIALIZE_COMPONENT(Data, e, str); \
+            SERIALIZE_COMPONENT(Transform, e, str); \
+            SERIALIZE_COMPONENT(Rigidbody, e, str); \
+            SERIALIZE_COMPONENT(BoxCollider, e, str); \
+            SERIALIZE_COMPONENT(SoundMaker, e, str); \
+            SERIALIZE_COMPONENT(MusicMaker, e, str); \
+            SERIALIZE_COMPONENT(Renderer, e, str); \
+            SERIALIZE_COMPONENT(TimeTable, e, str);
+#define DESERIALIZE_COMPONENTS(e, node) \
+            DESERIALIZE_COMPONENT(Data, e, node); \
+            DESERIALIZE_COMPONENT(Transform, e, node); \
+            DESERIALIZE_COMPONENT(Rigidbody, e, node); \
+            DESERIALIZE_COMPONENT(BoxCollider, e, node); \
+            DESERIALIZE_COMPONENT(SoundMaker, e, node); \
+            DESERIALIZE_COMPONENT(MusicMaker, e, node); \
+            DESERIALIZE_COMPONENT(Renderer, e, node); \
+            DESERIALIZE_COMPONENT(TimeTable, e, node);
+/******************************************************************************************************************/
+    enum ComponentType {
+        COMPONENT_TYPES(_t)
+    };
+
+#define ADD_STATICS(type_name) \
+        static std::string getElementName() { return #type_name; } \
+        static ComponentType getType() { return ComponentType::type_name##_t; }
 
 #pragma region Data
 
@@ -35,10 +69,8 @@ namespace Raven {
         bool modified;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "Data"; }
+        ADD_STATICS(Data);
     };
 
 #pragma endregion
@@ -64,10 +96,8 @@ namespace Raven {
         float rotation;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "Transform"; }
+        ADD_STATICS(Transform);
     };
 
     // A component enabling a dynamic physical state. Required for movement.
@@ -99,10 +129,8 @@ namespace Raven {
         float radialVelocity;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "Rigidbody"; }
+        ADD_STATICS(Rigidbody);
     };
     
     // An abstract component used to identify collision areas.
@@ -167,10 +195,8 @@ namespace Raven {
         std::set<std::string> collisionSettings;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "BoxCollider"; }
+        ADD_STATICS(BoxCollider);
     };
     
 #pragma endregion
@@ -178,10 +204,10 @@ namespace Raven {
 #pragma region Audio
 
     // A component that acts as a base class for audio-storage data
-    struct AudioMaker : public ex::Component<AudioMaker> {};
+    struct AudioMaker {};
 
     // A component that stores the names of small tracks (< 30 seconds) for sf::Sound.
-    struct SoundMaker : public AudioMaker, public cmn::Serializable {
+    struct SoundMaker : public ex::Component<SoundMaker>, public AudioMaker, public cmn::Serializable {
 
         SoundMaker()  {}
 
@@ -192,14 +218,12 @@ namespace Raven {
         sf::Sound sound;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "SoundMaker"; }
+        ADD_STATICS(SoundMaker);
     };
 
     // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
-    struct MusicMaker : public AudioMaker, public cmn::Serializable {
+    struct MusicMaker : public ex::Component<MusicMaker>, public AudioMaker, public cmn::Serializable {
 
         MusicMaker() {}
 
@@ -207,10 +231,8 @@ namespace Raven {
         MUSICMAP_T musicMap;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "MusicMaker"; }
+        ADD_STATICS(MusicMaker);
     };
 
 #pragma endregion
@@ -236,10 +258,8 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "Renderer"; }
+        ADD_STATICS(Renderer);
     };
 
 #pragma endregion
@@ -254,128 +274,30 @@ namespace Raven {
         std::map<std::string, Timer> timerMap;
 
         virtual std::string serialize(std::string tab) override;
-
         virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "TimeTable"; }
+        ADD_STATICS(TimeTable);
     };
 
 #pragma endregion
-
 
 #pragma region Behaviors
 
-    // A baseline Behavior component with functionality that many entities will likely reference.
-    struct CoreBehavior : public ex::Component<CoreBehavior>, public cmn::Serializable {
-        
-        // Initializes a new instance of the <see cref="CoreBehavior"/> struct.
-        CoreBehavior() : awake(nullptr), beginPlay(nullptr), onCollisionEnter(nullptr), onCollisionExit(nullptr),
-            preUpdate(nullptr), postUpdate(nullptr) {}
-        
-        // Called when the entity instance is loaded
-        void(*awake)();        
-
-        // Called when the game begins
-        void(*beginPlay)();        
-
-        // Called if the entity has a Collider and has start colliding with another entity's Collider
-        void(*onCollisionEnter)(ex::Entity &other);        
-
-        // Called if the entity has a Collider and has stopped colliding with another entity's Collider
-        void(*onCollisionExit)(ex::Entity &other);        
-
-        // Called at the beginning of each frame before other System updates
-        void(*preUpdate)(ex::TimeDelta dt);        
-
-        // Called at the end of each frame after other System updates
-        void(*postUpdate)(ex::TimeDelta dt);
-
-        virtual std::string serialize(std::string tab) override;
-
-        virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "CoreBehavior"; }
-
-    };
-
-#pragma endregion
-
-#pragma region ActionListener
-    
-    // A class designed to "listen" for specific actions and provide a response for the entity
-    struct ActionListener : ex::Component<ActionListener>, public cmn::Serializable, public ex::Receiver<ActionListener> {
-        
-        // Initializes a new instance of the <see cref="ActionListener"/> struct.
-        ActionListener(int pid = -1) : playerId(pid) {}
-        
-        // Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
-        std::map<std::string, Function> actionMap;
-        
-        // The player identifier. Assumed to be non-negative. -1 indicates "null" value
-        int playerId;
-
-        virtual std::string serialize(std::string tab) override;
-
-        virtual void deserialize(XMLNode* node) override;
-
-        virtual std::string getElementName() override { return "ActionListener"; }
-    };
+    // Behaviors
 
 #pragma endregion
 
 #pragma region ComponentLibrary
 
-    class ComponentLibrary {
-    public:
-        const static std::string NULL_COMPONENT;
-        const static std::string DATA;
-        const static std::string TRANSFORM;
-        const static std::string RIGIDBODY;
-        const static std::string BOX_COLLIDER;
-        const static std::string SOUND_MAKER;
-        const static std::string MUSIC_MAKER;
-        const static std::string RENDERER;
-        const static std::string TIME_TABLE;
-        const static std::string CORE_BEHAVIOR;
-        const static std::string ACTION_LISTENER;
 
-        static ex::Entity attachComponent(ex::Entity newOwner, std::string componentName) {
-            if (componentName == DATA) {
-                newOwner.assign<Data>();
-            }
-            else if (componentName == TRANSFORM) {
-                newOwner.assign<Transform>();
-            }
-            else if (componentName == RIGIDBODY) {
-                newOwner.assign<Rigidbody>();
-            }
-            else if (componentName == BOX_COLLIDER) {
-                newOwner.assign<BoxCollider>();
 
-            }
-            else if (componentName == SOUND_MAKER) {
-                newOwner.assign<SoundMaker>();
+    // This struct enables us to organize the serialization of components more easily
+    // Now we can acquire the Data component of an entity, cycle through its components set
+    // and call attachComponent as necessary
+    struct ComponentLibrary {
 
-            }
-            else if (componentName == MUSIC_MAKER) {
-                newOwner.assign<MusicMaker>();
+        static std::string serializeEntity(ex::Entity e, std::string tab);
 
-            }
-            else if (componentName == RENDERER) {
-                newOwner.assign<Renderer>();
-
-            }
-            else if (componentName == TIME_TABLE) {
-                newOwner.assign<TimeTable>();
-            }
-            else if (componentName == CORE_BEHAVIOR) {
-                newOwner.assign<CoreBehavior>();
-            }
-            else if (componentName == ACTION_LISTENER) {
-                newOwner.assign<ActionListener>();
-            }
-            return newOwner;
-        }
+        static void deserializeEntity(ex::Entity e, XMLNode* node);
     };
 
 #pragma endregion

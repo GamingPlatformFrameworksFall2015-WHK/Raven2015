@@ -88,11 +88,6 @@ namespace Raven {
 
             // Allow the ISerializable to assign new values to its properties via an XML string
             virtual void deserialize(XMLNode* node) = 0;
-
-            // Returns the text within the Node that represents the contents of the serializable object
-            virtual std::string getElementName() = 0;
-
-            static const std::string t;
         };
 
         // The default position/dimensions of our various windows

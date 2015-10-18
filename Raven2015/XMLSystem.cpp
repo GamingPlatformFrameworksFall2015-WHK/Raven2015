@@ -114,23 +114,44 @@ namespace Raven {
     }
 
     std::string XMLSystem::serializePrefabMap(std::string tab) {
-        return 
-            "<Prefabs>\r\n" +
-            serializeEntitiesHelper(prefabMap, tab, false) + //no need to 'check for prefabs' since they all are
-            "</Prefabs>\r\n";
+        std::string prefabMapContent = "";
+        for (auto item : prefabMap) {
+            prefabMapContent +=
+                ComponentLibrary::serializeEntity(*item.second, tab + "  ");
+        }
+        return
+            tab + "<Prefabs>\r\n" +
+            prefabMapContent +
+            tab + "</Prefabs>\r\n";
     }
 
     std::string XMLSystem::serializeLevelMap(std::string tab) {
-        std::string levelContent = "";
-        for (auto level : levelMap) {
-            levelContent +=
-                tab + "<Level Name\"" + level.first + "\">\r\n" +
-                tab + "  <Entities>\r\n" +
-                serializeEntitiesHelper(level.second, tab + "  ", true) + //do need to 'check for prefabs' to skip recreation of entity
-                tab + "  </Entities>\r\n" +
-                tab + "</Level>\r\n";
+        std::string levelMapContent = tab + "<Levels>\r\n";
+        // For each level
+        for (auto levelName_entityMap : levelMap) {
+
+            // Add the header for the level's XML tag
+            levelMapContent += tab + "  <Level Name=\"" + levelName_entityMap.first + "\">\r\n";
+
+            // For each entity in the level
+            for (auto name_entity : levelName_entityMap.second) {
+                // Grab the entity's data
+                auto data = name_entity.second->component<Data>();
+
+                // If the entity is linked to and is a copy of a prefab, then there's no need to store its information
+                if (data->prefabName != "" && !data->modified) {
+                    levelMapContent += tab + "    <PrefabName>" + data->prefabName + "</PrefabName>\r\n";
+                }
+                // Else, if we need to store its information, serialize each of its components
+                else {
+                    levelMapContent += ComponentLibrary::serializeEntity(*name_entity.second, tab + "    ");
+                }
+            }
+
+            // Add the tail of the level's XML tag
+            levelMapContent += tab + "  </Level>\r\n";
         }
-        return levelContent;
+        return levelMapContent += tab += "</Levels>\r\n";
     }
 
 #pragma endregion
@@ -303,76 +324,8 @@ namespace Raven {
 
 #pragma endregion
 
-#pragma region SerializationHelpers
-
-    std::string XMLSystem::serializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, std::string tab,
-            bool checkForPrefabs) {
-
-        std::string entityContent = "";
-        for (auto name_entity : map) {
-            auto data = name_entity.second->component<Data>();
-
-            // If we assume that the prefabMap is filled, check whether our entity's prefab's name can be found in the list of prefabs.
-            // If we DO find an entry (meaning the entity is linked to a given prefab), then check whether it has been modified from the
-            // original.
-            if (checkForPrefabs && prefabMap.find(data->prefabName) != prefabMap.end() && !data->modified) {
-                // If we found an entry and it hasn't been modified, then just input the name of the 
-                // entity (i.e. prefab) and leave it at that
-                entityContent += tab + "  <PrefabName>" + name_entity.first + "</PrefabName>\r\n";
-            }
-            else {
-                // Else, if we did not find an entry, or if we did, but it didn't precisely match the original prefab,
-                // then we need to outline the exact details of the Entity's structure.
-                // Note: Future implementations could speed this process by adding "modified" booleans to each individual component instead
-
-                entityContent +=
-                    tab + "  <Entity Name=\"" + name_entity.first + "\">\r\n";
-                
-                // save current tab length
-                std::string tempTab = tab;
-                // Increment the tab length so that all successive serializations are tabbed by 1 more
-                tab += "  ";
-
-                // Assume that all entities will use these components
-                entityContent += name_entity.second->component<Data>()->serialize(tab);
-                entityContent += name_entity.second->component<Transform>()->serialize(tab);
-                entityContent += name_entity.second->component<Rigidbody>()->serialize(tab);
-
-                // Acquire optional components
-                if (name_entity.second->has_component<BoxCollider>()) {
-                    entityContent += name_entity.second->component<BoxCollider>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<SoundMaker>()) {
-                    entityContent += name_entity.second->component<SoundMaker>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<MusicMaker>()) {
-                    entityContent += name_entity.second->component<MusicMaker>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<Renderer>()) {
-                    entityContent += name_entity.second->component<Renderer>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<TimeTable>()) {
-                    entityContent += name_entity.second->component<TimeTable>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<CoreBehavior>()) {
-                    entityContent += name_entity.second->component<CoreBehavior>()->serialize(tab);
-                }
-                if (name_entity.second->has_component<ActionListener>()) {
-                    entityContent += name_entity.second->component<ActionListener>()->serialize(tab);
-                }
-
-                // reinstate tab length
-                tab = tempTab;
-
-                entityContent +=
-                    tab + "  </Entity>\r\n";
-            }
-        }
-
-        return entityContent;
-    }
-
-    void XMLSystem::deserializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
+    /*
+    void XMLSystem::deserializePrefabs(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
             bool checkForPrefabs) {
 
         XMLElement* item = nullptr;
@@ -460,6 +413,7 @@ namespace Raven {
             item = item->NextSiblingElement("Item");
         }
     }
+    */
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";

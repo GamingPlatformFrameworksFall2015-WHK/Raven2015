@@ -63,10 +63,6 @@ namespace Raven {
         void deserializePrefabMap(XMLNode* node);
         void deserializeLevelMap(XMLNode* node);
 
-        std::string serializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, std::string tab,
-            bool checkForPrefabs);
-        void deserializeEntitiesHelper(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
-            bool checkForPrefabs);
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
 

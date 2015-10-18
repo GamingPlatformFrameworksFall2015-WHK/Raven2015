@@ -4,11 +4,7 @@
 
 using namespace Raven;
 
-/// <summary>
-/// Initializes the loading of all textures defined by Renderers
-/// </summary>
-/// <param name="es">The es.</param>
-/// <param name="window">The window.</param>
+// Initializes the loading of all textures defined by Renderers
 void RenderingSystem::initialize(entityx::EntityManager &es) {
 
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
@@ -19,10 +15,7 @@ void RenderingSystem::initialize(entityx::EntityManager &es) {
     });
 }
 
-/// <summary>
-/// Registers the texture, permitting access from Animations and Renderers
-/// </summary>
-/// <param name="textureFileName">Name of the texture file.</param>
+// Registers the texture, permitting access from Animations and Renderers
 void RenderingSystem::registerTexture(std::string textureFileName) {
     if (textureMap.find(textureFileName) == textureMap.end()) {
         cout << "Note: textureMap look up failed. Inserting new texture." << endl;
@@ -38,14 +31,10 @@ void RenderingSystem::registerTexture(std::string textureFileName) {
     }
 }
 
-/// <summary>
-/// <para>Registers the animation.
-/// There are two valid methods of passing parameters to the animation variable:</para>
-/// <para>1. Pass in a std::shared_ptr for Animation. (variable will be preserved in external pointer)</para>
-/// <para>2. Pass in a new Animation(...). (variable will be deleted when registerAnimation leaves scope)</para>
-/// </summary>
-/// <param name="animationName">Name of the animation.</param>
-/// <param name="animation">The animation.</param>
+// Registers the animation.
+// There are two valid methods of passing parameters to the animation variable: 
+// 1. Pass in a std::shared_ptr for Animation. (variable will be preserved in external pointer) 
+// 2. Pass in a new Animation(...). (variable will be deleted when registerAnimation leaves scope) 
 void RenderingSystem::registerAnimation(const std::string &animationName, Animation* const animation) {
 
     // Shared pointer to catch either another shared pointer or a new pointer
@@ -74,15 +63,10 @@ void RenderingSystem::registerAnimation(const std::string &animationName, Animat
     registerTexture(ptr->textureFileName);
 }
 
-/// <summary>
-/// <para>Updates all rendered assets by following the sequence below.</para>
-/// <para>1. Increments any and all animations by 1 frame.</para>
-/// <para>2. Sorts all current sprites based on their draw layer and priority.</para>
-/// <para>3. Iterates through each sprite from back to front, drawing them.</para>
-/// </summary>
-/// <param name="es">Entity Manager reference for iterating through entities.</param>
-/// <param name="events">Event Manager reference for emitting events.</param>
-/// <param name="dt">The approximate amount of time that has passed since the last update</param>
+// Updates all rendered assets by following the sequence below. 
+// 1. Increments any and all animations by 1 frame. 
+// 2. Sorts all current renderable assets based on their draw layer and priority. 
+// 3. Iterates through each asset from back to front, drawing them. 
 void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &events, entityx::TimeDelta dt) {
 
     // Error checking for window validity

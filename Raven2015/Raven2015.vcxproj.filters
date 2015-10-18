@@ -111,9 +111,6 @@
     <ClCompile Include="ComponentLibrary.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionLibrary.cpp">
-      <Filter>Source Files\Libraries</Filter>
-    </ClCompile>
     <ClCompile Include="WidgetLibrary.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
@@ -195,9 +192,6 @@
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="EventLibrary.h">
-      <Filter>Header Files\Libraries</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="WidgetLibrary.h">
