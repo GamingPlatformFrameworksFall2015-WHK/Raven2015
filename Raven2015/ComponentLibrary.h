@@ -13,25 +13,99 @@
 
 #pragma once
 
-#include <SFML/Graphics.hpp>            // For sf::Vector2f
+#include <SFML/Graphics.hpp>            // For sf::Sprite
 #include <SFML/Audio/Sound.hpp>         // For sf::Sound
 #include <SFML/Audio/Music.hpp>         // For sf::Music
 #include <SFML/Audio/SoundBuffer.hpp>   // For sf::SoundBuffer
 #include <map>                          // For std::map
 #include <string>                       // For std::string
-#include "entityx\Entity.h"             // For entityx::Component
+#include "entityx\Entity.h"             // For ex::Component
 #include "Common.h"                     // For etc.
+#include "DataAssetLibrary.h"           // For Renderable, Timer
+
 
 namespace Raven {
 
+// Helper macros /*************************************************************************************************/
+#define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
+#define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
+/******************************************************************************************************************/
+
+/**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
+
+// Used to instantiate the ComponentType enum
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+// Used to pass into templated lists for acquiring all component types
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable
+// Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
+// Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
+#define COMPONENTS_OF_ENTITY(e) \
+            *e.component<Data>().get(), \
+            *e.component<Transform>().get(), \
+            *e.component<Rigidbody>().get(), \
+            *e.component<BoxCollider>().get(), \
+            *e.component<SoundMaker>().get(), \
+            *e.component<MusicMaker>().get(), \
+            *e.component<Renderer>().get(), \
+            *e.component<TimeTable>().get() //<- an actual TimeTable, not a TimeTable* or ex::ComponentHandle<TimeTable>, etc.
+// Used to serialize each component
+#define SERIALIZE_COMPONENTS(e, str) \
+            SERIALIZE_COMPONENT(Data, e, str); \
+            SERIALIZE_COMPONENT(Transform, e, str); \
+            SERIALIZE_COMPONENT(Rigidbody, e, str); \
+            SERIALIZE_COMPONENT(BoxCollider, e, str); \
+            SERIALIZE_COMPONENT(SoundMaker, e, str); \
+            SERIALIZE_COMPONENT(MusicMaker, e, str); \
+            SERIALIZE_COMPONENT(Renderer, e, str); \
+            SERIALIZE_COMPONENT(TimeTable, e, str);
+// Used to deserialize each component
+#define DESERIALIZE_COMPONENTS(e, node) \
+            DESERIALIZE_COMPONENT(Data, e, node); \
+            DESERIALIZE_COMPONENT(Transform, e, node); \
+            DESERIALIZE_COMPONENT(Rigidbody, e, node); \
+            DESERIALIZE_COMPONENT(BoxCollider, e, node); \
+            DESERIALIZE_COMPONENT(SoundMaker, e, node); \
+            DESERIALIZE_COMPONENT(MusicMaker, e, node); \
+            DESERIALIZE_COMPONENT(Renderer, e, node); \
+            DESERIALIZE_COMPONENT(TimeTable, e, node);
+/******************************************************************************************************************/
+    enum ComponentType {
+        COMPONENT_TYPES(_t)
+    };
+
+#define ADD_STATICS(type_name) \
+        static std::string getElementName() { return #type_name; } \
+        static ComponentType getType() { return ComponentType::type_name##_t; }
+
+#pragma region Data
+
+    struct Data : public ex::Component<Data>, public cmn::Serializable {
+
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
+            name(entityName), prefabName(prefabName), modified(modified) {}
+
+        // Copy Constructor
+        Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
+
+        // The displayed name for this entity
+        std::string name;
+        // The name of the prefab
+        std::string prefabName;
+        bool modified;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Data);
+    };
+
+#pragma endregion
+
 #pragma region Physics
     
-    /*
-     * A component enabling a passive physical state. Required for placement.
-     */
-    struct Transform : public ex::Component<Transform> {
+    // A component enabling a passive physical state. Required for placement.
+    struct Transform : public ex::Component<Transform>, public cmn::Serializable {
 
-        // Default constructor
+        // Default constructor. All fields initialzied to zero
         Transform(const float transformX = 0.0f, const float transformY = 0.0f,
             const float rotation = 0.0f) : rotation(rotation) {
 
@@ -39,24 +113,23 @@ namespace Raven {
             transform.y = transformY;
         }
 
-        // Primary custom constructor. Requires placement with optional rotation.
-        Transform(const sf::Vector2f &transform, float rotation = 0.0)
-            : transform(transform), rotation(rotation) {}
+        // Copy Constructor
+        Transform(const Transform& other) : transform(other.transform), rotation(other.rotation) {}
 
         // The x and y coordinates of the entity's Origin.
         sf::Vector2f transform;
 
-        /*
-         * The orientation of the entity, measured in degrees.
-         * Assumes that 0 begins at the right, running counterclockwise.
-         */
+        // The orientation of the entity, measured in degrees.
+        // Assumes that 0 begins at the right, running counterclockwise.
         float rotation;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Transform);
     };
 
-    /*
-     * A component enabling a dynamic physical state. Required for movement.
-     */
-    struct Rigidbody : public ex::Component<Rigidbody> {
+    // A component enabling a dynamic physical state. Required for movement.
+    struct Rigidbody : public ex::Component<Rigidbody>, public cmn::Serializable {
 
         // Default Constructor. All fields initialized to zero.
         Rigidbody(const float velocityX = 0.0f, const float velocityY = 0.0f,
@@ -69,15 +142,14 @@ namespace Raven {
             acceleration.y = accelerationY;
         }
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Rigidbody"/> struct.
-        /// </summary>
-        /// <param name="velocity">The velocity.</param>
-        /// <param name="acceleration">The acceleration.</param>
-        /// <param name="radialVelocity">The radial velocity. (Optional)</param>
+        // Initializes a new instance of the <see cref="Rigidbody"/> struct.
         Rigidbody(const sf::Vector2f &velocity, const sf::Vector2f &acceleration,
             const float radialVelocity = 0.0f) : velocity(velocity),
             acceleration(acceleration), radialVelocity(radialVelocity) {}
+
+        // Copy Constructor
+        Rigidbody(const Rigidbody& other) : velocity(other.velocity), 
+            acceleration(other.acceleration), radialVelocity(other.radialVelocity) {}
 
         // The x and y components of the entity's current velocity.
         sf::Vector2f velocity;
@@ -87,46 +159,33 @@ namespace Raven {
 
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Rigidbody);
     };
     
-    /// <summary>
-    /// <para>An abstract component used to identify collision areas.</para>
-    /// <para>The originOffset's x and y values are relative to its Transform.</para>
-    /// </summary>
+    // An abstract component used to identify collision areas.
+    // The originOffset's x and y values are relative to its Transform.
     struct Collider : public ex::Component<Collider> {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Collider"/> struct.
-        /// </summary>
+        // Initializes a new instance of the <see cref="Collider"/> struct.
         Collider() {}
                 
-        /// <summary>
-        /// Abstract definition for virtual destructor to finalize an instance of 
-        /// the abstract <see cref="Collider" /> class.
-        /// </summary>
+        // Abstract definition for virtual destructor to finalize an instance of 
+        // the abstract Collider class.
         virtual ~Collider() = 0;
 
         // The x-y coordinate of the collider's center relative to its transform.
         sf::Vector2f originOffset;
     };
         
-    /// <summary>
-    /// Inline empty implementation of <see cref="Collider"/>'s pure virtual deconstructor
-    /// </summary>
+    // Inline empty implementation of Collider's pure virtual deconstructor
     inline Collider::~Collider() {}
     
-    /// <summary>
-    /// A Collider with a box-shaped collision area
-    /// </summary>
-    struct BoxCollider : Collider {
+    // A Collider with a box-shaped collision area
+    struct BoxCollider : public Collider, public cmn::Serializable {
 
-         /// <summary>
-         /// Initializes a new instance of the <see cref="BoxCollider"/> struct.
-         /// </summary>
-         /// <param name="width">The width. Defaults to Common::STD_UNITX</param>
-         /// <param name="height">The height. Defaults to Common::STD_UNITY</param>
-         /// <param name="x">The x coordinate.</param>
-         /// <param name="y">The y coordinate.</param>
+         // Initializes a new instance of the <see cref="BoxCollider"/> struct.
         BoxCollider(const float width = cmn::STD_UNITX,
             const float height = cmn::STD_UNITY,
             const float x = 0.0f, const float y = 0.0f)
@@ -136,12 +195,7 @@ namespace Raven {
             originOffset.y = y;
         }
         
-        /// <summary>
-        /// Initializes a new scaled instance of the <see cref="BoxCollider"/> struct.
-        /// </summary>
-        /// <param name="scale">The scale.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
+        // Initializes a new scaled instance of the <see cref="BoxCollider"/> struct.
         BoxCollider(const float scale, const float x = 0.0f,
             const float y = 0.0f)
             : BoxCollider(cmn::STD_UNITX, cmn::STD_UNITY, x, y) {
@@ -149,636 +203,202 @@ namespace Raven {
             height *= scale;
         }
         
-        /// <summary>
-        /// Finalizes an instance of the <see cref="BoxCollider"/> class.
-        /// </summary>
+        // Copy Constructor
+        BoxCollider(const BoxCollider& other) : width(other.width), height(other.height), 
+            layers(other.layers), collisionSettings(other.collisionSettings) {}
+        
+        // Finalizes an instance of the <see cref="BoxCollider"/> class.
         virtual ~BoxCollider() override {}
         
-        /// <summary>
-        /// The range of the x-axis of the collider. Origin in the middle.
-        /// </summary>
+        // The range of the x-axis of the collider. Origin in the middle.
         float width;
         
-        /// <summary>
-        /// The range of the y-axis of the collider. Origin in the middle.
-        /// </summary>
+        // The range of the y-axis of the collider. Origin in the middle.
         float height;
         
-        /// <summary>
-        /// <para>The set of layers to which the collider is assigned.</para> 
-        /// <para>The collider will "collide" with any BoxCollider that possesses the same entry.</para>
-        /// <para>The value is a boolean pair of options dictating when CollisionEvents are emitted.
-        ///       First="Required". Second="Automatic".</para>
-        /// <para>"Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.</para>
-        /// <para>"Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.</para>
-        /// <para>An "automatic" setting will override any lack of "required" layers</para>
-        /// </summary>
+        // The set of layers to which the collider is assigned. 
+        // The collider will "collide" with any BoxCollider that possesses the same entry.
+        // The value is a boolean pair of options dictating when CollisionEvents are emitted.
+        //     First="Required". Second="Automatic".
+        // "Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.
+        // "Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.
+        // An "automatic" setting will override any lack of "required" layers
         std::map<std::string, std::pair<bool, bool>> layers;
         
-        /// <summary>
-        /// <para>The collision settings. Valid values can be found in Common::CollisionLayerSettings</para>
-        /// <para>SOLID : The layer that indicates the entities should be "pushed out of each other"</para>
-        /// <para>TRIGGER : The layer that indicates the entity will react to the collision</para>
-        /// </summary>
+        // The collision settings. Valid values can be found in Common::CollisionLayerSettings
+        // SOLID : The layer that indicates the entities should be "pushed out of each other"
+        // TRIGGER : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
-    };
     
-    /// <summary>
-    /// <para>A Collider with a circle-shaped collision area.</para>
-    /// <para>WARNING: CURRENTLY UNUSED</para>
-    /// </summary>
-    struct CircleCollider : Collider {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CircleCollider"/> struct.
-        /// </summary>
-        /// <remarks>Defaults radius to 1/2 the standard unit in Common</remarks>
-        /// <param name="radius">The radius</param>
-        /// <param name="x">The x coordinate</param>
-        /// <param name="y">The y coordinate</param>
-        CircleCollider(const float radius = 0.5*(cmn::STD_UNITX),
-            const float x = 0.0f, const float y = 0.0f)
-            : radius(radius) {
-
-            originOffset.x = x;
-            originOffset.y = y;
-        }
-        
-        /// <summary>
-        /// Finalizes an instance of the <see cref="CircleCollider"/> class.
-        /// </summary>
-        virtual ~CircleCollider() override {}
-        
-        /// <summary>
-        /// The radius of the circular collision area
-        /// </summary>
-        float radius;
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(BoxCollider);
     };
 
 #pragma endregion
 
 #pragma region Audio
 
-    /// <summary>
-    /// <para>A component that acts as a base class for audio-storage data</para>
-    /// </summary>
-    struct AudioMaker : public ex::Component<AudioMaker> {
+    // A component that acts as a base class for audio-storage data
+    struct AudioMaker {};
 
-    };
+    // A component that stores the names of small tracks (< 30 seconds) for sf::Sound.
+    struct SoundMaker : public ex::Component<SoundMaker>, public AudioMaker, public cmn::Serializable {
 
-    /// <summary>
-    /// <para>A component that stores the names of tracks for sf::Sound.</para>
-    /// <para>sf::Sound is optimized for small audio tracks (a few seconds).</para>
-    /// </summary>
-    struct SoundMaker : public AudioMaker {
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
+        // Null Constructor
         SoundMaker()  {}
 
-        /// <summary>
-        /// A mapping between sound file names and the buffers for their storage
-        /// </summary>
+        // Copy Constructor
+        SoundMaker(const SoundMaker& other) : soundMap(other.soundMap), sound(other.sound) {}
+
+        // A mapping between sound file names and the buffers for their storage
         SOUNDMAP_T soundMap;
 
-        /// <summary>
-        /// An object for performing sound operations on a buffer.
-        /// </summary>
+        // An object for performing sound operations on a buffer.
         sf::Sound sound;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(SoundMaker);
     };
 
-    /// <summary>
-    /// <para>A component that stores the names of tracks for sf::Music.</para>
-    /// <para>sf::Music is optimized for large audio tracks (~30 seconds+).</para>
-    /// </summary>
-    struct MusicMaker : public AudioMaker {
+    // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
+    struct MusicMaker : public ex::Component<MusicMaker>, public AudioMaker, public cmn::Serializable {
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
+        // Null Constructor
         MusicMaker() {}
 
-        /// <summary>
-        /// A mapping between music file names and their stream storage objects
-        /// </summary>
+        // Copy Constructor
+        MusicMaker(const MusicMaker& other) : musicMap(other.musicMap) {}
+
+        // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(MusicMaker);
     };
 
 #pragma endregion
 
 #pragma region Rendering
 
-     /// <summary>
-     /// <para>A wrapper class around drawable assets to allow for sorting.</para>
-     /// <para>Sorting is based on layer first, priority second.</para>
-     /// <para>A low priority means it will be drawn first, i.e. below other objects</para>
-     /// </summary>
-    struct Renderable {
 
-        Renderable(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : renderLayer(renderLayer), renderPriority(renderPriority), drawPtr(nullptr) {}
+    // A component used to store renderable assets. Each asset is mapped by a name
+    struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
 
-        /// <summary>
-        /// A Drawable pointer used SOLELY for generic drawing (errors occurred otherwise)
-        /// </summary>
-        sf::Drawable* drawPtr;
+        // Null Constructor
+        Renderer() {}
 
-        /// <summary>
-        /// The rendering layer for macro-sorting of render content
-        /// </summary>
-        cmn::ERenderingLayer renderLayer;
-
-
-        /// <summary>
-        /// The drawing-order priority within the rendering layer. Top-most = high priority
-        /// </summary>
-        int renderPriority;
-
-        /// <summary>
-        /// <para>Assuming usage of priority queue with fixed max-heap functionality</para>
-        /// <para>Need to have a 'less-than' operator that places higher priorities at minimum values</para>
-        /// <para>Therefore, it simply references the 'greater-than' operator to achieve the desired inversion</para>
-        /// </summary>
-        /// <param name="other">The Renderable to compare against</param>
-        /// <returns>Whether this Renderable is "greater-than" than the other</returns>
-        bool operator<(const Renderable &other) const {
-            return *this > other;
+        // Copy Constructor
+        Renderer(const Renderer& other) {
+            for (auto name_item : other.texts) {
+                texts.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableText>(new RenderableText(*name_item.second.get()))));
         }
-        
-        /// <summary>
-        /// <para>Helps to sort Renderables based on layer and priority.</para>
-        /// <para>Higher priorities are given minimal values b/c
-        /// priority queues pop off items max-first</para>
-        /// </summary>
-        /// <param name="other">The Renderable to compare against</param>
-        /// <returns>Whether this Renderable is "greater" than the other</returns>
-        bool operator>(const Renderable &other) const {
-            if (renderLayer > other.renderLayer) {
-                return true;
+            for (auto name_item : other.rectangles) {
+                rectangles.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableRectangle>(new RenderableRectangle(*name_item.second.get()))));
             }
-            else if (renderLayer == other.renderLayer) {
-                if (renderPriority > other.renderPriority) {
-                    return true;
+            for (auto name_item : other.circles) {
+                circles.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableCircle>(new RenderableCircle(*name_item.second.get()))));
                 }
-            /// else if (renderPriority == other.renderPriority)
-            ///     Behavior undefined. No guarantees for which
-            ///     object will be drawn on top
-            /// }
-            ///
+            for (auto name_item : other.sprites) {
+                sprites.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableSprite>(new RenderableSprite(*name_item.second.get()))));
             }
-            return false;
-        }
-    };
-
-    /// <summary>
-    /// A sortable Text for rendering
-    /// </summary>
-    struct RenderableText : public Renderable {
-
-        RenderableText(const std::string &textContent = "", const sf::Vector2f &position = sf::Vector2f(),
-            const std::string &fontFile = "", const sf::Color &color = sf::Color::White,
-            cmn::ERenderingLayer renderLayer = cmn::ERenderingLayer::NO_LAYER, int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority) {
-
-            drawPtr = &text;
-
-            if (!font.loadFromFile(fontFile)) {
-                cerr << "Error: RenderableText failed to load font file <" + fontFile + ">" << endl;
-                throw 1;
-            }
-
-            text.setString(textContent);
-            text.setColor(color);
-            text.setPosition(position);
-            text.setFont(font);
         }
 
-        /// <summary>
-        /// A Font used to format text
-        /// </summary>
-        sf::Font font;
-
-        /// <summary>
-        /// A Text used to draw text to the window        
-        /// </summary>
-        sf::Text text;
-    };
-
-    /// <summary>
-    /// A base class for sortable Shapes for rendering
-    /// </summary>
-    struct RenderableShape : public Renderable {
-
-        RenderableShape(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority) {}
-
-    };
-
-    /// <summary>
-    /// A base class for sortable Circles for rendering
-    /// </summary>
-    struct RenderableCircle : public RenderableShape {
-
-        RenderableCircle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority) {
-        
-            drawPtr = &circle;
-        }
-
-        sf::CircleShape circle;
-    };
-
-    /// <summary>
-    /// A base class for sortable Rectangles for rendering
-    /// </summary>
-    struct RenderableRectangle : public RenderableShape {
-
-        RenderableRectangle(const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : RenderableShape(renderLayer, renderPriority) {
-        
-            drawPtr = &rectangle;
-        }
-
-        sf::RectangleShape rectangle;
-    };
-
-    /// <summary>
-    /// A base class for sortable Sprites for rendering & animation
-    /// </summary>
-    struct RenderableSprite : public Renderable {
-
-        RenderableSprite(const std::string &textureFileName = "",
-            const std::string &animName = "", const int frameId = 0,
-            const cmn::ERenderingLayer &renderLayer = cmn::ERenderingLayer::NO_LAYER, const int renderPriority = 0)
-            : Renderable(renderLayer, renderPriority), textureFileName(textureFileName), animName(animName), 
-            frameId(frameId), sprite() {
-        
-            cout << "renderSprite constructor entering" << endl;
-            drawPtr = &sprite;
-        }
-
-        /// <summary>
-        /// The source texture file for the current sprite(sheet)        
-        /// </summary>
-        std::string textureFileName;
-
-        /// <summary>
-        /// The name of the animation in use. Empty string ("") indicates no animation necessary
-        /// </summary>
-        std::string animName;
-
-        /// <summary>
-        /// The index of the frame of the animation currently being displayed. Only significant if animation is necessary
-        /// </summary>
-        int frameId;
-
-        /// <summary>
-        /// The sprite to be sorted
-        /// </summary>
-        sf::Sprite sprite;
-    };
-
-
-    /// <summary>
-    /// A component used to store renderable assets. Each asset is mapped by a name
-    /// </summary>
-    struct Renderer : public ex::Component<Renderer> {
-
-        Renderer() {
-
-            //Implement details of XML serialization and deserialization here
-
-        }
-
-        //virtual ~Renderer() override {}
-
-        /// <summary>
-        /// Maps a string name to a given Text to be rendered        
-        /// </summary>
+        // Maps a string name to a given Text to be rendered        
         std::map<std::string, std::shared_ptr<RenderableText>> texts;
 
-        /// <summary>
-        /// Maps a string name to a given Rectangle to be rendered        
-        /// </summary>
+        // Maps a string name to a given Rectangle to be rendered        
         std::map<std::string, std::shared_ptr<RenderableRectangle>> rectangles;
 
-        /// <summary>
-        /// Maps a string name to a given Circle to be rendered        
-        /// </summary>
+        // Maps a string name to a given Circle to be rendered        
         std::map<std::string, std::shared_ptr<RenderableCircle>> circles;
 
-        /// <summary>
-        /// Maps a string name to a given Sprite to be rendered        
-        /// </summary>
+        // Maps a string name to a given Sprite to be rendered        
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
-    };
 
-     /// <summary>
-     /// <para>A helper class to contain information regarding a given Animation.</para>
-     /// <para>A given texture (as a spritesheet) may contain several animation frames.</para>
-     /// </summary>
-    struct Animation {
-
-         /// <summary>
-         /// <para>Initializes a new instance of the <see cref="Animation"/> struct.</para>
-         /// <para>Assume any given "spritesheet" AKA "animation texture" is purely a single animation
-         /// with only horizontal translation between frames.</para>
-         /// </summary>
-         /// <param name="textureFileName">Name of the texture file.</param>
-         /// <param name="size">The size.</param>
-         /// <param name="isLooping">if set to <c>true</c> [is looping].</param>
-         /// <param name="animationSpeed">The animation speed.</param>
-         /// <param name="frameWidth">Width of the frame.</param>
-         /// <param name="frameHeight">Height of the frame.</param>
-        Animation(std::string textureFileName = "", int size = 0, bool isLooping = false, float animationSpeed = 1.0f,
-                int frameWidth = cmn::STD_UNITX, int frameHeight = cmn::STD_UNITY)
-                : textureFileName(textureFileName), size(size), isLooping(isLooping), animationSpeed(animationSpeed),
-                animationProgress(0.0f), frameWidth(frameWidth), frameHeight(frameHeight) {
-
-            // Ensure that we have one viewing rectangle (sf::IntRect) into the texture for each sprite frame
-            frames.resize(size);
-
-            // Ensure that each successive window is placed over the next frame of the spritesheet animation in turn
-            for (int i = 0; i < frames.size(); ++i) {
-                frames[i].width = frameWidth;
-                frames[i].height = frameHeight;
-                frames[i].left += i*frameWidth;
-            }
-        }
-
-        /// <summary>
-        /// The sections of the texture the animation draws from for each sprite        
-        /// </summary>
-        std::vector<sf::IntRect> frames;
-        
-        /// <summary>
-        /// Whether the sprite animation should stop at the end or loop back to the start        
-        /// </summary>
-        bool isLooping;
-
-        /// <summary>
-        /// The width of each frame in the imported spritesheet texture        
-        /// </summary>
-        int frameWidth;
-
-        /// <summary>
-        /// The height of each frame in the imported spritesheet texture        
-        /// </summary>
-        int frameHeight;
-
-        /// <summary>
-        /// The number of frames in the spritesheet animation        
-        /// </summary>
-        int size;
-
-        /// <summary>
-        /// The speed of the animation (how many ticks per 1 iteration of the animation loop?)        
-        /// </summary>
-        double animationSpeed;
-
-        /// <summary>
-        /// The current progress towards reaching the animationSpeed threshold
-        /// </summary>
-        double animationProgress;
-
-        /// <summary>
-        /// The name of the texture file referenced by the animation (the spritesheet, single line)        
-        /// </summary>
-        std::string textureFileName;
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Renderer);
     };
 
 #pragma endregion
 
 #pragma region Timers
 
-    /// <summary>
-    /// A wrapper for an sf::Clock and ex::TimeDelta that allows a higher level of control over the clock
-    /// </summary>
-    struct Timer {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Timer"/> struct.
-        /// </summary>
-        /// <param name="clock">The clock.</param>
-        /// <param name="deltaTime">The delta time.</param>
-        /// <param name="isPlaying">if set to <c>true</c> [is playing].</param>
-        Timer(sf::Clock clock = sf::Clock(), ex::TimeDelta deltaTime = 0.0, bool isPlaying = true)
-            : elapsedTime(deltaTime), isPlaying(isPlaying) {}
-        
-        /// <summary>
-        /// Gets the elapsed time.
-        /// </summary>
-        /// <returns>The time since the last restart operation</returns>
-        ex::TimeDelta getElapsedTime() {
-            return elapsedTime + clock.getElapsedTime().asSeconds();
-        }
-
-        /// <summary>
-        /// Rewind or advance the timer by a given amount        
-        /// </summary>
-        /// <param name="scanDistance">The distance to be scanned left or right in the timeline</param>
-        void scan(ex::TimeDelta scanDistancetance) {
-            elapsedTime += scanDistancetance;
-        }
-
-        /// <summary>
-        /// Pause timer only if timer is currently playing        
-        /// </summary>
-        void pause() {
-            if (isPlaying) {
-                elapsedTime += clock.restart().asSeconds();
-                isPlaying = false;
-            }
-            else {
-                cerr << "Timer already paused." << endl;
-            }
-        }
-
-        /// <summary>
-        /// Play timer only if timer is currently paused        
-        /// </summary>
-        void play() {
-            if (!isPlaying) {
-                clock.restart();
-                isPlaying = true;
-            }
-            else {
-                cerr << "Timer is already playing." << endl;
-            }
-        }
-                
-        /// <summary>
-        /// Restarts the timer, returning the time up to that point
-        /// </summary>
-        /// <returns>The accumulated time up till the point of restart</returns>
-        ex::TimeDelta restart() {
-            ex::TimeDelta time = getElapsedTime();
-            elapsedTime = 0.0;
-            clock.restart();
-            return time;
-        }
-
-
-
-    private:        
-        /// <summary>
-        /// An sf::Clock to assist in recording time
-        /// </summary>
-        sf::Clock clock;
-        
-        /// <summary>
-        /// Record of elapsed time
-        /// </summary>
-        ex::TimeDelta elapsedTime;
-        
-        /// <summary>
-        /// Current state of timer
-        /// </summary>
-        bool isPlaying;
-    };
-
-    struct TimeTable : public ex::Component<TimeTable> {        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TimeTable"/> struct.
-        /// </summary>
+    struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
+        // Initializes a new instance of the <see cref="TimeTable"/> struct.
         TimeTable() {}
         
-        /// <summary>
-        /// Maps a name to current timers
-        /// <remarks>Needs to be ported to a TimerSystem and keep just the names of owned timers</remarks>
-        /// </summary>
+        // Copy Constructor
+        TimeTable(const TimeTable& other) : timerMap(other.timerMap) {}
+        
+        // Maps a name to current timers
         std::map<std::string, Timer> timerMap;
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(TimeTable);
     };
 
 #pragma endregion
-
 
 #pragma region Behaviors
 
-    /// <summary>
-    /// A baseline Behavior component with functionality that many entities will likely reference.
-    /// </summary>
-    struct CoreBehavior : public ex::Component<CoreBehavior> {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CoreBehavior"/> struct.
-        /// </summary>
-        CoreBehavior() : awake(nullptr), beginPlay(nullptr), onCollisionEnter(nullptr), onCollisionExit(nullptr),
-            preUpdate(nullptr), postUpdate(nullptr) {}
-        
-        /// <summary>
-        /// Called when the entity instance is loaded
-        /// </summary>
-        void(*awake)();        
-
-        /// <summary>
-        /// Called when the game begins
-        /// </summary>
-        void(*beginPlay)();        
-
-        /// <summary>
-        /// Called if the entity has a Collider and has start colliding with another entity's Collider
-        /// </summary>
-        void(*onCollisionEnter)(ex::Entity &other);        
-
-        /// <summary>
-        /// Called if the entity has a Collider and has stopped colliding with another entity's Collider
-        /// </summary>
-        void(*onCollisionExit)(ex::Entity &other);        
-
-        /// <summary>
-        /// Called at the beginning of each frame before other System updates
-        /// </summary>
-        void(*preUpdate)(ex::TimeDelta dt);        
-
-        /// <summary>
-        /// Called at the end of each frame after other System updates
-        /// </summary>
-        void(*postUpdate)(ex::TimeDelta dt);
-
-    };
-
-#pragma endregion
-
-#pragma region ActionListener
-    
-    /// <summary>
-    /// A class designed to "listen" for specific actions and provide a response for the entity
-    /// </summary>
-    struct ActionListener : ex::Component<ActionListener> {
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActionListener"/> struct.
-        /// </summary>
-        ActionListener(int pid = -1) : playerId(pid) {}
-        
-        /// <summary>
-        /// Maps string actions to a reactionary function. The "entity" is assumed to be the owner 
-        /// </summary>
-        /// <remarks>Will need to replace std::string if the format of actions ever changes</remarks>
-        std::map<std::string, void(*)(ex::Entity &entity)> actionMap;
-        
-        /// <summary>
-        /// The player identifier. Assumed to be non-negative. -1 indicates "null" value
-        /// </summary>
-        int playerId;
-    };
+    // Behaviors
 
 #pragma endregion
 
 #pragma region ComponentLibrary
 
-    class ComponentLibrary {
-    public:
-        const static std::string NULL_COMPONENT;
-        const static std::string TRANSFORM;
-        const static std::string RIGIDBODY;
-        const static std::string BOX_COLLIDER;
-        const static std::string SOUND_MAKER;
-        const static std::string MUSIC_MAKER;
-        const static std::string RENDERER;
-        const static std::string TIME_TABLE;
-        const static std::string CORE_BEHAVIOR;
-        const static std::string ACTION_LISTENER;
+    // This struct enables us to organize the serialization of components more easily
+    // Now we can acquire the Data component of an entity, cycle through its components set
+    // and call attachComponent as necessary
+    struct ComponentLibrary {
 
-        static ex::Entity attachComponent(ex::Entity newOwner, std::string componentName) {
-            if (componentName == TRANSFORM) {
-                newOwner.assign<Transform>();
-            }
-            else if (componentName == RIGIDBODY) {
-                newOwner.assign<Rigidbody>();
-            }
-            else if (componentName == BOX_COLLIDER) {
-                newOwner.assign<BoxCollider>();
+        // Serializes all components on the given entity while taking into account the current tab amount
+        static std::string serializeEntity(ex::Entity e, std::string tab);
 
-            }
-            else if (componentName == SOUND_MAKER) {
-                newOwner.assign<SoundMaker>();
+        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
+        static void deserializeEntity(ex::Entity e, XMLNode* node);
 
-            }
-            else if (componentName == MUSIC_MAKER) {
-                newOwner.assign<MusicMaker>();
+        // Turns the first entity into a replica of the second entity before returning the first entity.
+        // Simply combines the use of clearEntity and copyComponents with the full set of template parameters.
+        static ex::Entity copyEntity(ex::Entity toReturn, ex::Entity toCopy);
 
-            }
-            else if (componentName == RENDERER) {
-                newOwner.assign<Renderer>();
+        // Clears the last component from an entity. Base case for the parameter pack version to work recursively
+        template <typename T>
+        static void clearEntity(ex::Entity e, T last);
 
-            }
-            else if (componentName == TIME_TABLE) {
-                newOwner.assign<TimeTable>();
+        // Clears all components from the given entity
+        // Usage:
+        // /* Entity e1 with Data, Transform, and Rigidbody */
+        // clearEntity<Data, Transform, Rigibody>(e1); // OR
+        // clearEntity<Data, Transform, Rigibody, BoxCollider, etc.>(e1);
+        template <typename T, typename... Args>
+        static void clearEntity(ex::Entity e, T first, Args... args);
 
-            }
-            else if (componentName == CORE_BEHAVIOR) {
-                newOwner.assign<CoreBehavior>();
+        // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
+        template <typename T>
+        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T last);
 
-            }
-            else if (componentName == ACTION_LISTENER) {
-                newOwner.assign<ActionListener>();
-
-            }
-            return newOwner;
-        }
+        // Copies all possible components from the given toCopy entity into the toReturn entity
+        // By the end, the following 4 conditions will be true:
+        // 1. If toReturn has a component that toCopy has, toReturn's version will be replaced with a copy of toCopy's
+        // 2. If toReturn does not have a component that toCopy has, it will not have a copy of toCopy's
+        // 3. Any components that toReturn has that toCopy doesn't will remain untouched
+        // 4. Component pointer members will have deep copies made
+        // Usage:
+        // /* Entity e1 with some set of components, Entity e2 with some different set of components */
+        // copyComponents<Data, Transform, etc.>(e1, e2, *e2.component<Data>().get(), *e2.component<Transform>().get(), etc.); // OR
+        // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
+        template <typename T, typename... Args>
+        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
     };
 
 #pragma endregion

@@ -56,77 +56,92 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        std::shared_ptr<ScrolledWindow> getGUISceneHierarchy() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::SCENE_HIERARCHY].get()); }
+        SCENE_HIERARCHY_WTYPE_SPTR getSceneHierarchy() {
+            return WIDGET_CAST(widgetMap[SCENE_HIERARCHY_NAME], SCENE_HIERARCHY_WTYPE);
+        }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        std::shared_ptr<ScrolledWindow> getGUIComponentList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::COMPONENT_LIST].get()); }
+        COMPONENT_LIST_WTYPE_SPTR getComponentList() {
+            return WIDGET_CAST(widgetMap[COMPONENT_LIST_NAME], COMPONENT_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
-        std::shared_ptr<ScrolledWindow> getGUITextureList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::TEXTURE_LIST].get()); }
+        TEXTURE_LIST_WTYPE_SPTR getTextureList() {
+            return WIDGET_CAST(widgetMap[TEXTURE_LIST_NAME], TEXTURE_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
-        std::shared_ptr<ScrolledWindow> getGUIMusicList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::MUSIC_LIST].get()); }
+        MUSIC_LIST_WTYPE_SPTR getMusicList() { 
+            return WIDGET_CAST(widgetMap[MUSIC_LIST_NAME], MUSIC_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
-        std::shared_ptr<ScrolledWindow> getGUISoundList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::SOUND_LIST].get()); }
+        SOUND_LIST_WTYPE_SPTR getSoundList() {
+            return WIDGET_CAST(widgetMap[SOUND_LIST_NAME], SOUND_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
-        std::shared_ptr<ScrolledWindow> getGUIFontList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::FONT_LIST].get()); }
+        FONT_LIST_WTYPE_SPTR getFontList() {
+            return WIDGET_CAST(widgetMap[FONT_LIST_NAME], FONT_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
-        std::shared_ptr<Notebook> getGUIContent() { return 
-            std::shared_ptr<Notebook>((Notebook*) widgetMap[cmn::GUIWidgetNames::CONTENT].get()); }
+        CONTENT_WTYPE_SPTR getContent() {
+            return WIDGET_CAST(widgetMap[CONTENT_NAME], CONTENT_WTYPE);
+        }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        std::shared_ptr<ScrolledWindow> getGUIEntityDesigner() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::ENTITY_DESIGNER].get()); }
+        ENTITY_DESIGNER_WTYPE_SPTR getEntityDesigner() {
+            return WIDGET_CAST(widgetMap[ENTITY_DESIGNER_NAME], ENTITY_DESIGNER_WTYPE);
+        }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        std::shared_ptr<ScrolledWindow> getGUIPrefabList() { return 
-            std::shared_ptr<ScrolledWindow>((ScrolledWindow*) widgetMap[cmn::GUIWidgetNames::PREFAB_LIST].get()); }
+        PREFAB_LIST_WTYPE_SPTR getPrefabList() {
+            return WIDGET_CAST(widgetMap[PREFAB_LIST_NAME], PREFAB_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the Canvas, a renderable screen into the game space
-        std::shared_ptr<Canvas> getCanvas() { return
-                std::shared_ptr<Canvas>((Canvas*) widgetMap[cmn::GUIWidgetNames::CANVAS].get()); }
+        CANVAS_WTYPE_SPTR getCanvas() {
+            return WIDGET_CAST(widgetMap[CANVAS_NAME], CANVAS_WTYPE);
+        }
 
         // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
-        std::shared_ptr<Box> getToolbar() { return
-                std::shared_ptr<Box>((Box*) widgetMap[cmn::GUIWidgetNames::TOOLBAR].get()); }
+        TOOLBAR_WTYPE_SPTR getToolbar() {
+            return WIDGET_CAST(widgetMap[TOOLBAR_NAME], TOOLBAR_WTYPE);
+        }
 
-        // Simplifies the process of creating a GUI window and its associations with other classes
+        // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
         template <class T>
-        std::shared_ptr<T> makeWidget(std::string widgetName);
+        std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
+
+        // Makes a GUI widget, but without giving it a name / storing it in the WidgetMap. For when you don't need direct access.
+        template <class T>
+        std::shared_ptr<T> makeWidget();
 
         // Format the Master Table widget
         //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
-        std::shared_ptr<ScrolledWindow> formatSceneHierarchy(std::shared_ptr<ScrolledWindow>);
+        SCENE_HIERARCHY_WTYPE_SPTR formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR);
         // Format the Component List widget
-        std::shared_ptr<ScrolledWindow> formatComponentList(std::shared_ptr<ScrolledWindow>);
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
         // Format the Texture List widget
-        std::shared_ptr<ScrolledWindow> formatTextureList(std::shared_ptr<ScrolledWindow>);
+        TEXTURE_LIST_WTYPE_SPTR formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
         // Format the Music List widget
-        std::shared_ptr<ScrolledWindow> formatMusicList(std::shared_ptr<ScrolledWindow>);
+        MUSIC_LIST_WTYPE_SPTR formatMusicList(MUSIC_LIST_WTYPE_SPTR);
         // Format the Sound List widget
-        std::shared_ptr<ScrolledWindow> formatSoundList(std::shared_ptr<ScrolledWindow>);
+        SOUND_LIST_WTYPE_SPTR formatSoundList(SOUND_LIST_WTYPE_SPTR);
         // Format the Font List widget
-        std::shared_ptr<ScrolledWindow> formatFontList(std::shared_ptr<ScrolledWindow>);
+        FONT_LIST_WTYPE_SPTR formatFontList(FONT_LIST_WTYPE_SPTR);
         // Format the Content widget
-        std::shared_ptr<Notebook> formatContent(std::shared_ptr<Notebook>);
+        CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
         // Format the Entity Designer widget
-        std::shared_ptr<ScrolledWindow> formatEntityDesigner(std::shared_ptr<ScrolledWindow>);
+        ENTITY_DESIGNER_WTYPE_SPTR formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR);
         // Format the Prefab List widget
-        std::shared_ptr<ScrolledWindow> formatPrefabList(std::shared_ptr<ScrolledWindow>);
+        PREFAB_LIST_WTYPE_SPTR formatPrefabList(PREFAB_LIST_WTYPE_SPTR);
         // Format the Canvas widget
-        std::shared_ptr<Canvas> formatCanvas(std::shared_ptr<Canvas>);
+        CANVAS_WTYPE_SPTR formatCanvas(CANVAS_WTYPE_SPTR);
         // Format the Toolbar widget
-        std::shared_ptr<Box> formatToolbar(std::shared_ptr<Box>);
+        TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
 
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {

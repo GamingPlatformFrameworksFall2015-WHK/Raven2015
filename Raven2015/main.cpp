@@ -19,7 +19,7 @@
 #include <string>
 #include <exception>
 #include "SFML/Graphics.hpp"
-#include "SFML\System.hpp"
+#include "SFML/System.hpp"
 #include "entityx/entityx.h"
 #include "ComponentLibrary.h"
 #include "MovementSystem.h"
@@ -81,11 +81,46 @@ int main() {
         new Animation("Resources/Textures/BlueDot_damaged.png", 4, true));
 
     ex::Entity efps = game.entities.create();
-    efps.assign<Transform>();
+    efps.assign<Transform>(400.0f, 50.0f, 90.0f);
     ex::ComponentHandle<rvn::Renderer> efps_renderer = efps.assign<rvn::Renderer>();
     std::string fpsStr = "FPS";
     efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
         "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
+
+    XMLDocument doc;                //The document to process the string
+    XMLPrinter printer;             //The printer that allows us to print to stdout
+    static std::string xml;         //The xml string. Must be static to be parsed by TinyXML-2
+    const std::string EOLN = "\r\n";//The newline character(s) to be used during parsing
+    std::string tab = "";           //The current level of tabbing executed
+    const std::string tinc = "  ";  //tab increment length
+
+    // The following code successfully stores the contents of a Transform component into an XMLDocument object
+    xml = "<?xml version=\"1.0\"?>" + EOLN +
+        "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">" + EOLN +
+        "<RAVEN>" + EOLN;
+    xml += efps.component<Transform>()->serialize(tab += tinc);
+    xml += "</RAVEN>";
+    doc.Parse(xml.c_str());
+    doc.Print(&printer);
+    cout << printer.CStr() << endl;
+    /******************************************************************************************/
+
+    // The following code successfully loads a Transform component from the XMLDocument content
+    XMLNode* node = doc.FirstChildElement("RAVEN")->FirstChild();
+    ex::Entity e = game.entities.create();
+
+    e.assign<Transform>();
+    cout << e.component<Transform>()->getElementName() << endl;
+    cout << e.component<Transform>()->transform.x << endl;
+    cout << e.component<Transform>()->transform.y << endl;
+    cout << e.component<Transform>()->rotation << endl;
+
+    e.component<Transform>()->deserialize(node);
+    cout << e.component<Transform>()->getElementName() << endl;
+    cout << e.component<Transform>()->transform.x << endl;
+    cout << e.component<Transform>()->transform.y << endl;
+    cout << e.component<Transform>()->rotation << endl;
+    /*******************************************************************************************/
 
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();

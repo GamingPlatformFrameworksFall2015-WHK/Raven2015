@@ -13,6 +13,8 @@
 #include "GUISystem.h"
 #include "WidgetLibrary.h"
 
+using namespace sfg;
+
 namespace Raven {
 
     const std::string GUISystem::MAIN_WINDOW_NAME = "Raven";
@@ -21,9 +23,9 @@ namespace Raven {
     GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem) :
         mainWindow(new sf::RenderWindow(
             sf::VideoMode((unsigned int)cmn::WINDOW_WIDTH, (unsigned int)cmn::WINDOW_HEIGHT),
-            MAIN_WINDOW_NAME)),
-        sfgui(new sfg::SFGUI()),
-        desktop(new sfg::Desktop()),
+            MAIN_WINDOW_NAME, sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize)),
+        sfgui(new SFGUI()),
+        desktop(new Desktop()),
         event(new sf::Event()),
         input(inputSystem) {
 
@@ -31,15 +33,14 @@ namespace Raven {
         mainWindow->setPosition(sf::Vector2i(cmn::WINDOW_XPOS, cmn::WINDOW_YPOS));
 
         // Create the mainGUIWindow
-        mainGUIWindow = makeWidget<sfg::Window>(cmn::GUIWidgetNames::MASTER_WINDOW);
-        //mainGUIWindow->SetPosition(sf::Vector2f(cmn::WINDOW_XPOS-20, cmn::WINDOW_YPOS-20));
-        mainGUIWindow->SetStyle(sfg::Window::Style::BACKGROUND | sfg::Window::Style::RESIZE);
-        mainGUIWindow->SetTitle(cmn::GUIWidgetNames::MASTER_WINDOW);
+        mainGUIWindow = makeWidget<MASTER_WINDOW_WTYPE>(TO_STR(MASTER_WINDOW_WTYPE), MASTER_WINDOW_NAME);
+        mainGUIWindow->SetStyle(MASTER_WINDOW_WTYPE::Style::BACKGROUND | MASTER_WINDOW_WTYPE::Style::RESIZE);
+        mainGUIWindow->SetTitle(MASTER_WINDOW_NAME);
         mainGUIWindow->SetRequisition(sf::Vector2f(cmn::WINDOW_WIDTH,
             cmn::WINDOW_HEIGHT));
 
         // Create the base Table
-        auto table = makeWidget<sfg::Table>(cmn::GUIWidgetNames::MASTER_TABLE);
+        auto table = makeWidget<MASTER_TABLE_WTYPE>(TO_STR(MASTER_TABLE_WTYPE), MASTER_TABLE_NAME);
 
         // Create the various windows that will go inside the table and allocate regions of space for them
         // Implement a 6x5 table with the following structure
@@ -52,32 +53,41 @@ namespace Raven {
         // 4|SH| T| T| T|PL|
         // 5| C| C|ED|ED|ED|
         // 6| C| C|ED|ED|ED|
-        auto Canvas = formatCanvas(makeWidget<sfg::Canvas>(cmn::GUIWidgetNames::CANVAS));
-        auto sceneHierarchy = formatSceneHierarchy(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::SCENE_HIERARCHY));
-        auto content = formatContent(makeWidget<sfg::Notebook>(cmn::GUIWidgetNames::CONTENT));
-        auto toolbar = formatToolbar(makeWidget<sfg::Box>(cmn::GUIWidgetNames::TOOLBAR));
-        auto entityDesigner = formatEntityDesigner(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::ENTITY_DESIGNER));
-        auto prefabList = formatPrefabList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::PREFAB_LIST));
+        auto canvas = formatCanvas(makeWidget<CANVAS_WTYPE>(TO_STR(CANVAS_WTYPE), CANVAS_NAME));
+        auto sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME));
+        auto content = formatContent(makeWidget<CONTENT_WTYPE>(TO_STR(CONTENT_WTYPE), CONTENT_NAME));
+        auto toolbar = formatToolbar(makeWidget<TOOLBAR_WTYPE>(TO_STR(TOOLBAR_WTYPE), TOOLBAR_NAME));
+        auto entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME));
+        auto prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME));
         
         // Add all of the various windows to the table, assigning dimensions and settings to the table
-        sfg::Table::AttachOption all = (sfg::Table::AttachOption) (sfg::Table::FILL | sfg::Table::EXPAND);
+        Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
         table->Attach(sceneHierarchy, sf::Rect<sf::Uint32>(0, 0, 1, 5), all, all);
-        table->Attach(Canvas, sf::Rect<sf::Uint32>(1, 0, 3, 4), all, all);
+        table->Attach(canvas, sf::Rect<sf::Uint32>(1, 0, 3, 4), all, all);
         table->Attach(prefabList, sf::Rect<sf::Uint32>(4, 0, 1, 5), all, all);
         table->Attach(toolbar, sf::Rect<sf::Uint32>(1, 4, 3, 1), all, all);
         table->Attach(content, sf::Rect<sf::Uint32>(0, 5, 2, 2), all, all);
         table->Attach(entityDesigner, sf::Rect<sf::Uint32>(2, 5, 3, 2), all, all);
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
-        //mainGUIWindow->
     }
 
     template <class T>
-    std::shared_ptr<T> GUISystem::makeWidget(std::string widgetName) {
+    std::shared_ptr<T> GUISystem::makeWidget(std::string widgetType, std::string widgetName) {
         // Create an instance <- works because all Widgets have a static Create() factory method
         std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
         widgetMap.insert(std::make_pair(widgetName, widget));
+        // Add it to the desktop so that it will be updated
+        desktop->Add(widget); 
+        // Return the factory-generated widget pointer
+        return widget;
+    }
+
+    template <class T>
+    std::shared_ptr<T> GUISystem::makeWidget() {
+        // Create an instance <- works because all Widgets have a static Create() factory method
+        std::shared_ptr<T> widget(T::Create());
         // Add it to the desktop so that it will be updated
         desktop->Add(widget); 
         // Return the factory-generated widget pointer
@@ -107,8 +117,8 @@ namespace Raven {
     }
 
     // Format the Scene Hierarchy widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow> sh) {
-        sh->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    SCENE_HIERARCHY_WTYPE_SPTR GUISystem::formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR sh) {
+        sh->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
         auto hbox1 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
@@ -146,8 +156,8 @@ namespace Raven {
     }
 
     // Format the Component List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatComponentList(std::shared_ptr<sfg::ScrolledWindow> cl) {
-        cl->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl) {
+        cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         cl->AddWithViewport(ButtonList::Create());
 
@@ -155,8 +165,8 @@ namespace Raven {
     }
     
     // Format the Texture List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatTextureList(std::shared_ptr<sfg::ScrolledWindow> tl) {
-        tl->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    TEXTURE_LIST_WTYPE_SPTR GUISystem::formatTextureList(TEXTURE_LIST_WTYPE_SPTR tl) {
+        tl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         tl->AddWithViewport(ButtonList::Create());
         
@@ -164,8 +174,8 @@ namespace Raven {
     }
 
     // Format the Music List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatMusicList(std::shared_ptr<sfg::ScrolledWindow> ml) {
-        ml->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    MUSIC_LIST_WTYPE_SPTR GUISystem::formatMusicList(MUSIC_LIST_WTYPE_SPTR ml) {
+        ml->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         ml->AddWithViewport(ButtonList::Create());
         
@@ -173,8 +183,8 @@ namespace Raven {
     }
 
     // Format the Sound List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatSoundList(std::shared_ptr<sfg::ScrolledWindow> sl) {
-        sl->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    SOUND_LIST_WTYPE_SPTR GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
+        sl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         sl->AddWithViewport(ButtonList::Create());
         
@@ -182,8 +192,8 @@ namespace Raven {
     }
 
     // Format the Font List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatFontList(std::shared_ptr<sfg::ScrolledWindow> fl) {
-        fl->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    FONT_LIST_WTYPE_SPTR GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
+        fl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         fl->AddWithViewport(ButtonList::Create());
         
@@ -191,59 +201,63 @@ namespace Raven {
     }
 
     // Format the Content widget
-    std::shared_ptr<sfg::Notebook> GUISystem::formatContent(std::shared_ptr<sfg::Notebook> c) {
-        auto cl = formatComponentList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::COMPONENT_LIST));
-        auto tl = formatTextureList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::TEXTURE_LIST));
-        auto ml = formatMusicList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::MUSIC_LIST));
-        auto sl = formatSoundList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::SOUND_LIST));
-        auto fl = formatFontList(makeWidget<sfg::ScrolledWindow>(cmn::GUIWidgetNames::FONT_LIST));
-        c->AppendPage(cl, sfg::Label::Create(cmn::GUIWidgetNames::COMPONENT_LIST));
-        c->AppendPage(tl, sfg::Label::Create(cmn::GUIWidgetNames::TEXTURE_LIST));
-        c->AppendPage(ml, sfg::Label::Create(cmn::GUIWidgetNames::MUSIC_LIST));
-        c->AppendPage(sl, sfg::Label::Create(cmn::GUIWidgetNames::SOUND_LIST));
-        c->AppendPage(fl, sfg::Label::Create(cmn::GUIWidgetNames::FONT_LIST));
+    CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
+        auto cl = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>(TO_STR(COMPONENT_LIST_WTYPE), COMPONENT_LIST_NAME));
+        auto tl = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME));
+        auto ml = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME));
+        auto sl = formatSoundList(makeWidget<SOUND_LIST_WTYPE>(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME));
+        auto fl = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME));
+        //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
+        c->AppendPage(cl, Label::Create(COMPONENT_LIST_NAME));
+        c->AppendPage(tl, Label::Create(TEXTURE_LIST_NAME));
+        c->AppendPage(ml, Label::Create(MUSIC_LIST_NAME));
+        c->AppendPage(sl, Label::Create(SOUND_LIST_NAME));
+        c->AppendPage(fl, Label::Create(FONT_LIST_NAME));
+        //c->AppendPage(ll, Label::Create(LEVEL_LIST_NAME));
 
         return c;
     }
 
     // Format the Entity Designer widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatEntityDesigner(std::shared_ptr<sfg::ScrolledWindow> ed) {
-        ed->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    ENTITY_DESIGNER_WTYPE_SPTR GUISystem::formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR ed) {
+        ed->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         return ed;
     }
 
     // Format the Prefab List widget
-    std::shared_ptr<sfg::ScrolledWindow> GUISystem::formatPrefabList(std::shared_ptr<sfg::ScrolledWindow> pl) {
-        pl->SetScrollbarPolicy(sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC);
+    PREFAB_LIST_WTYPE_SPTR GUISystem::formatPrefabList(PREFAB_LIST_WTYPE_SPTR pl) {
+        pl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+
+        pl->AddWithViewport(ButtonList::Create());
 
         return pl;
     }
     
     // Format the Canvas widget
-    std::shared_ptr<sfg::Canvas> GUISystem::formatCanvas(std::shared_ptr<sfg::Canvas> v) {
-        v->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::canvasClickHandler, this));
-        return v;
+    CANVAS_WTYPE_SPTR GUISystem::formatCanvas(CANVAS_WTYPE_SPTR c) {
+        c->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::canvasClickHandler, this));
+        return c;
     }
 
     // Format the Toolbar widget
-    std::shared_ptr<sfg::Box> GUISystem::formatToolbar(std::shared_ptr<sfg::Box> t) {
+    TOOLBAR_WTYPE_SPTR GUISystem::formatToolbar(TOOLBAR_WTYPE_SPTR t) {
 
-        t = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
-        auto brushList = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
+        t = Box::Create(Box::Orientation::VERTICAL);
+        auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
-        auto createBrush = sfg::Button::Create("Create");
-        createBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, createBrush));
-        auto deleteBrush = sfg::Button::Create("Delete");
-        deleteBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, deleteBrush));
-        auto moveBrush = sfg::Button::Create("Move");
-        moveBrush->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, moveBrush));
-        auto toggleGridTracking = sfg::CheckButton::Create("Grid Tracking Enabled");
+        auto createBrush = Button::Create("Create");
+        createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, createBrush));
+        auto deleteBrush = Button::Create("Delete");
+        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, deleteBrush));
+        auto moveBrush = Button::Create("Move");
+        moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, moveBrush));
+        auto toggleGridTracking = CheckButton::Create("Grid Tracking Enabled");
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
         brushList->Pack(deleteBrush, true, true);
         brushList->Pack(moveBrush, true, true);
-        brushList->Pack(sfg::Label::Create("   "), true, true); // For the next toggle's padding
+        brushList->Pack(Label::Create("   "), true, true); // For the next toggle's padding
         brushList->Pack(toggleGridTracking, true, true);
         t->Pack(currentBrush);
         t->Pack(brushList);
