@@ -20,9 +20,8 @@
 #include <map>                          // For std::map
 #include <string>                       // For std::string
 #include "entityx\Entity.h"             // For ex::Component
-#include "EntityLibrary.h"              // For Entity
-#include "DataAssetLibrary.h"           // For Renderable, Timer
 #include "Common.h"                     // For etc.
+#include "DataAssetLibrary.h"           // For Renderable, Timer
 
 
 namespace Raven {
@@ -32,8 +31,24 @@ namespace Raven {
 #define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
 /******************************************************************************************************************/
 
-// Update-Necessary Macros : altering the types of components that exist requires that the user update these macros
-#define COMPONENT_TYPES(t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+/**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
+
+// Used to instantiate the ComponentType enum
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+// Used to pass into templated lists for acquiring all component types
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable
+// Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
+// Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
+#define COMPONENTS_OF_ENTITY(e) \
+            *e.component<Data>().get(), \
+            *e.component<Transform>().get(), \
+            *e.component<Rigidbody>().get(), \
+            *e.component<BoxCollider>().get(), \
+            *e.component<SoundMaker>().get(), \
+            *e.component<MusicMaker>().get(), \
+            *e.component<Renderer>().get(), \
+            *e.component<TimeTable>().get() //<- an actual TimeTable, not a TimeTable* or ex::ComponentHandle<TimeTable>, etc.
+// Used to serialize each component
 #define SERIALIZE_COMPONENTS(e, str) \
             SERIALIZE_COMPONENT(Data, e, str); \
             SERIALIZE_COMPONENT(Transform, e, str); \
@@ -43,6 +58,7 @@ namespace Raven {
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
             SERIALIZE_COMPONENT(TimeTable, e, str);
+// Used to deserialize each component
 #define DESERIALIZE_COMPONENTS(e, node) \
             DESERIALIZE_COMPONENT(Data, e, node); \
             DESERIALIZE_COMPONENT(Transform, e, node); \
@@ -64,7 +80,16 @@ namespace Raven {
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
+
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
+            name(entityName), prefabName(prefabName), modified(modified) {}
+
+        // Copy Constructor
+        Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
+
+        // The displayed name for this entity
         std::string name;
+        // The name of the prefab
         std::string prefabName;
         bool modified;
 
@@ -80,13 +105,16 @@ namespace Raven {
     // A component enabling a passive physical state. Required for placement.
     struct Transform : public ex::Component<Transform>, public cmn::Serializable {
 
-        // Default constructor
+        // Default constructor. All fields initialzied to zero
         Transform(const float transformX = 0.0f, const float transformY = 0.0f,
             const float rotation = 0.0f) : rotation(rotation) {
 
             transform.x = transformX;
             transform.y = transformY;
         }
+
+        // Copy Constructor
+        Transform(const Transform& other) : transform(other.transform), rotation(other.rotation) {}
 
         // The x and y coordinates of the entity's Origin.
         sf::Vector2f transform;
@@ -113,11 +141,15 @@ namespace Raven {
             acceleration.x = accelerationX;
             acceleration.y = accelerationY;
         }
-        
+
         // Initializes a new instance of the <see cref="Rigidbody"/> struct.
         Rigidbody(const sf::Vector2f &velocity, const sf::Vector2f &acceleration,
             const float radialVelocity = 0.0f) : velocity(velocity),
             acceleration(acceleration), radialVelocity(radialVelocity) {}
+
+        // Copy Constructor
+        Rigidbody(const Rigidbody& other) : velocity(other.velocity), 
+            acceleration(other.acceleration), radialVelocity(other.radialVelocity) {}
 
         // The x and y components of the entity's current velocity.
         sf::Vector2f velocity;
@@ -170,6 +202,10 @@ namespace Raven {
             width *= scale;
             height *= scale;
         }
+
+        // Copy Constructor
+        BoxCollider(const BoxCollider& other) : width(other.width), height(other.height), 
+            layers(other.layers), collisionSettings(other.collisionSettings) {}
         
         // Finalizes an instance of the <see cref="BoxCollider"/> class.
         virtual ~BoxCollider() override {}
@@ -209,7 +245,11 @@ namespace Raven {
     // A component that stores the names of small tracks (< 30 seconds) for sf::Sound.
     struct SoundMaker : public ex::Component<SoundMaker>, public AudioMaker, public cmn::Serializable {
 
+        // Null Constructor
         SoundMaker()  {}
+
+        // Copy Constructor
+        SoundMaker(const SoundMaker& other) : soundMap(other.soundMap), sound(other.sound) {}
 
         // A mapping between sound file names and the buffers for their storage
         SOUNDMAP_T soundMap;
@@ -225,7 +265,11 @@ namespace Raven {
     // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
     struct MusicMaker : public ex::Component<MusicMaker>, public AudioMaker, public cmn::Serializable {
 
+        // Null Constructor
         MusicMaker() {}
+
+        // Copy Constructor
+        MusicMaker(const MusicMaker& other) : musicMap(other.musicMap) {}
 
         // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
@@ -243,7 +287,28 @@ namespace Raven {
     // A component used to store renderable assets. Each asset is mapped by a name
     struct Renderer : public ex::Component<Renderer>, public cmn::Serializable {
 
+        // Null Constructor
         Renderer() {}
+
+        // Copy Constructor
+        Renderer(const Renderer& other) {
+            for (auto name_item : other.texts) {
+                texts.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableText>(new RenderableText(*name_item.second.get()))));
+            }
+            for (auto name_item : other.rectangles) {
+                rectangles.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableRectangle>(new RenderableRectangle(*name_item.second.get()))));
+            }
+            for (auto name_item : other.circles) {
+                circles.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableCircle>(new RenderableCircle(*name_item.second.get()))));
+            }
+            for (auto name_item : other.sprites) {
+                sprites.insert(std::make_pair(name_item.first, 
+                    std::shared_ptr<RenderableSprite>(new RenderableSprite(*name_item.second.get()))));
+            }
+        }
 
         // Maps a string name to a given Text to be rendered        
         std::map<std::string, std::shared_ptr<RenderableText>> texts;
@@ -269,6 +334,9 @@ namespace Raven {
     struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
         // Initializes a new instance of the <see cref="TimeTable"/> struct.
         TimeTable() {}
+
+        // Copy Constructor
+        TimeTable(const TimeTable& other) : timerMap(other.timerMap) {}
         
         // Maps a name to current timers
         std::map<std::string, Timer> timerMap;
@@ -288,16 +356,49 @@ namespace Raven {
 
 #pragma region ComponentLibrary
 
-
-
     // This struct enables us to organize the serialization of components more easily
     // Now we can acquire the Data component of an entity, cycle through its components set
     // and call attachComponent as necessary
     struct ComponentLibrary {
 
+        // Serializes all components on the given entity while taking into account the current tab amount
         static std::string serializeEntity(ex::Entity e, std::string tab);
 
+        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
         static void deserializeEntity(ex::Entity e, XMLNode* node);
+
+        // Turns the first entity into a replica of the second entity before returning the first entity.
+        // Simply combines the use of clearEntity and copyComponents with the full set of template parameters.
+        static ex::Entity copyEntity(ex::Entity toReturn, ex::Entity toCopy);
+        
+        // Clears the last component from an entity. Base case for the parameter pack version to work recursively
+        template <typename T>
+        static void clearEntity(ex::Entity e, T last);
+
+        // Clears all components from the given entity
+        // Usage:
+        // /* Entity e1 with Data, Transform, and Rigidbody */
+        // clearEntity<Data, Transform, Rigibody>(e1); // OR
+        // clearEntity<Data, Transform, Rigibody, BoxCollider, etc.>(e1);
+        template <typename T, typename... Args>
+        static void clearEntity(ex::Entity e, T first, Args... args);
+
+        // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
+        template <typename T>
+        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T last);
+
+        // Copies all possible components from the given toCopy entity into the toReturn entity
+        // By the end, the following 4 conditions will be true:
+        // 1. If toReturn has a component that toCopy has, toReturn's version will be replaced with a copy of toCopy's
+        // 2. If toReturn does not have a component that toCopy has, it will not have a copy of toCopy's
+        // 3. Any components that toReturn has that toCopy doesn't will remain untouched
+        // 4. Component pointer members will have deep copies made
+        // Usage:
+        // /* Entity e1 with some set of components, Entity e2 with some different set of components */
+        // copyComponents<Data, Transform, etc.>(e1, e2, *e2.component<Data>().get(), *e2.component<Transform>().get(), etc.); // OR
+        // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
+        template <typename T, typename... Args>
+        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
     };
 
 #pragma endregion

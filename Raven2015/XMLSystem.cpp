@@ -300,6 +300,7 @@ namespace Raven {
             item = item->NextSiblingElement("Item");
         }
     }
+    /*
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
 
     }
@@ -307,6 +308,7 @@ namespace Raven {
         levelMap.clear();
 
     }
+    */
 
 #pragma endregion
 
@@ -324,15 +326,11 @@ namespace Raven {
 
 #pragma endregion
 
-    /*
-    void XMLSystem::deserializePrefabs(std::map<std::string, std::shared_ptr<ex::Entity>> map, XMLNode* node,
-            bool checkForPrefabs) {
+    void XMLSystem::deserializePrefabMap(XMLNode* node) {
 
-        XMLElement* item = nullptr;
-        map.clear();
-        if (checkForPrefabs) {
-            item = node->FirstChildElement("Item");
+        prefabMap.clear();
             std::string prefabName = node->FirstChildElement("PrefabName")->GetText();
+            // if we haven't already added the prefab...
             if (prefabMap.find(prefabName) != prefabMap.end()) {
                 std::shared_ptr<ex::Entity> ent(&entities->create());
                 std::shared_ptr<ex::Entity> prefab = prefabMap[prefabName];
@@ -354,30 +352,23 @@ namespace Raven {
                 if (prefab->has_component<TimeTable>()) {
                     ent->assign_from_copy(prefab->component<TimeTable>());
                 }
-                if (prefab->has_component<CoreBehavior>()) {
-                    ent->assign_from_copy(prefab->component<CoreBehavior>());
-                }
-                if (prefab->has_component<ActionListener>()) {
-                    ent->assign_from_copy(prefab->component<ActionListener>());
-                }
                 return;
             }
-        }
         else {
             // Assuming we are now just building the prefabMap
 
             //clear the Entities Manager
             entities->reset();
         }
-
+        XMLElement* item = nullptr;
         while (item) {
 
             // Get the name of the Item
             std::string name = item->FirstAttribute()->Value();
 
             // Instantiate the given asset
-            map.insert(std::make_pair(name, std::shared_ptr<ex::Entity>(&entities->create())));
-            std::shared_ptr<ex::Entity> ptr = map[name];
+            prefabMap.insert(std::make_pair(name, std::shared_ptr<ex::Entity>(&entities->create())));
+            std::shared_ptr<ex::Entity> ptr = prefabMap[name];
 
             // Add & deserialize mandatory components
             XMLElement* e = item->FirstChildElement("Data");
@@ -403,17 +394,10 @@ namespace Raven {
             if (e = item->FirstChildElement("TimeTable")) {
                 ptr->assign<TimeTable>()->deserialize(e);
             }
-            if (e = item->FirstChildElement("CoreBehavior")) {    //Soon to be obsolete
-                ptr->assign<CoreBehavior>()->deserialize(e);
-            }
-            if (e = item->FirstChildElement("ActionListener")) {
-                ptr->assign<ActionListener>()->deserialize(e);
-            }
 
             item = item->NextSiblingElement("Item");
         }
     }
-    */
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";
