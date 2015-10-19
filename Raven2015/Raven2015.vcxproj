@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +86,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -180,13 +180,14 @@
     <ClCompile Include="TimerSystem.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="WidgetLibrary.cpp" />
+    <ClCompile Include="XMLSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ComponentLibrary.h" />
-    <ClInclude Include="EntityLibrary.h" />
+    <ClInclude Include="DataAssetLibrary.h" />
     <ClInclude Include="entityx\3rdparty\catch.hpp" />
     <ClInclude Include="entityx\3rdparty\simplesignal.h" />
     <ClInclude Include="entityx\config.h" />
@@ -208,6 +209,7 @@
     <ClInclude Include="TimerSystem.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="WidgetLibrary.h" />
+    <ClInclude Include="XMLSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Audio\Sounds\choose.ogg" />

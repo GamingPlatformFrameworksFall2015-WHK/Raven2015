@@ -19,6 +19,9 @@
 #include "SFGUI/SFGUI.hpp"
 #include "SFGUI/Widgets.hpp"
 #include "InputSystem.h"
+#include "WidgetLibrary.h"
+
+using namespace sfg;
 
 namespace Raven {
 
@@ -53,59 +56,92 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        std::shared_ptr<sfg::ScrolledWindow> getGUISceneHierarchy() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::SCENE_HIERARCHY].get()); }
+        SCENE_HIERARCHY_WTYPE_SPTR getSceneHierarchy() {
+            return WIDGET_CAST(widgetMap[SCENE_HIERARCHY_NAME], SCENE_HIERARCHY_WTYPE);
+        }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        std::shared_ptr<sfg::ScrolledWindow> getGUIComponentList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::COMPONENT_LIST].get()); }
+        COMPONENT_LIST_WTYPE_SPTR getComponentList() {
+            return WIDGET_CAST(widgetMap[COMPONENT_LIST_NAME], COMPONENT_LIST_WTYPE);
+        }
 
-        // Shortcut method for acquiring the ResourcesList, a list of the different types of assets that exist
-        std::shared_ptr<sfg::ScrolledWindow> getGUIResourcesList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::TEXTURE_LIST].get()); }
+        // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
+        TEXTURE_LIST_WTYPE_SPTR getTextureList() {
+            return WIDGET_CAST(widgetMap[TEXTURE_LIST_NAME], TEXTURE_LIST_WTYPE);
+        }
 
-        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of content available
-        std::shared_ptr<sfg::Notebook> getGUIContent() { return 
-            std::shared_ptr<sfg::Notebook>((sfg::Notebook*) WidgetMap[cmn::PrimaryWidgetNames::CONTENT].get()); }
+        // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
+        MUSIC_LIST_WTYPE_SPTR getMusicList() { 
+            return WIDGET_CAST(widgetMap[MUSIC_LIST_NAME], MUSIC_LIST_WTYPE);
+        }
+
+        // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
+        SOUND_LIST_WTYPE_SPTR getSoundList() {
+            return WIDGET_CAST(widgetMap[SOUND_LIST_NAME], SOUND_LIST_WTYPE);
+        }
+
+        // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
+        FONT_LIST_WTYPE_SPTR getFontList() {
+            return WIDGET_CAST(widgetMap[FONT_LIST_NAME], FONT_LIST_WTYPE);
+        }
+
+        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
+        CONTENT_WTYPE_SPTR getContent() {
+            return WIDGET_CAST(widgetMap[CONTENT_NAME], CONTENT_WTYPE);
+        }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        std::shared_ptr<sfg::ScrolledWindow> getGUIEntityDesigner() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::ENTITY_DESIGNER].get()); }
+        ENTITY_DESIGNER_WTYPE_SPTR getEntityDesigner() {
+            return WIDGET_CAST(widgetMap[ENTITY_DESIGNER_NAME], ENTITY_DESIGNER_WTYPE);
+        }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        std::shared_ptr<sfg::ScrolledWindow> getGUIPrefabList() { return 
-            std::shared_ptr<sfg::ScrolledWindow>((sfg::ScrolledWindow*) WidgetMap[cmn::PrimaryWidgetNames::PREFAB_LIST].get()); }
+        PREFAB_LIST_WTYPE_SPTR getPrefabList() {
+            return WIDGET_CAST(widgetMap[PREFAB_LIST_NAME], PREFAB_LIST_WTYPE);
+        }
 
         // Shortcut method for acquiring the Canvas, a renderable screen into the game space
-        std::shared_ptr<sfg::Canvas> getCanvas() { return
-                std::shared_ptr<sfg::Canvas>((sfg::Canvas*) WidgetMap[cmn::PrimaryWidgetNames::CANVAS].get()); }
+        CANVAS_WTYPE_SPTR getCanvas() {
+            return WIDGET_CAST(widgetMap[CANVAS_NAME], CANVAS_WTYPE);
+        }
 
         // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
-        std::shared_ptr<sfg::Box> getToolbar() { return
-                std::shared_ptr<sfg::Box>((sfg::Box*) WidgetMap[cmn::PrimaryWidgetNames::TOOLBAR].get()); }
+        TOOLBAR_WTYPE_SPTR getToolbar() {
+            return WIDGET_CAST(widgetMap[TOOLBAR_NAME], TOOLBAR_WTYPE);
+        }
 
-        // Simplifies the process of creating a GUI window and its associations with other classes
+        // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
         template <class T>
-        std::shared_ptr<T> makeWidget(std::string widgetName);
+        std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
+
+        // Makes a GUI widget, but without giving it a name / storing it in the WidgetMap. For when you don't need direct access.
+        template <class T>
+        std::shared_ptr<T> makeWidget();
 
         // Format the Master Table widget
-        //std::shared_ptr<sfg::Table> formatMasterTable(std::shared_ptr<sfg::Table>);
+        //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
-        std::shared_ptr<sfg::ScrolledWindow> formatSceneHierarchy(std::shared_ptr<sfg::ScrolledWindow>);
+        SCENE_HIERARCHY_WTYPE_SPTR formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR);
         // Format the Component List widget
-        std::shared_ptr<sfg::ScrolledWindow> formatComponentList(std::shared_ptr<sfg::ScrolledWindow>);
-        // Format the Resources List widget
-        std::shared_ptr<sfg::ScrolledWindow> formatResourcesList(std::shared_ptr<sfg::ScrolledWindow>);
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
+        // Format the Texture List widget
+        TEXTURE_LIST_WTYPE_SPTR formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
+        // Format the Music List widget
+        MUSIC_LIST_WTYPE_SPTR formatMusicList(MUSIC_LIST_WTYPE_SPTR);
+        // Format the Sound List widget
+        SOUND_LIST_WTYPE_SPTR formatSoundList(SOUND_LIST_WTYPE_SPTR);
+        // Format the Font List widget
+        FONT_LIST_WTYPE_SPTR formatFontList(FONT_LIST_WTYPE_SPTR);
         // Format the Content widget
-        std::shared_ptr<sfg::Notebook> formatContent(std::shared_ptr<sfg::Notebook>);
+        CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
         // Format the Entity Designer widget
-        std::shared_ptr<sfg::ScrolledWindow> formatEntityDesigner(std::shared_ptr<sfg::ScrolledWindow>);
+        ENTITY_DESIGNER_WTYPE_SPTR formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR);
         // Format the Prefab List widget
-        std::shared_ptr<sfg::ScrolledWindow> formatPrefabList(std::shared_ptr<sfg::ScrolledWindow>);
+        PREFAB_LIST_WTYPE_SPTR formatPrefabList(PREFAB_LIST_WTYPE_SPTR);
         // Format the Canvas widget
-        std::shared_ptr<sfg::Canvas> formatCanvas(std::shared_ptr<sfg::Canvas>);
+        CANVAS_WTYPE_SPTR formatCanvas(CANVAS_WTYPE_SPTR);
         // Format the Toolbar widget
-        std::shared_ptr<sfg::Box> formatToolbar(std::shared_ptr<sfg::Box>);
+        TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
 
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {
@@ -120,37 +156,35 @@ namespace Raven {
         // A pointer to the RenderWindow representing the actual window created from SFML
         std::shared_ptr<sf::RenderWindow> mainWindow;
 
-        // A mapping between a two names and a GUI window to be displayed within a given RenderWindow.
-        // The first name is the name of the RenderWindow to which the SFGUI window is assigned.
-        // That same name acts as a key to the Desktop that updates the stored SFGUI window.
-        // The second name is the name of the actual sfg::Widget GUI window.
-        std::map<std::string, std::shared_ptr<sfg::Widget>> WidgetMap;
-
         // A mapping between a name and an event for polling events simultaneously between multiple windows
         std::shared_ptr<sf::Event> event;
 
         // A desktop that will manage GUI windows for the same-named RenderWindow
-        std::shared_ptr<sfg::Desktop> desktop;
+        std::shared_ptr<Desktop> desktop;
 
         // A mapping between a name and the SFGUI controller object that manages the dynamic display of sf::RenderWindows
-        std::shared_ptr<sfg::SFGUI> sfgui;
+        std::shared_ptr<SFGUI> sfgui;
 
         // A pointer to the InputSystem to process user-defined input actions
         std::shared_ptr<InputSystem> input;
 
         // A pointer to the top-level GUI container for the entire editor
-        std::shared_ptr<sfg::Window> mainGUIWindow;
+        std::shared_ptr<Window> mainGUIWindow;
 
         // A pointer to the table organizing the content in the mainGUIWindow
-        std::shared_ptr<sfg::Table> table;
+        std::shared_ptr<Table> table;
+
+        // A mapping between widget names and their shared pointers
+        std::map <std::string, std::shared_ptr<Widget>> widgetMap;
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
 
-		void brushToolbarButtonClick(sfg::Button::Ptr clickedButton);
-		void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton);
-		void canvasClickHandler();
-		sfg::Label::Ptr currentBrush = sfg::Label::Create("Create");
-	};
+        void brushToolbarButtonClick(Button::Ptr clickedButton);
+        void GUISystem::sceneHierachyButton(Button::Ptr clickedButton);
+        void canvasClickHandler();
+        Label::Ptr currentBrush = Label::Create("Create");
+
+    };
 
 }
