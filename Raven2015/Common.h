@@ -114,6 +114,11 @@ namespace Raven {
             static const std::set<std::string> settings;
 
         };
+
+        // globally accessible pointer to the entity manager
+        ex::EntityManager* entities;
+        // globally accessible pointer to the event manager
+        ex::EventManager* events;
     };
 
 }

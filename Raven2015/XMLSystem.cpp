@@ -2,7 +2,7 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem(std::shared_ptr<ex::EntityManager> e) : entities(e) {}
+    XMLSystem::XMLSystem() {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -332,7 +332,7 @@ namespace Raven {
             std::string prefabName = node->FirstChildElement("PrefabName")->GetText();
             // if we haven't already added the prefab...
             if (prefabMap.find(prefabName) != prefabMap.end()) {
-                std::shared_ptr<ex::Entity> ent(&entities->create());
+                std::shared_ptr<ex::Entity> ent(&cmn::entities->create());
                 std::shared_ptr<ex::Entity> prefab = prefabMap[prefabName];
                 ent->assign_from_copy(prefab->component<Data>());
                 ent->assign_from_copy(prefab->component<Transform>());
@@ -355,10 +355,7 @@ namespace Raven {
                 return;
             }
         else {
-            // Assuming we are now just building the prefabMap
-
-            //clear the Entities Manager
-            entities->reset();
+            cmn::entities->reset();
         }
         XMLElement* item = nullptr;
         while (item) {
@@ -367,7 +364,7 @@ namespace Raven {
             std::string name = item->FirstAttribute()->Value();
 
             // Instantiate the given asset
-            prefabMap.insert(std::make_pair(name, std::shared_ptr<ex::Entity>(&entities->create())));
+            prefabMap.insert(std::make_pair(name, std::shared_ptr<ex::Entity>(&cmn::entities->create())));
             std::shared_ptr<ex::Entity> ptr = prefabMap[name];
 
             // Add & deserialize mandatory components

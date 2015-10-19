@@ -11,7 +11,7 @@ namespace Raven {
         public ex::System<XMLSystem>
     {
     public:
-        XMLSystem(std::shared_ptr<ex::EntityManager> e);
+        XMLSystem();
         ~XMLSystem();
 
         // Maintains the set of asset file paths
@@ -67,8 +67,6 @@ namespace Raven {
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
 
         std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
-
-        std::shared_ptr<ex::EntityManager> entities;
 
     };
 
