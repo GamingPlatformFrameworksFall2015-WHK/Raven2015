@@ -3,11 +3,12 @@
 #include "Common.h"
 #include "entityx/System.h"
 #include "ComponentLibrary.h"
+#include "EventLibrary.h"
 #include <map>
 
 namespace Raven {
 
-    class XMLSystem : public ex::System<XMLSystem> {
+    class XMLSystem : public ex::System<XMLSystem>, public ex::Receiver<XMLSystem> {
     public:
         XMLSystem();
         ~XMLSystem();
@@ -16,6 +17,16 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override {}
 
+        void receive(const XMLLoadEvent& e);
+        void receive(const XMLSaveEvent& e);
+
+        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
+
+        XMLDocument doc;
+
+        static const std::string xmlFileName;
+
+    private:
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
         // Maps the user-defined asset name to the file path
@@ -65,11 +76,11 @@ namespace Raven {
         void deserializePrefabMap(XMLNode* node);
         void deserializeLevelMap(XMLNode* node);
 
+        std::string serializeRavenGame();
+        void deserializeRavenGame();
+
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
-
-        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
-
     };
 
 }

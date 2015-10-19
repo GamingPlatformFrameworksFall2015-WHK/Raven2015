@@ -6,6 +6,18 @@ namespace Raven {
 
     XMLSystem::~XMLSystem() {}
 
+    void XMLSystem::receive(const XMLLoadEvent& e) {
+        doc.LoadFile(xmlFileName.c_str());
+        deserializeRavenGame();
+    }
+
+    void XMLSystem::receive(const XMLSaveEvent& e) {
+        doc.Parse(serializeRavenGame().c_str());
+        doc.SaveFile(xmlFileName.c_str());
+    }
+
+    const std::string XMLSystem::xmlFileName = "raven.xml";
+
 #pragma region Serialization
 
     std::string XMLSystem::serializeTextureFilePathSet(std::string tab) {
@@ -301,11 +313,78 @@ namespace Raven {
         }
     }
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
-
+        XMLElement* elem = node->FirstChildElement("Entity");
+        while (elem) {
+            std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
+            ComponentLibrary::deserializeEntity(*entity, elem);
+            prefabMap.insert(std::make_pair(entity->component<Data>()->name, entity));
+            elem = elem->NextSiblingElement("Entity");
+        }
     }
     void XMLSystem::deserializeLevelMap(XMLNode* node) {
         levelMap.clear();
+        XMLElement* lnode = node->FirstChildElement("Level");
+        while (lnode) {
+            std::string levelName = lnode->Attribute("Name");
+            XMLElement* item = lnode->FirstChildElement("Item");
+            while (item) {
+                std::string prefabName = item->FirstChildElement("PrefabName")->GetText();
+                std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
+                if (prefabName == "") {
+                    ComponentLibrary::deserializeEntity(*entity, item->FirstChildElement("Entity"));
+                }
+                else {
+                    ComponentLibrary::copyEntity(*entity, *prefabMap[prefabName]);
+                }
+                levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
+                levelMap[levelName].insert(std::make_pair(entity->component<Data>()->name, entity));
+                item = item->NextSiblingElement("Item");
+            }
+            lnode = lnode->NextSiblingElement("Level");
+        }
+    }
 
+#pragma endregion
+
+#pragma region Raven Game Serialization
+
+    std::string XMLSystem::serializeRavenGame() {
+        return "<?xml version=\"1.0\"?>\r\n"
+            "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
+            "<RAVEN>\r\n"
+            "  <Assets>\r\n" +
+            serializeTextureFilePathSet("    ") +
+            serializeMusicFilePathSet("    ") +
+            serializeSoundFilePathSet("    ") +
+            serializeFontFilePathSet("    ") +
+            serializeAnimationMap("    ") +
+            "    <Renderables>\r\n" +
+            serializeRenderableTextMap("      ") +
+            serializeRenderableRectangleMap("      ") +
+            serializeRenderableCircleMap("      ") +
+            serializeRenderableSpriteMap("      ") +
+            "    </Renderables>\r\n"
+            "  </Assets>\r\n" +
+            serializePrefabMap("  ") +
+            serializeLevelMap("  ") +
+            "</RAVEN>\r\n";
+    }
+
+    void XMLSystem::deserializeRavenGame() {
+        XMLElement* raven = doc.FirstChildElement("RAVEN");
+        XMLElement* assets = raven->FirstChildElement("Assets");
+        deserializeTextureFilePathSet(assets->FirstChildElement("Textures"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Music"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Sounds"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Fonts"));
+        deserializeAnimationMap(assets->FirstChildElement("Animations"));
+        XMLElement* renderables = assets->FirstChildElement("Renderables");
+        deserializeRenderableTextMap(renderables->FirstChildElement("RenderableTexts"));
+        deserializeRenderableRectangleMap(renderables->FirstChildElement("RenderableRectangles"));
+        deserializeRenderableCircleMap(renderables->FirstChildElement("RenderableCircles"));
+        deserializeRenderableSpriteMap(renderables->FirstChildElement("RenderableSprites"));
+        deserializePrefabMap(raven->FirstChildElement("Prefabs"));
+        deserializeLevelMap(raven->FirstChildElement("Levels"));
     }
 
 #pragma endregion
@@ -323,81 +402,6 @@ namespace Raven {
     }
 
 #pragma endregion
-
-    /*
-    void XMLSystem::deserializePrefabMap(XMLNode* node) {
-
-        prefabMap.clear();
-            std::string prefabName = node->FirstChildElement("PrefabName")->GetText();
-            // if we haven't already added the prefab...
-            if (prefabMap.find(prefabName) != prefabMap.end()) {
-                std::shared_ptr<ex::Entity> ent(&entities->create());
-                std::shared_ptr<ex::Entity> prefab = prefabMap[prefabName];
-                ent->assign_from_copy(prefab->component<Data>());
-                ent->assign_from_copy(prefab->component<Transform>());
-                ent->assign_from_copy(prefab->component<Rigidbody>());
-                if (prefab->has_component<BoxCollider>()) {
-                    ent->assign_from_copy(prefab->component<BoxCollider>());
-                }
-                if (prefab->has_component<SoundMaker>()) {
-                    ent->assign_from_copy(prefab->component<SoundMaker>()); //fix soundMap transference using custom copy constructor
-                }
-                if (prefab->has_component<MusicMaker>()) {
-                    ent->assign_from_copy(prefab->component<MusicMaker>()); //fix musicMap transference using custom copy constructor
-                }
-                if (prefab->has_component<Renderer>()) {
-                    ent->assign_from_copy(prefab->component<Renderer>()); //fix all map transference using custom copy constructor
-                }
-                if (prefab->has_component<TimeTable>()) {
-                    ent->assign_from_copy(prefab->component<TimeTable>());
-                }
-                return;
-            }
-        else {
-            // Assuming we are now just building the prefabMap
-
-            //clear the Entities Manager
-            entities->reset();
-        }
-        XMLElement* item = nullptr;
-        while (item) {
-
-            // Get the name of the Item
-            std::string name = item->FirstAttribute()->Value();
-
-            // Instantiate the given asset
-            prefabMap.insert(std::make_pair(name, std::shared_ptr<ex::Entity>(&entities->create())));
-            std::shared_ptr<ex::Entity> ptr = prefabMap[name];
-
-            // Add & deserialize mandatory components
-            XMLElement* e = item->FirstChildElement("Data");
-            ptr->assign<Data>()->deserialize(e);
-            e = item->FirstChildElement("Transform");
-            ptr->assign<Transform>()->deserialize(e);
-            e = item->FirstChildElement("Rigidbody");
-            ptr->assign<Rigidbody>()->deserialize(e);
-
-            // Add & deserialize optional components
-            if (e = item->FirstChildElement("BoxCollider")) {
-                ptr->assign<BoxCollider>()->deserialize(e);
-            }
-            if (e = item->FirstChildElement("SoundMaker")) {
-                ptr->assign<SoundMaker>()->deserialize(e);
-            }
-            if (e = item->FirstChildElement("MusicMaker")) {
-                ptr->assign<MusicMaker>()->deserialize(e);
-            }
-            if (e = item->FirstChildElement("Renderer")) {
-                ptr->assign<Renderer>()->deserialize(e);
-            }
-            if (e = item->FirstChildElement("TimeTable")) {
-                ptr->assign<TimeTable>()->deserialize(e);
-            }
-
-            item = item->NextSiblingElement("Item");
-        }
-    }
-    */
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";
