@@ -33,33 +33,6 @@
 
 using namespace Raven;
 
-/*
-class Game : public ex::EntityX {
-public:
-    explicit Game(sf::RenderTarget &target) : Game() {}
-
-    explicit Game() {
-        systems.add<MovementSystem>();  // No dependencies
-        systems.add<AudioSystem>();     // No dependencies
-        systems.add<CollisionSystem>(); // No dependencies
-        systems.add<InputSystem>();     // No dependencies
-        systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
-        systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
-        systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-        systems.configure();
-    }
-
-    void update(ex::TimeDelta dt) {
-        systems.update<InputSystem>(dt);     // process new instructions for entities
-        systems.update<MovementSystem>(dt);  // move entities
-        systems.update<CollisionSystem>(dt); // check whether entities are now colliding
-        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
-        systems.update<GUISystem>(dt);       // update and draw GUI widgets
-    }
-};
-*/
-
 int main() {
 
     std::srand((unsigned int)std::time(nullptr));
@@ -128,10 +101,12 @@ int main() {
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
     entity2.assign<SoundMaker>();
+    /*
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
         cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
         cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
+        */
 
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 

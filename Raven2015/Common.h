@@ -114,6 +114,9 @@ namespace Raven {
             static const std::set<std::string> settings;
 
         };
+
+        extern ex::EntityManager* entities;
+        extern ex::EventManager* events;
     };
 
 }

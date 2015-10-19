@@ -2,7 +2,7 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem(std::shared_ptr<ex::EntityManager> e) : entities(e) {}
+    XMLSystem::XMLSystem() {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -300,7 +300,6 @@ namespace Raven {
             item = item->NextSiblingElement("Item");
         }
     }
-    /*
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
 
     }
@@ -308,7 +307,6 @@ namespace Raven {
         levelMap.clear();
 
     }
-    */
 
 #pragma endregion
 
@@ -326,6 +324,7 @@ namespace Raven {
 
 #pragma endregion
 
+    /*
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
 
         prefabMap.clear();
@@ -398,6 +397,7 @@ namespace Raven {
             item = item->NextSiblingElement("Item");
         }
     }
+    */
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";

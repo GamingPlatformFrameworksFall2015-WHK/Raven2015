@@ -9,6 +9,7 @@
 #include "InputSystem.h"
 #include "GUISystem.h"
 #include "RenderingSystem.h"
+#include "XMLSystem.h"
 #include "entityx/deps/Dependencies.h"
 
 namespace Raven {
@@ -24,9 +25,13 @@ namespace Raven {
         systems.add<InputSystem>();     // No dependencies
         systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
         systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
+        systems.add<XMLSystem>();
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
+
+        cmn::entities = &entities;
+        cmn::events = &events;
     }
 
     void Game::update(ex::TimeDelta dt) {
@@ -36,5 +41,8 @@ namespace Raven {
         systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
+
+    //const ex::EntityManager* Game::getEntitiesPtr() { return (const ex::EntityManager*) &entities; }
+    //const ex::EventManager* Game::getEventsPtr() { return (const ex::EventManager*) &events; }
 
 }
