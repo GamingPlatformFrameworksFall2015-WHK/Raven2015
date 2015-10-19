@@ -45,6 +45,7 @@ public:
         systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
+		systems.add<ex::deps::Dependency<Pawn, BoxCollider, Rigidbody, Transform>>();
         systems.configure();
     }
 
@@ -70,13 +71,26 @@ int main() {
 
     // This should all eventually get converted into XML, that way no "registration" is required
     ex::Entity entity1 = game.entities.create();
-    entity1.assign<BoxCollider>();
+	ex::Entity temp = game.entities.create();
+    entity1.assign<Pawn>();
+	temp.assign<BoxCollider>();
+	entity1.component<BoxCollider>()->height = 2.0;
+	entity1.component<BoxCollider>()->width = 2.0;
+	temp.component<BoxCollider>()->height = 2.0;
+	temp.component<BoxCollider>()->width = 2.0;
+	temp.component<Transform>()->transform.x = 50.0f;
+	temp.component<Transform>()->transform.y = 50.0f;
+	entity1.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+	temp.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
     ex::ComponentHandle<rvn::Renderer> renderer = entity1.assign<rvn::Renderer>();
+	ex::ComponentHandle<rvn::Renderer> temprend = temp.assign<rvn::Renderer>();
     renderer->sprites["BlueDot"].reset(new RenderableSprite(
         "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+	temprend->sprites["BlueDot"].reset(new RenderableSprite(
+		"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
-        new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 30.0));
+        new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 100.0));
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
         new Animation("Resources/Textures/BlueDot_damaged.png", 4, true));
 
@@ -84,7 +98,7 @@ int main() {
     efps.assign<Transform>(400.0f, 50.0f, 90.0f);
     ex::ComponentHandle<rvn::Renderer> efps_renderer = efps.assign<rvn::Renderer>();
     std::string fpsStr = "FPS";
-    efps_renderer->texts[fpsStr].reset(new RenderableText("40", sf::Vector2f(400.0f, 50.0f),
+    efps_renderer->texts[fpsStr].reset(new RenderableText("100", sf::Vector2f(400.0f, 50.0f),
         "Resources/Fonts/black_jack.ttf", sf::Color::White, cmn::ERenderingLayer::HUD));
 
     XMLDocument doc;                //The document to process the string
@@ -153,15 +167,17 @@ int main() {
 		currentTime = newTime;
 		accumulator += frameTime;
 
+		game.systems.system<GUISystem>()->clear();
+
 		//If we have reached delta time value, update game systems, increment FPS counter,
 		//subtract delta time from accumulator so we don't lose any leftover time,
 		//and clear window to prepare for next display.
-		while (accumulator >= DELTA_TIME) {
+		while (accumulator >= FPS_100_TICK_TIME) {
 			fps++;
 			game.systems.system<GUISystem>()->pollEvents();
-			game.systems.system<GUISystem>()->clear();
+			
 			game.update(frameTime);
-			accumulator -= DELTA_TIME;
+			accumulator -= FPS_100_TICK_TIME;
 		}
 
 		game.systems.system<GUISystem>()->display();

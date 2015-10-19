@@ -26,7 +26,7 @@
 
 namespace Raven {
 
-// Helper macros /*************************************************************************************************/
+	// Helper macros /*************************************************************************************************/
 #define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
 #define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
 /******************************************************************************************************************/
@@ -34,9 +34,9 @@ namespace Raven {
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, Pawn##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, Pawn, SoundMaker, MusicMaker, Renderer, TimeTable
 // Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
 // Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
 #define COMPONENTS_OF_ENTITY(e) \
@@ -44,6 +44,7 @@ namespace Raven {
             *e.component<Transform>().get(), \
             *e.component<Rigidbody>().get(), \
             *e.component<BoxCollider>().get(), \
+			*e.component<Pawn>().get(), \
             *e.component<SoundMaker>().get(), \
             *e.component<MusicMaker>().get(), \
             *e.component<Renderer>().get(), \
@@ -54,6 +55,7 @@ namespace Raven {
             SERIALIZE_COMPONENT(Transform, e, str); \
             SERIALIZE_COMPONENT(Rigidbody, e, str); \
             SERIALIZE_COMPONENT(BoxCollider, e, str); \
+			SERIALIZE_COMPONENT(Pawn, e, str); \
             SERIALIZE_COMPONENT(SoundMaker, e, str); \
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
@@ -64,6 +66,7 @@ namespace Raven {
             DESERIALIZE_COMPONENT(Transform, e, node); \
             DESERIALIZE_COMPONENT(Rigidbody, e, node); \
             DESERIALIZE_COMPONENT(BoxCollider, e, node); \
+			DESERIALIZE_COMPONENT(Pawn, e, node); \
             DESERIALIZE_COMPONENT(SoundMaker, e, node); \
             DESERIALIZE_COMPONENT(MusicMaker, e, node); \
             DESERIALIZE_COMPONENT(Renderer, e, node); \
@@ -234,6 +237,20 @@ namespace Raven {
         virtual void deserialize(XMLNode* node) override;
         ADD_STATICS(BoxCollider);
     };
+
+	// A component enabling a passive physical state. Required for placement.
+	struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+
+		// Default constructor. All fields initialzied to zero
+		Pawn() {}
+
+		// Copy Constructor
+		Pawn(const Pawn& other)  {}
+
+		virtual std::string serialize(std::string tab) override;
+		virtual void deserialize(XMLNode* node) override;
+		ADD_STATICS(Pawn);
+	};
 
 #pragma endregion
 

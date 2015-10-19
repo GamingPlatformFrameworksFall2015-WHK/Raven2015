@@ -5,10 +5,10 @@
 #define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading operation on a new audio resource."
 #define FPS_30_TICK_TIME 0.0333333333333f
 #define FPS_60_TICK_TIME 0.0166666666666f
+#define FPS_100_TICK_TIME 0.0100000000000f
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 #define NO_ACTION_STR "NO ACTION"
-#define DELTA_TIME 0.01f 
 
 
 // CollisionLayerSettings

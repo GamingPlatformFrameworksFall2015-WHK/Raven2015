@@ -32,7 +32,9 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
         [dt](ex::Entity entity, Transform &transform,Rigidbody &rigidbody) {
 
         // Update its transform based on its rigidbody data.
-        transform.transform.x += rigidbody.velocity.x * (float) dt;
-        transform.transform.y += rigidbody.velocity.y * (float) dt;
+		cout << rigidbody.velocity.x << endl;
+		cout << rigidbody.velocity.y << endl;
+        transform.transform.x += rigidbody.velocity.x;
+        transform.transform.y += rigidbody.velocity.y;
     });
 }
