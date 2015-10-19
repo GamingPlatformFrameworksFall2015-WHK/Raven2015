@@ -160,7 +160,7 @@ namespace Raven {
     COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl) {
         cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        cl->AddWithViewport(ButtonList::Create());
+        cl->AddWithViewport(WidgetList<Entry>::Create());
 
         return cl;
     }
@@ -169,7 +169,7 @@ namespace Raven {
     TEXTURE_LIST_WTYPE_SPTR GUISystem::formatTextureList(TEXTURE_LIST_WTYPE_SPTR tl) {
         tl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        tl->AddWithViewport(ButtonList::Create());
+        tl->AddWithViewport(WidgetList<Entry>::Create());
         
         return tl;
     }
@@ -178,7 +178,7 @@ namespace Raven {
     MUSIC_LIST_WTYPE_SPTR GUISystem::formatMusicList(MUSIC_LIST_WTYPE_SPTR ml) {
         ml->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        ml->AddWithViewport(ButtonList::Create());
+        ml->AddWithViewport(WidgetList<Entry>::Create());
         
         return ml;
     }
@@ -187,7 +187,7 @@ namespace Raven {
     SOUND_LIST_WTYPE_SPTR GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
         sl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        sl->AddWithViewport(ButtonList::Create());
+        sl->AddWithViewport(WidgetList<Entry>::Create());
         
         return sl;
     }
@@ -196,7 +196,13 @@ namespace Raven {
     FONT_LIST_WTYPE_SPTR GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
         fl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        fl->AddWithViewport(ButtonList::Create());
+        auto entryList = WidgetList<Entry>::Create();
+        auto table = Table::Create();
+        Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
+        table->Attach(entryList, sf::Rect<sf::Uint32>(0, 0, 1, 5), all, all);
+
+        fl->AddWithViewport(entryList);
+        WidgetList<Entry>::appendWidget(entryList, "Label 1");
         
         return fl;
     }
@@ -230,7 +236,7 @@ namespace Raven {
     PREFAB_LIST_WTYPE_SPTR GUISystem::formatPrefabList(PREFAB_LIST_WTYPE_SPTR pl) {
         pl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        pl->AddWithViewport(ButtonList::Create());
+        pl->AddWithViewport(WidgetList<Button>::Create());
 
         return pl;
     }

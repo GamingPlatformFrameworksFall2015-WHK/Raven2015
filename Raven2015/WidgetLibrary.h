@@ -130,47 +130,59 @@ namespace Raven {
     // auto buttonList = ButtonList::Create();
     // ButtonList::appendButton(buttonList, "My Button Label");
     // 
-    class ButtonList {
+    template <typename W>
+    class WidgetList {
     public:
 
-        static void insertButton(BUTTON_LIST_WTYPE_SPTR type, size_t position, std::string labelName) {
-            appendButton(type, labelName);
+        static void insertWidget(SPTR(Box) type, size_t position, std::string labelName) {
+            appendWidget(type, labelName);
             type->ReorderChild(type->GetChildren().back(), position);
         }
 
-        static void appendButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackEnd(makeButtonBox(labelName), true, true);
+        static void appendWidget(SPTR(Box) type, std::string labelName) {
+            type->PackEnd(makeWidgetBox(labelName), true, true);
         }
 
-        static void prependButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackStart(makeButtonBox(labelName), true, true);
+        static void prependWidget(SPTR(Box) type, std::string labelName) {
+            type->PackStart(makeWidgetBox(labelName), true, true);
         }
 
-        static void removeButton(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
+        static void removeWidget(SPTR(Box) type, size_t position) {
             type->Remove(type->GetChildren()[position]);
         }
 
-        static BUTTON_LIST_WTYPE_SPTR getButtonBox(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
-            return WIDGET_CAST(type->GetChildren()[position], BUTTON_LIST_WTYPE);
+        static SPTR(Box) getWidgetBoxAt(SPTR(Box) type, size_t position) {
+            return WIDGET_CAST(type->GetChildren()[position], Box);
         }
 
-        static size_t length(BUTTON_LIST_WTYPE_SPTR type) {
+        static size_t length(SPTR(Box) type) {
             return type->GetChildren().size();
         }
 
-        static BUTTON_LIST_WTYPE_SPTR Create() {
-            return BUTTON_LIST_WTYPE::Create(BUTTON_LIST_WTYPE::Orientation::VERTICAL);
+        static SPTR(Box) Create() {
+            auto vbox = Box::Create(Box::Orientation::VERTICAL);
+            auto button = Button::Create("+");
+            button->GetSignal(Button::OnLeftClick).Connect(std::bind(&addNewButtonClick, vbox, "Button" + std::to_string(counter++)));
+            vbox->Pack(button, true, true);
+
+            return vbox;
         }
 
     private:
-        ButtonList();
+        WidgetList();
 
-        static SPTR(Box) makeButtonBox(std::string labelName) {
+        static SPTR(Box) makeWidgetBox(std::string labelName) {
             auto type = Box::Create(Box::Orientation::HORIZONTAL);
-            auto button = Button::Create(labelName);
-            type->Pack(button, true, false);
+            auto widget = W::Create(labelName);
+            type->Pack(widget, true, false);
             return type;
         }
+
+        static void addNewButtonClick(SPTR(Box) type, std::string name) {
+            appendWidget(type, name);
+        }
+
+        static unsigned int counter;
     };
 
 }

@@ -244,86 +244,6 @@ namespace Raven {
         ADD_STATICS(BoxCollider);
     };
 
-    // An abstract component used to classify player objects
-    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pawn() {}
-
-        // Copy Constructor
-        Pawn(const Pawn& other)  {}
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pawn);
-    };
-
-    // An abstract component used to classify AI objects
-    // Tracker will follow closest pawn (player) object
-    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
-        // Creates new instance of struct
-        Tracker() {}
-
-        // Copy Constructor
-        Tracker(const Tracker& other) {}
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Tracker);
-    };
-
-    // An abstract component used to classify AI objects
-    // Pacer will continuously pace with a horizontal(HOR_PATH),
-    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
-    // movement radius.
-    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pacer(std::string direction, sf::Vector2f origin, float radius) 
-            : direction(direction), origin(origin), radius(radius) {
-
-            // Vertical path will only have a velocity in the y direction
-            if (direction == VERT_PATH) {
-                velocity.x = 0.f;
-                velocity.y = 0.1f;
-            }
-            // Horizontal path will only have velocity in the x direction
-            else if (direction == HOR_PATH) {
-                velocity.x = 0.1f;
-                velocity.y = 0.f;
-            }
-            // Diagonal path will have both x and y velocities
-            else {
-                velocity.x = 0.1f;
-                velocity.y = 0.1f;
-            }
-        }
-
-        // Copy Constructor
-        Pacer(const Pacer& other) {
-            direction = other.direction;
-            velocity = other.velocity;
-        }
-
-        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-        std::string direction;
-
-        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
-        sf::Vector2f velocity;
-
-        // Center point of pacer's path
-        sf::Vector2f origin;
-
-        // Distance out in either direction that pacer willtravel from its center point
-        float radius;
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pacer);
-    };
-    
-
 #pragma endregion
 
 #pragma region Audio
@@ -439,7 +359,85 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    // Behaviors
+    // An abstract component used to classify player objects
+    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pawn() {}
+
+        // Copy Constructor
+        Pawn(const Pawn& other)  {}
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pawn);
+    };
+
+    // An abstract component used to classify AI objects
+    // Tracker will follow closest pawn (player) object
+    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
+        // Creates new instance of struct
+        Tracker() {}
+
+        // Copy Constructor
+        Tracker(const Tracker& other) {}
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Tracker);
+    };
+
+    // An abstract component used to classify AI objects
+    // Pacer will continuously pace with a horizontal(HOR_PATH),
+    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
+    // movement radius.
+    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+            : direction(direction), origin(origin), radius(radius) {
+
+            // Vertical path will only have a velocity in the y direction
+            if (direction == VERT_PATH) {
+                velocity.x = 0.f;
+                velocity.y = 0.1f;
+            }
+            // Horizontal path will only have velocity in the x direction
+            else if (direction == HOR_PATH) {
+                velocity.x = 0.1f;
+                velocity.y = 0.f;
+            }
+            // Diagonal path will have both x and y velocities
+            else {
+                velocity.x = 0.1f;
+                velocity.y = 0.1f;
+            }
+        }
+
+        // Copy Constructor
+        Pacer(const Pacer& other) {
+            direction = other.direction;
+            velocity = other.velocity;
+        }
+
+        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
+        std::string direction;
+
+        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
+        sf::Vector2f velocity;
+
+        // Center point of pacer's path
+        sf::Vector2f origin;
+
+        // Distance out in either direction that pacer willtravel from its center point
+        float radius;
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pacer);
+    };
+    
 
 #pragma endregion
 
