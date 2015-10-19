@@ -9,6 +9,9 @@
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 #define NO_ACTION_STR "NO ACTION"
+#define HOR_PATH "Horizontal"
+#define VERT_PATH "Vertical"
+#define DIAG_PATH "Diagonal"
 
 
 // CollisionLayerSettings
