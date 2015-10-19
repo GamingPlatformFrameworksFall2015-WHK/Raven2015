@@ -34,10 +34,7 @@ using namespace Raven;
 
 class Game : public ex::EntityX {
 public:
-    explicit Game(sf::RenderTarget &target) : Game() {
-        cmn::entities = &entities;
-        cmn::events = &events;
-    }
+    explicit Game(sf::RenderTarget &target) : Game() {}
 
     explicit Game() {
         systems.add<MovementSystem>();  // No dependencies
