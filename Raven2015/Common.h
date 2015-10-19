@@ -7,16 +7,22 @@
 #define FPS_60_TICK_TIME 0.0166666666666f
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
+#define NO_ACTION_STR "NO ACTION"
 
 #include <iostream>
 #include "entityx\config.h"
+#include "tinyxml2.h"
+#include "entityx/Entity.h"
+#include <map>
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::cin;
+using namespace tinyxml2;
 
 namespace ex = entityx;
+
 namespace Raven {
 
     namespace Common {
@@ -28,7 +34,7 @@ namespace Raven {
         enum EAudioOperation { NO_AUDIO_OPERATION, AUDIO_LOAD, AUDIO_UNLOAD, AUDIO_PLAY, AUDIO_PAUSE, AUDIO_STOP };
 
         // An enumeration type detailing the possible operations for timers.
-        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN };
+        enum ETimerOperation { NO_TIMER_OPERATION, TIMER_START, TIMER_PAUSE, TIMER_RESTART, TIMER_SCAN, TIMER_REMOVE, TIMER_ADD };
 
         // An enumeration type detailing how a loop state should be assigned.
         enum ELoop { LOOP_FALSE, LOOP_TRUE, LOOP_UNCHANGED };
@@ -77,22 +83,40 @@ namespace Raven {
             // Default Null Constructor
             Serializable() {}
 
-            // Primary enforcement of abstract class
-            virtual ~Serializable() = 0;
-
             // Allow the ISerializable to output an XML string representation of its properties
-            std::string(*serialize)();
+            virtual std::string serialize(std::string tab) = 0;
 
             // Allow the ISerializable to assign new values to its properties via an XML string
-            void(*deserialize)(std::string &xml);
+            virtual void deserialize(XMLNode* node) = 0;
         };
 
-        //static void ()
+        // The default position/dimensions of our various windows
+        const int WINDOW_XPOS = 20;
+        const int WINDOW_YPOS = 20;
+        const float WINDOW_WIDTH = 1200;
+        const float WINDOW_HEIGHT = 800;
+        const float MAIN_GUI_WINDOW_PADDING = 100;
 
+        const size_t TABLE_ROWS = 6;
+        const size_t TABLE_COLUMNS = 5;
+        const float TABLE_EDGE_PADDING = 50.f;
+
+        const int SCENE_HIERARCHY_XPOS = 0;
+        const int SCENE_HIERARCHY_YPOS = 0;
+        //const float SCENE_HIERARCHY_WIDTH = 
+
+        //const int CANVAS_XPOS = 
+        const float CANVAS_WIDTH = 600;
+        const float CANVAS_HEIGHT = 400;
+
+        struct CollisionInformation {
+
+            static const std::set<std::string> settings;
+
+        };
     };
 
 }
 
 namespace cmn = Raven::Common;
 namespace rvn = Raven;
-

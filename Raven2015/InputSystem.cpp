@@ -20,34 +20,58 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
     ex::TimeDelta dt) {
-    if (eventTypeId == 0) { //look a keyboard event
-        events.emit<KeyboardEvent>(key);
-        eventTypeId = 5; //so there's no event atm
+	
+    if (movementThresX != 0 || movementThresY != 0) { //look a keyboard event
+		es.each<BoxCollider>([&](ex::Entity entity, BoxCollider &collider) {
+			entity.component<Transform>().get()->transform.x += movementThresX;
+			entity.component<Transform>().get()->transform.y += movementThresY;
+		});
+        movementThresX = 0;
+		movementThresY = 0;
     }
 
 }
 
+/// <summary>
+/// Receives KeyboardEvents
+/// </summary>
+/// <param name="event">The event.</param>
 void InputSystem::receive(const KeyboardEvent &event) {
-    cout << "Key was pressed : " + event.action << endl;
+    cout << "Key was pressed : " + 
+        (event.action == "" ? NO_ACTION_STR : event.action) << endl;
 }
 
-int InputSystem::setEventType(sf::Event event) {
+int InputSystem::handleEvent(sf::Event event) {	
     switch (event.type) {
         case sf::Event::KeyPressed: {
             key = getAction(event.key.code);
-            eventTypeId = 0;
+			int speed = 10;
+			
+			if (key == "move_right") {
+				movementThresX += speed;				
+			}
+			else if (key == "move_down") {
+				movementThresY += speed;				
+			}
+			else if (key == "move_left") {
+				movementThresX -= speed;
+			}
+			else if (key == "move_up") {
+				movementThresY -= speed;	
+			}
             break;
         }
         case sf::Event::MouseButtonPressed: {
-            eventTypeId = 1;
+			sf::Vector2i position = sf::Mouse::getPosition();
+			//cout << event.mouseButton.x << " " << event.mouseButton.y << endl;
             break;
         }
         case sf::Event::JoystickButtonPressed: {
-            eventTypeId = 2;
+            movementThresX = 2;
             break;
         }
         case sf::Event::JoystickMoved: {
-            eventTypeId = 3;
+            movementThresX = 3;
             break;
         }
     }
@@ -76,50 +100,50 @@ void InputSystem::read_file(std::string filename) {
     std::string action, key;
     while (file >> action) {
         file >> key;
-        if ("A" == key) { insert_input(sf::Keyboard::A, action); break; }
-        else if ("B" == key) { insert_input(sf::Keyboard::B, action); break; }
-        else if ("C" == key) { insert_input(sf::Keyboard::C, action); break; }
-        else if ("D" == key) { insert_input(sf::Keyboard::D, action); break; }
-        else if ("E" == key) { insert_input(sf::Keyboard::E, action); break; }
-        else if ("F" == key) { insert_input(sf::Keyboard::F, action); break; }
-        else if ("G" == key) { insert_input(sf::Keyboard::G, action); break; }
-        else if ("H" == key) { insert_input(sf::Keyboard::H, action); break; }
-        else if ("I" == key) { insert_input(sf::Keyboard::I, action); break; }
-        else if ("J" == key) { insert_input(sf::Keyboard::J, action); break; }
-        else if ("K" == key) { insert_input(sf::Keyboard::K, action); break; }
-        else if ("L" == key) { insert_input(sf::Keyboard::L, action); break; }
-        else if ("M" == key) { insert_input(sf::Keyboard::M, action); break; }
-        else if ("N" == key) { insert_input(sf::Keyboard::N, action); break; }
-        else if ("O" == key) { insert_input(sf::Keyboard::O, action); break; }
-        else if ("P" == key) { insert_input(sf::Keyboard::P, action); break; }
-        else if ("Q" == key) { insert_input(sf::Keyboard::Q, action); break; }
-        else if ("R" == key) { insert_input(sf::Keyboard::R, action); break; }
-        else if ("S" == key) { insert_input(sf::Keyboard::S, action); break; }
-        else if ("T" == key) { insert_input(sf::Keyboard::T, action); break; }
-        else if ("U" == key) { insert_input(sf::Keyboard::U, action); break; }
-        else if ("V" == key) { insert_input(sf::Keyboard::V, action); break; }
-        else if ("W" == key) { insert_input(sf::Keyboard::W, action); break; }
-        else if ("X" == key) { insert_input(sf::Keyboard::X, action); break; }
-        else if ("Y" == key) { insert_input(sf::Keyboard::Y, action); break; }
-        else if ("Z" == key) { insert_input(sf::Keyboard::Z, action); break; }
-        else if ("Num0" == key) { insert_input(sf::Keyboard::Num0, action); break; }
-        else if ("Num1" == key) { insert_input(sf::Keyboard::Num1, action); break; }
-        else if ("Num2" == key) { insert_input(sf::Keyboard::Num2, action); break; }
-        else if ("Num3" == key) { insert_input(sf::Keyboard::Num3, action); break; }
-        else if ("Num4" == key) { insert_input(sf::Keyboard::Num4, action); break; }
-        else if ("Num5" == key) { insert_input(sf::Keyboard::Num5, action); break; }
-        else if ("Num6" == key) { insert_input(sf::Keyboard::Num6, action); break; }
-        else if ("Num7" == key) { insert_input(sf::Keyboard::Num7, action); break; }
-        else if ("Num8" == key) { insert_input(sf::Keyboard::Num8, action); break; }
-        else if ("Num9" == key) { insert_input(sf::Keyboard::Num9, action); break; }
-        else if ("Escape" == key) { insert_input(sf::Keyboard::Escape, action); break; }
-        else if ("LControl" == key) { insert_input(sf::Keyboard::LControl, action); break; }
-        else if ("LShift" == key) { insert_input(sf::Keyboard::LShift, action); break; }
-        else if ("LAlt" == key) { insert_input(sf::Keyboard::LAlt, action); break; }
-        else if ("Left" == key) { insert_input(sf::Keyboard::Left, action); break; }
-        else if ("Right" == key) { insert_input(sf::Keyboard::Right, action); break; }
-        else if ("Up" == key) { insert_input(sf::Keyboard::Up, action); break; }
-        else if ("Down" == key) { insert_input(sf::Keyboard::Down, action); break; }
+        if ("A" == key) { insert_input(sf::Keyboard::A, action); }
+        else if ("B" == key) { insert_input(sf::Keyboard::B, action); }
+        else if ("C" == key) { insert_input(sf::Keyboard::C, action); }
+        else if ("D" == key) { insert_input(sf::Keyboard::D, action); }
+        else if ("E" == key) { insert_input(sf::Keyboard::E, action); }
+        else if ("F" == key) { insert_input(sf::Keyboard::F, action); }
+        else if ("G" == key) { insert_input(sf::Keyboard::G, action); }
+        else if ("H" == key) { insert_input(sf::Keyboard::H, action); }
+        else if ("I" == key) { insert_input(sf::Keyboard::I, action); }
+        else if ("J" == key) { insert_input(sf::Keyboard::J, action); }
+        else if ("K" == key) { insert_input(sf::Keyboard::K, action); }
+        else if ("L" == key) { insert_input(sf::Keyboard::L, action); }
+        else if ("M" == key) { insert_input(sf::Keyboard::M, action); }
+        else if ("N" == key) { insert_input(sf::Keyboard::N, action); }
+        else if ("O" == key) { insert_input(sf::Keyboard::O, action); }
+        else if ("P" == key) { insert_input(sf::Keyboard::P, action); }
+        else if ("Q" == key) { insert_input(sf::Keyboard::Q, action); }
+        else if ("R" == key) { insert_input(sf::Keyboard::R, action); }
+        else if ("S" == key) { insert_input(sf::Keyboard::S, action); }
+        else if ("T" == key) { insert_input(sf::Keyboard::T, action); }
+        else if ("U" == key) { insert_input(sf::Keyboard::U, action); }
+        else if ("V" == key) { insert_input(sf::Keyboard::V, action); }
+        else if ("W" == key) { insert_input(sf::Keyboard::W, action); }
+        else if ("X" == key) { insert_input(sf::Keyboard::X, action); }
+        else if ("Y" == key) { insert_input(sf::Keyboard::Y, action); }
+        else if ("Z" == key) { insert_input(sf::Keyboard::Z, action); }
+        else if ("Num0" == key) { insert_input(sf::Keyboard::Num0, action); }
+        else if ("Num1" == key) { insert_input(sf::Keyboard::Num1, action); }
+        else if ("Num2" == key) { insert_input(sf::Keyboard::Num2, action); }
+        else if ("Num3" == key) { insert_input(sf::Keyboard::Num3, action); }
+        else if ("Num4" == key) { insert_input(sf::Keyboard::Num4, action); }
+        else if ("Num5" == key) { insert_input(sf::Keyboard::Num5, action); }
+        else if ("Num6" == key) { insert_input(sf::Keyboard::Num6, action); }
+        else if ("Num7" == key) { insert_input(sf::Keyboard::Num7, action); }
+        else if ("Num8" == key) { insert_input(sf::Keyboard::Num8, action); }
+        else if ("Num9" == key) { insert_input(sf::Keyboard::Num9, action); }
+        else if ("Escape" == key) { insert_input(sf::Keyboard::Escape, action); }
+        else if ("LControl" == key) { insert_input(sf::Keyboard::LControl, action); }
+        else if ("LShift" == key) { insert_input(sf::Keyboard::LShift, action); }
+        else if ("LAlt" == key) { insert_input(sf::Keyboard::LAlt, action); }
+        else if ("Left" == key) { insert_input(sf::Keyboard::Left, action); }
+        else if ("Right" == key) { insert_input(sf::Keyboard::Right, action); }
+        else if ("Up" == key) { insert_input(sf::Keyboard::Up, action); }
+        else if ("Down" == key) { insert_input(sf::Keyboard::Down, action); }
     }
 
 }
