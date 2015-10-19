@@ -25,11 +25,11 @@ namespace Raven {
         const std::string GUIWidgetTypes::TABLE = "Table";
         const std::string GUIWidgetTypes::CANVAS = "Canvas";
         const std::string GUIWidgetTypes::BUTTON = "Button";
-
+		
         const std::string CollisionLayerSettings::SOLID = "Solid";
         const std::string CollisionLayerSettings::TRIGGER = "Trigger";
         */
 
-        const std::set<std::string> CollisionInformation::settings({ "Solid", "Trigger" });
+        const std::set<std::string> CollisionInformation::settings({ COLLISION_LAYER_SETTINGS_SOLID, COLLISION_LAYER_SETTINGS_FIXED });
     }
 }

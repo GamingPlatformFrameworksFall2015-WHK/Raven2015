@@ -103,10 +103,6 @@ using namespace sfg;
 
 /////////////////////
 
-// CollisionLayerSettings
-#define COLLISION_LAYER_SETTINGS_SOLID "Solid"
-#define COLLISION_LAYER_SETTINGS_TRIGGER "Trigger"
-
 namespace Raven {
 
     // --------------------------------------------------------------------------------------------

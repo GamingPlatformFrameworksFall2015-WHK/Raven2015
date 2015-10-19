@@ -191,7 +191,7 @@ namespace Raven {
         
         // The collision settings. Valid values can be found in Common::CollisionLayerSettings
         // SOLID : The layer that indicates the entities should be "pushed out of each other"
-        // TRIGGER : The layer that indicates the entity will react to the collision
+        // FIXED : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
 
         virtual std::string serialize(std::string tab) override;
