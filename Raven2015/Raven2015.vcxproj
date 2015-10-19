@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Kevin Wang\Desktop\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,7 +86,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\include;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\entityx-master;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\group3admin\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFML-Visual_Studio2015RCx64\lib;C:\Users\Will\Source\Repos\Raven2015\Raven2015\SFGUI-Visual_Studio2015RCx64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -172,6 +172,7 @@
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
     <ClCompile Include="entityx-master\entityx\help\Timer.cc" />
     <ClCompile Include="entityx-master\entityx\System.cc" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GUISystem.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="main.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="entityx\System.h" />
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="GUISystem.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MovementSystem.h" />

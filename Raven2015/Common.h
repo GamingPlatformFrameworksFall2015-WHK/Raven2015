@@ -5,9 +5,18 @@
 #define ERRORSTR_AUDIO_NO_RECORD "Error: Attempting to perform non-loading operation on a new audio resource."
 #define FPS_30_TICK_TIME 0.0333333333333f
 #define FPS_60_TICK_TIME 0.0166666666666f
+#define FPS_100_TICK_TIME 0.0100000000000f
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 #define NO_ACTION_STR "NO ACTION"
+#define HOR_PATH "Horizontal"
+#define VERT_PATH "Vertical"
+#define DIAG_PATH "Diagonal"
+
+
+// CollisionLayerSettings
+#define COLLISION_LAYER_SETTINGS_SOLID "Solid"
+#define COLLISION_LAYER_SETTINGS_FIXED "Fixed"
 
 #include <iostream>
 #include "entityx\config.h"
@@ -24,6 +33,8 @@ using namespace tinyxml2;
 namespace ex = entityx;
 
 namespace Raven {
+
+    class Game;
 
     namespace Common {
 
@@ -114,6 +125,10 @@ namespace Raven {
             static const std::set<std::string> settings;
 
         };
+
+        extern ex::EntityManager* entities;
+        extern ex::EventManager* events;
+        extern Game* game;
     };
 
 }

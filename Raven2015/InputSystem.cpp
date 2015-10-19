@@ -20,16 +20,11 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
     ex::TimeDelta dt) {
-	
-    if (movementThresX != 0 || movementThresY != 0) { //look a keyboard event
-		es.each<BoxCollider>([&](ex::Entity entity, BoxCollider &collider) {
-			entity.component<Transform>().get()->transform.x += movementThresX;
-			entity.component<Transform>().get()->transform.y += movementThresY;
-		});
-        movementThresX = 0;
-		movementThresY = 0;
-    }
-
+    
+    es.each<Pawn>([&](ex::Entity entity, Pawn &pawn) {
+        entity.component<Rigidbody>()->velocity.x = movementThresX;
+        entity.component<Rigidbody>()->velocity.y = movementThresY;
+    }); 
 }
 
 /// <summary>
@@ -44,26 +39,43 @@ void InputSystem::receive(const KeyboardEvent &event) {
 int InputSystem::handleEvent(sf::Event event) {	
     switch (event.type) {
         case sf::Event::KeyPressed: {
+
             key = getAction(event.key.code);
-			int speed = 10;
-			
-			if (key == "move_right") {
-				movementThresX += speed;				
-			}
-			else if (key == "move_down") {
-				movementThresY += speed;				
-			}
-			else if (key == "move_left") {
-				movementThresX -= speed;
-			}
-			else if (key == "move_up") {
-				movementThresY -= speed;	
-			}
+        
+            if (key == "move_right" && movementThresX < 1.0) {
+                movementThresX += (FPS_100_TICK_TIME * 100);
+            }
+
+            if (key == "move_down" && movementThresY < 1.0) {
+                movementThresY += (FPS_100_TICK_TIME * 100);
+            }
+
+            if (key == "move_left" && movementThresX > -1.0) {
+                movementThresX -= (FPS_100_TICK_TIME * 100);
+            }
+
+            if (key == "move_up" && movementThresY > -1.0) {
+                movementThresY -= (FPS_100_TICK_TIME * 100);
+            }
+
+            break;
+        }
+        case sf::Event::KeyReleased: {			
+            key = getAction(event.key.code);
+
+            if (key == "move_right" || key == "move_left") {
+                movementThresX = 0;
+            }
+
+            if (key == "move_down" || key == "move_up") {
+                movementThresY = 0;
+            }
+
             break;
         }
         case sf::Event::MouseButtonPressed: {
-			sf::Vector2i position = sf::Mouse::getPosition();
-			//cout << event.mouseButton.x << " " << event.mouseButton.y << endl;
+            sf::Vector2i position = sf::Mouse::getPosition();
+            //cout << event.mouseButton.x << " " << event.mouseButton.y << endl;
             break;
         }
         case sf::Event::JoystickButtonPressed: {

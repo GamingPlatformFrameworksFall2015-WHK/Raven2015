@@ -120,6 +120,30 @@ namespace Raven {
         }
     }
 
+	std::string Pawn::serialize(std::string) {
+		return "";
+	}
+
+	void Pawn::deserialize(XMLNode*) {
+
+	}
+
+	std::string Tracker::serialize(std::string) {
+		return "";
+	}
+
+	void Tracker::deserialize(XMLNode*) {
+
+	}
+
+	std::string Pacer::serialize(std::string) {
+		return "";
+	}
+
+	void Pacer::deserialize(XMLNode*) {
+
+	}
+
 #pragma endregion
 
 #pragma region Audio
@@ -226,7 +250,7 @@ namespace Raven {
     }
 
     void ComponentLibrary::deserializeEntity(ex::Entity e, XMLNode* node) {
-        DESERIALIZE_COMPONENTS(e, node)
+		DESERIALIZE_COMPONENTS(e, node)
     }
 
     ex::Entity ComponentLibrary::copyEntity(ex::Entity toReturn, ex::Entity toCopy) {
