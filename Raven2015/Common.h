@@ -127,7 +127,6 @@ namespace Raven {
         extern ex::EntityManager* entities;
         extern ex::EventManager* events;
     };
-    };
 
 }
 
