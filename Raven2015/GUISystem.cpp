@@ -97,7 +97,8 @@ namespace Raven {
     void GUISystem::pollEvents() {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
-            if ((*event).type == sf::Event::Closed) {
+            if (event->type == sf::Event::Closed) {
+                //desktop->Remove(getCanvas());
                 mainWindow->close();
             }
             //-----------------------------------------------
