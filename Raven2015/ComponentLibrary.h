@@ -26,7 +26,7 @@
 
 namespace Raven {
 
-	// Helper macros /*************************************************************************************************/
+    // Helper macros /*************************************************************************************************/
 #define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
 #define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
 /******************************************************************************************************************/
@@ -44,9 +44,9 @@ namespace Raven {
             *e.component<Transform>().get(), \
             *e.component<Rigidbody>().get(), \
             *e.component<BoxCollider>().get(), \
-			*e.component<Pawn>().get(), \
-			*e.component<Tracker>().get(), \
-			*e.component<Pacer>().get(), \
+            *e.component<Pawn>().get(), \
+            *e.component<Tracker>().get(), \
+            *e.component<Pacer>().get(), \
             *e.component<SoundMaker>().get(), \
             *e.component<MusicMaker>().get(), \
             *e.component<Renderer>().get(), \
@@ -57,9 +57,9 @@ namespace Raven {
             SERIALIZE_COMPONENT(Transform, e, str); \
             SERIALIZE_COMPONENT(Rigidbody, e, str); \
             SERIALIZE_COMPONENT(BoxCollider, e, str); \
-			SERIALIZE_COMPONENT(Pawn, e, str); \
-			SERIALIZE_COMPONENT(Tracker, e, str); \
-			SERIALIZE_COMPONENT(Pacer, e, str); \
+            SERIALIZE_COMPONENT(Pawn, e, str); \
+            SERIALIZE_COMPONENT(Tracker, e, str); \
+            SERIALIZE_COMPONENT(Pacer, e, str); \
             SERIALIZE_COMPONENT(SoundMaker, e, str); \
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
@@ -70,9 +70,9 @@ namespace Raven {
             DESERIALIZE_COMPONENT(Transform, e, node); \
             DESERIALIZE_COMPONENT(Rigidbody, e, node); \
             DESERIALIZE_COMPONENT(BoxCollider, e, node); \
-			DESERIALIZE_COMPONENT(Pawn, e, node); \
-			DESERIALIZE_COMPONENT(Tracker, e, node); \
-			DESERIALIZE_COMPONENT(Pacer, e, node); \
+            DESERIALIZE_COMPONENT(Pawn, e, node); \
+            DESERIALIZE_COMPONENT(Tracker, e, node); \
+            DESERIALIZE_COMPONENT(Pacer, e, node); \
             DESERIALIZE_COMPONENT(SoundMaker, e, node); \
             DESERIALIZE_COMPONENT(MusicMaker, e, node); \
             DESERIALIZE_COMPONENT(Renderer, e, node); \
@@ -244,85 +244,85 @@ namespace Raven {
         ADD_STATICS(BoxCollider);
     };
 
-	// An abstract component used to classify player objects
-	struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-		// Creates new instance of struct
-		Pawn() {}
+    // An abstract component used to classify player objects
+    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pawn() {}
 
-		// Copy Constructor
-		Pawn(const Pawn& other)  {}
+        // Copy Constructor
+        Pawn(const Pawn& other)  {}
 
-		//Serialization and deserialization for edit/play mode
-		virtual std::string serialize(std::string tab) override;
-		virtual void deserialize(XMLNode* node) override;
-		ADD_STATICS(Pawn);
-	};
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pawn);
+    };
 
-	// An abstract component used to classify AI objects
-	// Tracker will follow closest pawn (player) object
-	struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
-		// Creates new instance of struct
-		Tracker() {}
+    // An abstract component used to classify AI objects
+    // Tracker will follow closest pawn (player) object
+    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
+        // Creates new instance of struct
+        Tracker() {}
 
-		// Copy Constructor
-		Tracker(const Tracker& other) {}
+        // Copy Constructor
+        Tracker(const Tracker& other) {}
 
-		//Serialization and deserialization for edit/play mode
-		virtual std::string serialize(std::string tab) override;
-		virtual void deserialize(XMLNode* node) override;
-		ADD_STATICS(Tracker);
-	};
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Tracker);
+    };
 
-	// An abstract component used to classify AI objects
-	// Pacer will continuously pace with a horizontal(HOR_PATH),
-	// vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
-	// movement radius.
-	struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
-		// Creates new instance of struct
-		Pacer(std::string direction, sf::Vector2f origin, float radius) 
-			: direction(direction), origin(origin), radius(radius) {
+    // An abstract component used to classify AI objects
+    // Pacer will continuously pace with a horizontal(HOR_PATH),
+    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
+    // movement radius.
+    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+            : direction(direction), origin(origin), radius(radius) {
 
-			// Vertical path will only have a velocity in the y direction
-			if (direction == VERT_PATH) {
-				velocity.x = 0;
-				velocity.y = 0.1;
-			}
-			// Horizontal path will only have velocity in the x direction
-			else if (direction == HOR_PATH) {
-				velocity.x = 0.1;
-				velocity.y = 0;
-			}
-			// Diagonal path will have both x and y velocities
-			else {
-				velocity.x = 0.1;
-				velocity.y = 0.1;
-			}
-		}
+            // Vertical path will only have a velocity in the y direction
+            if (direction == VERT_PATH) {
+                velocity.x = 0;
+                velocity.y = 0.1;
+            }
+            // Horizontal path will only have velocity in the x direction
+            else if (direction == HOR_PATH) {
+                velocity.x = 0.1;
+                velocity.y = 0;
+            }
+            // Diagonal path will have both x and y velocities
+            else {
+                velocity.x = 0.1;
+                velocity.y = 0.1;
+            }
+        }
 
-		// Copy Constructor
-		Pacer(const Pacer& other) {
-			direction = other.direction;
-			velocity = other.velocity;
-		}
+        // Copy Constructor
+        Pacer(const Pacer& other) {
+            direction = other.direction;
+            velocity = other.velocity;
+        }
 
-		// Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-		std::string direction;
+        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
+        std::string direction;
 
-		// Velocity of Pacer that will be passed to entitie's rigidbody upon update()
-		sf::Vector2f velocity;
+        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
+        sf::Vector2f velocity;
 
-		// Center point of pacer's path
-		sf::Vector2f origin;
+        // Center point of pacer's path
+        sf::Vector2f origin;
 
-		// Distance out in either direction that pacer willtravel from its center point
-		float radius;
+        // Distance out in either direction that pacer willtravel from its center point
+        float radius;
 
-		//Serialization and deserialization for edit/play mode
-		virtual std::string serialize(std::string tab) override;
-		virtual void deserialize(XMLNode* node) override;
-		ADD_STATICS(Pacer);
-	};
-	
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pacer);
+    };
+    
 
 #pragma endregion
 
