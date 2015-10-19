@@ -284,18 +284,18 @@ namespace Raven {
 
             // Vertical path will only have a velocity in the y direction
             if (direction == VERT_PATH) {
-                velocity.x = 0;
-                velocity.y = 0.1;
+                velocity.x = 0.f;
+                velocity.y = 0.1f;
             }
             // Horizontal path will only have velocity in the x direction
             else if (direction == HOR_PATH) {
-                velocity.x = 0.1;
-                velocity.y = 0;
+                velocity.x = 0.1f;
+                velocity.y = 0.f;
             }
             // Diagonal path will have both x and y velocities
             else {
-                velocity.x = 0.1;
-                velocity.y = 0.1;
+                velocity.x = 0.1f;
+                velocity.y = 0.1f;
             }
         }
 

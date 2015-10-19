@@ -8,5 +8,6 @@ namespace Raven {
 
         extern ex::EntityManager* entities = nullptr;
         extern ex::EventManager* events = nullptr;
+        extern Game* game = nullptr;
     }
 }

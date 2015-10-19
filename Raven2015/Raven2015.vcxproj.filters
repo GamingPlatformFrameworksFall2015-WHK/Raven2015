@@ -191,9 +191,6 @@
     <ClInclude Include="ComponentLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="EntityLibrary.h">
-      <Filter>Header Files\Libraries</Filter>
-    </ClInclude>
     <ClInclude Include="EventLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>

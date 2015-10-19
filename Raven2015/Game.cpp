@@ -32,6 +32,7 @@ namespace Raven {
 
         cmn::entities = &entities;
         cmn::events = &events;
+        cmn::game = this;
     }
 
     void Game::update(ex::TimeDelta dt) {
@@ -42,7 +43,39 @@ namespace Raven {
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 
-    //const ex::EntityManager* Game::getEntitiesPtr() { return (const ex::EntityManager*) &entities; }
-    //const ex::EventManager* Game::getEventsPtr() { return (const ex::EventManager*) &events; }
+    ex::Entity Game::makeEntity() {
+        std::shared_ptr<ex::Entity> e(&entities.create());
+        std::string s = (e->assign<Data>()->name = "Default Entity");
+        e->assign<Transform>();
+        e->assign<Rigidbody>();
+        systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(s, e));
+        return *e;
+    }
+
+    ex::Entity Game::makeEntity(std::string name) {
+        if (name == "") {
+            cerr << "Error: Attempted to assign empty string to entity name";
+            throw 1;
+        }
+        ex::Entity e = makeEntity();
+        e.component<Data>()->name = name;
+        return e;
+    }
+
+    std::shared_ptr<ex::Entity> Game::instantiatePrefab(std::string name, std::string prefabName) {
+        std::shared_ptr<ex::Entity> e(&entities.create());
+        auto map = systems.system<XMLSystem>()->prefabMap;
+        if (map.find(prefabName) == map.end()) {
+            cerr << "Warning: Attempted to instantiate entity \"" + name + "\" from non-existent prefab \"" + prefabName + "\"" << endl;
+            cerr << "         Entity will not be instantiated." << endl;
+            return nullptr;
+        }
+        else {
+            ComponentLibrary::copyEntity(*e, *map[prefabName]);
+            e->component<Data>()->name = name;
+            systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(name, e));
+            return e;
+        }
+    }
 
 }

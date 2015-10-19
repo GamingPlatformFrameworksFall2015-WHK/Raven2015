@@ -84,15 +84,6 @@
 				*Sprites
 					SpriteName //string
 			*TimeTable //Will not be allowed to have preset values associated with it.
-			*CoreBehavior //Modifications to the functions within will be handled within the code, not the editor
-			*ActionListener
-				PlayerID //int
-				//Might want to add the following in case we want users to be able to modify what actions are being listened to from editor
-				*Actions
-					*Item
-						ActionName //string
-						Signature //int (enum)
-						FunctionName //string
 		*Entity
 			...
 		*Entity

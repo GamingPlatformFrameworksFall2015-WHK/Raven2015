@@ -26,7 +26,6 @@ namespace Raven {
 
         static const std::string xmlFileName;
 
-    private:
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
         // Maps the user-defined asset name to the file path
@@ -52,6 +51,7 @@ namespace Raven {
         // Essentially maps a level name to a set of named entities that may or may not be prefabs
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
+    private:
         std::string serializeTextureFilePathSet(std::string tab);
         std::string serializeMusicFilePathSet(std::string tab);
         std::string serializeSoundFilePathSet(std::string tab);

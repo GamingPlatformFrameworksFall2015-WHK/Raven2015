@@ -34,6 +34,8 @@ namespace ex = entityx;
 
 namespace Raven {
 
+    class Game;
+
     namespace Common {
 
         // An enumeration type detailing the types of processable audio files.
@@ -126,7 +128,7 @@ namespace Raven {
 
         extern ex::EntityManager* entities;
         extern ex::EventManager* events;
-    };
+        extern Game* game;
     };
 
 }
