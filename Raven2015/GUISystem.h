@@ -57,68 +57,57 @@ namespace Raven {
 
         // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
         SCENE_HIERARCHY_WTYPE_SPTR getSceneHierarchy() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME);
-            return WIDGET_CAST(WidgetMap[p], SCENE_HIERARCHY_WTYPE);
+            return WIDGET_CAST(widgetMap[SCENE_HIERARCHY_NAME], SCENE_HIERARCHY_WTYPE);
         }
 
         // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
         COMPONENT_LIST_WTYPE_SPTR getComponentList() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(COMPONENT_LIST_WTYPE), COMPONENT_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], COMPONENT_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[COMPONENT_LIST_NAME], COMPONENT_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
         TEXTURE_LIST_WTYPE_SPTR getTextureList() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], TEXTURE_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[TEXTURE_LIST_NAME], TEXTURE_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
         MUSIC_LIST_WTYPE_SPTR getMusicList() { 
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], MUSIC_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[MUSIC_LIST_NAME], MUSIC_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
         SOUND_LIST_WTYPE_SPTR getSoundList() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], SOUND_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[SOUND_LIST_NAME], SOUND_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
         FONT_LIST_WTYPE_SPTR getFontList() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], FONT_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[FONT_LIST_NAME], FONT_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
         CONTENT_WTYPE_SPTR getContent() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(CONTENT_WTYPE), CONTENT_NAME);
-            return WIDGET_CAST(WidgetMap[p], CONTENT_WTYPE);
+            return WIDGET_CAST(widgetMap[CONTENT_NAME], CONTENT_WTYPE);
         }
 
         // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
         ENTITY_DESIGNER_WTYPE_SPTR getEntityDesigner() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME);
-            return WIDGET_CAST(WidgetMap[p], ENTITY_DESIGNER_WTYPE);
+            return WIDGET_CAST(widgetMap[ENTITY_DESIGNER_NAME], ENTITY_DESIGNER_WTYPE);
         }
 
         // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
         PREFAB_LIST_WTYPE_SPTR getPrefabList() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME);
-            return WIDGET_CAST(WidgetMap[p], PREFAB_LIST_WTYPE);
+            return WIDGET_CAST(widgetMap[PREFAB_LIST_NAME], PREFAB_LIST_WTYPE);
         }
 
         // Shortcut method for acquiring the Canvas, a renderable screen into the game space
         CANVAS_WTYPE_SPTR getCanvas() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(CANVAS_WTYPE), CANVAS_NAME);
-            return WIDGET_CAST(WidgetMap[p], CANVAS_WTYPE);
+            return WIDGET_CAST(widgetMap[CANVAS_NAME], CANVAS_WTYPE);
         }
 
         // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
         TOOLBAR_WTYPE_SPTR getToolbar() {
-            std::pair<std::string, std::string> p = std::make_pair(TO_STR(TOOLBAR_WTYPE), TOOLBAR_NAME);
-            return WIDGET_CAST(WidgetMap[p], TOOLBAR_WTYPE);
+            return WIDGET_CAST(widgetMap[TOOLBAR_NAME], TOOLBAR_WTYPE);
         }
 
         // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
@@ -185,23 +174,16 @@ namespace Raven {
         // A pointer to the table organizing the content in the mainGUIWindow
         std::shared_ptr<Table> table;
 
+        // A mapping between widget names and their shared pointers
+        std::map <std::string, std::shared_ptr<Widget>> widgetMap;
+
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
 
-        private:
-        // A mapping between a two names and a widget shared pointer.
-        // The first name is the name of the class type of the widget.
-        // The second name is the name of the identifying label for the widget.
-        // Example:
-        // WidgetMap.insert(std::make_pair(std::make_pair("Button", "CreateBrushButton"), Button::Create());
-        //
-        // More often used with WidgetLibrary.h macros for particular widget types:
-        // WidgetMap.insert(std::mak_pair(std::make_pair(TO_STR(MYBUTTON_WTYPE), MYBUTTON_NAME), Button::Create());
-        // where the following exists...
-        // #define MYBUTTON_WTYPE Button
-        // #define MYBUTTON_NAME "CreateBrushButton"
-        std::map<std::pair<std::string, std::string>, std::shared_ptr<Widget>> WidgetMap;
-
+        void brushToolbarButtonClick(Button::Ptr clickedButton);
+        void GUISystem::sceneHierachyButton(Button::Ptr clickedButton);
+        void canvasClickHandler();
+        Label::Ptr currentBrush = Label::Create("Create");
     };
 
 }
