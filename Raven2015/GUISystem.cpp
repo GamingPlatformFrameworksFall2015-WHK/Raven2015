@@ -238,6 +238,9 @@ namespace Raven {
 
 	void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton) {
 		cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+		for (auto child : getGUIEntityDesigner()->GetChildren()) {
+			cout << child->GetName() << endl;
+		}
 		//change things in the entity designer and display things according to the
 		//clickedButton->GetLabel().toAnsiString() which is the name that is display to user
 	}

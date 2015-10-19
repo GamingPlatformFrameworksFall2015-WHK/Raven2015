@@ -140,6 +140,7 @@ void InputSystem::read_file(std::string filename) {
         else if ("LControl" == key) { insert_input(sf::Keyboard::LControl, action); }
         else if ("LShift" == key) { insert_input(sf::Keyboard::LShift, action); }
         else if ("LAlt" == key) { insert_input(sf::Keyboard::LAlt, action); }
+		else if ("Tilde" == key) { insert_input(sf::Keyboard::Tilde, action); }
         else if ("Left" == key) { insert_input(sf::Keyboard::Left, action); }
         else if ("Right" == key) { insert_input(sf::Keyboard::Right, action); }
         else if ("Up" == key) { insert_input(sf::Keyboard::Up, action); }
