@@ -99,8 +99,8 @@ namespace Raven {
             desktop->HandleEvent(*event);
             if (event->type == sf::Event::Closed) {
                 //desktop->Remove(getCanvas());
-				mainWindow->close();
-			}
+                mainWindow->close();
+            }
             //-----------------------------------------------
             // Call a function that encapsulates the event.type switch statement and simply returns the corresponding action.
             // Use the value returned by this function to then call another function that will emit an event that triggers the
@@ -108,7 +108,7 @@ namespace Raven {
             //-----------------------------------------------
             //if(widgetMap["Canvas"]->OnMouseLeftPress)
             //cout << widgetMap["Canvas"]->GetAbsolutePosition().x << " " << widgetMap["Canvas"]->GetAbsolutePosition().y << endl;
-			input->handleEvent(*event);
+            input->handleEvent(*event);
         }
     }
 
@@ -123,15 +123,15 @@ namespace Raven {
 
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
         auto hbox1 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
-		auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
-		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         hbox1->Pack(button, true, false);
         auto hbox2 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
-		button = sfg::Button::Create("Entity 2");
-		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        button = sfg::Button::Create("Entity 2");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         hbox2->Pack(button, true, false);
-		button = sfg::Button::Create("Entity 3");
-		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+        button = sfg::Button::Create("Entity 3");
+        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         auto hbox3 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
         hbox3->Pack(button, true, false);
         vbox->Pack(hbox1, true, true);
@@ -266,34 +266,34 @@ namespace Raven {
         return t;
     }
 
-	void GUISystem::brushToolbarButtonClick(Button::Ptr clickedButton) {
-		cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
-		currentBrush->SetText(clickedButton->GetLabel().toAnsiString());
-	}
+    void GUISystem::brushToolbarButtonClick(Button::Ptr clickedButton) {
+        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        currentBrush->SetText(clickedButton->GetLabel().toAnsiString());
+    }
 
-	void GUISystem::canvasClickHandler() {
-		sf::Vector2i position = sf::Mouse::getPosition();
-		//cout << getCanvas()->GetAbsolutePosition().x << " " << getCanvas()->GetAbsolutePosition().y << endl;
-		if (currentBrush->GetText().toAnsiString() == "Create") {
-			ex::Entity entity = cmn::entities->create();
-			entity.assign<Tracker>();
-			entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-			entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
-			//entity.assign<Transform>()->transform.x = getCanvas()->GetAbsolutePosition().x - (float)position.x;
-			//entity.component<Transform>()->transform.y = getCanvas()->GetAbsolutePosition().y - (float)position.y;
-			cout << "Created entity" << endl;
-			ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
-			renderer->sprites["BlueDot"].reset(new RenderableSprite(
-				"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
-		}
-	}
+    void GUISystem::canvasClickHandler() {
+        sf::Vector2i position = sf::Mouse::getPosition();
+        //cout << getCanvas()->GetAbsolutePosition().x << " " << getCanvas()->GetAbsolutePosition().y << endl;
+        if (currentBrush->GetText().toAnsiString() == "Create") {
+            ex::Entity entity = cmn::entities->create();
+            entity.assign<Tracker>();
+            entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+            entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
+            //entity.assign<Transform>()->transform.x = getCanvas()->GetAbsolutePosition().x - (float)position.x;
+            //entity.component<Transform>()->transform.y = getCanvas()->GetAbsolutePosition().y - (float)position.y;
+            cout << "Created entity" << endl;
+            ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
+            renderer->sprites["BlueDot"].reset(new RenderableSprite(
+                "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+        }
+    }
 
-	void GUISystem::sceneHierachyButton(Button::Ptr clickedButton) {
-		cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
-		/*for (auto child : getEntityDesigner()->GetChildren()) {
-			cout << child->GetName() << endl;
-		}*/
-		//change things in the entity designer and display things according to the
-		//clickedButton->GetLabel().toAnsiString() which is the name that is display to user
-	}
+    void GUISystem::sceneHierachyButton(Button::Ptr clickedButton) {
+        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
 }
