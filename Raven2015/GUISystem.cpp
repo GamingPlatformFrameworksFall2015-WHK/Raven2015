@@ -273,18 +273,18 @@ namespace Raven {
 
 	void GUISystem::canvasClickHandler() {
 		sf::Vector2i position = sf::Mouse::getPosition();
-		//cout << currentBrush->GetText().toAnsiString() << " at " << position.x << " " << position.y << endl
-		//entities->each<BoxCollider>([&](ex::Entity entity, BoxCollider &collider) {
-		//	cout << entity.component<Transform>().get()->transform.x << " " << entity.component<Transform>().get()->transform.y << endl;
-		//});
+		//cout << getCanvas()->GetAbsolutePosition().x << " " << getCanvas()->GetAbsolutePosition().y << endl;
 		if (currentBrush->GetText().toAnsiString() == "Create") {
-			//ex::Entity entity = entities->create();
-			//entity.assign<BoxCollider>();
-			//entity.assign<Transform>(getCanvas()->GetAbsolutePosition().x - position.x, getCanvas()->GetAbsolutePosition().y - position.y, 90.0f);
+			ex::Entity entity = cmn::entities->create();
+			entity.assign<Tracker>();
+			entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+			entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
+			//entity.assign<Transform>()->transform.x = getCanvas()->GetAbsolutePosition().x - (float)position.x;
+			//entity.component<Transform>()->transform.y = getCanvas()->GetAbsolutePosition().y - (float)position.y;
 			cout << "Created entity" << endl;
-			//ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
-			//renderer->sprites["BlueDot"].reset(new RenderableSprite(
-			//	"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+			ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
+			renderer->sprites["BlueDot"].reset(new RenderableSprite(
+				"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
 		}
 	}
 

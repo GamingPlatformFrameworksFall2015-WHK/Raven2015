@@ -65,7 +65,8 @@ namespace Raven {
             { sf::Keyboard::Right,	"move_right" },
             { sf::Keyboard::Up,		"move_up" },
             { sf::Keyboard::Down,	"move_down" },
-            { sf::Keyboard::Escape, "exit" }
+            { sf::Keyboard::Escape, "exit" },
+			{ sf::Keyboard::Tilde,	"switch_mode" }
         };
 
         std::map<sf::Mouse::Button, std::string> mouse_map{
@@ -75,6 +76,7 @@ namespace Raven {
         float movementThresX;
         float movementThresY;
         std::string key;
+		bool editMode = true;
 
         void insert_input(sf::Keyboard::Key key, std::string action);
 

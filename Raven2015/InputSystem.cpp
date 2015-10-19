@@ -42,22 +42,28 @@ int InputSystem::handleEvent(sf::Event event) {
 
             key = getAction(event.key.code);
         
-            if (key == "move_right" && movementThresX < 1.0) {
-                movementThresX += (FPS_100_TICK_TIME * 100);
-            }
+			if (key == "switch_mode"){
+				cout << "Edit Mode = " << editMode << endl;
+				if (editMode == true) editMode = false;
+				else editMode = true;
+			}
+			if (!editMode) {
+				if (key == "move_right" && movementThresX < 1.0) {
+					movementThresX += (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_down" && movementThresY < 1.0) {
-                movementThresY += (FPS_100_TICK_TIME * 100);
-            }
+				if (key == "move_down" && movementThresY < 1.0) {
+					movementThresY += (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_left" && movementThresX > -1.0) {
-                movementThresX -= (FPS_100_TICK_TIME * 100);
-            }
+				if (key == "move_left" && movementThresX > -1.0) {
+					movementThresX -= (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_up" && movementThresY > -1.0) {
-                movementThresY -= (FPS_100_TICK_TIME * 100);
-            }
-
+				if (key == "move_up" && movementThresY > -1.0) {
+					movementThresY -= (FPS_100_TICK_TIME * 100);
+				}
+			}
             break;
         }
         case sf::Event::KeyReleased: {			
