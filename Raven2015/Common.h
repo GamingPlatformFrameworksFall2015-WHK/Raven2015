@@ -8,6 +8,12 @@
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 #define NO_ACTION_STR "NO ACTION"
+#define DELTA_TIME 0.01f 
+
+
+// CollisionLayerSettings
+#define COLLISION_LAYER_SETTINGS_SOLID "Solid"
+#define COLLISION_LAYER_SETTINGS_FIXED "Fixed"
 
 #include <iostream>
 #include "entityx\config.h"
@@ -117,6 +123,7 @@ namespace Raven {
 
         extern ex::EntityManager* entities;
         extern ex::EventManager* events;
+    };
     };
 
 }
