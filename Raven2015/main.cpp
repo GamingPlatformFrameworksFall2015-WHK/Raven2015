@@ -74,7 +74,8 @@ int main() {
     //Create vertical pacer
     ex::Entity vertPacerEntity = game.entities.create();
     vertPacerEntity.assign<Pacer>(VERT_PATH, sf::Vector2f(200.0f, 200.0f), 20.0f);
-    vertPacerEntity.assign<Transform>()->transform.x = 200.0f;
+    vertPacerEntity.assign<Transform>();
+    vertPacerEntity.component<Transform>()->transform.x = 200.0f;
     vertPacerEntity.component<Transform>()->transform.y = 200.0f;
     vertPacerEntity.assign<Rigidbody>();
     ex::ComponentHandle<rvn::Renderer> vertPacerRend = vertPacerEntity.assign<rvn::Renderer>();
@@ -83,8 +84,9 @@ int main() {
 
     //Create horizontal pacer
     ex::Entity horPacerEntity = game.entities.create();
-    horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0f, 500.0f), 50.0f);
-    horPacerEntity.assign<Transform>()->transform.x = 350.0f;
+    horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0f, 300.0f), 50.0f);
+    horPacerEntity.assign<Transform>();
+    horPacerEntity.component<Transform>()->transform.x = 350.0f;
     horPacerEntity.component<Transform>()->transform.y = 300.0f;
     horPacerEntity.assign<Rigidbody>();
     ex::ComponentHandle<rvn::Renderer> horPacerRend = horPacerEntity.assign<rvn::Renderer>();
@@ -114,7 +116,7 @@ int main() {
         cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
 
 
-	//std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
+    //std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
     cout << "Starting game loop..." << endl;
