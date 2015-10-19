@@ -120,6 +120,14 @@ namespace Raven {
         }
     }
 
+	std::string Pawn::serialize(std::string) {
+		return "";
+	}
+
+	void Pawn::deserialize(XMLNode*) {
+
+	}
+
 #pragma endregion
 
 #pragma region Audio
