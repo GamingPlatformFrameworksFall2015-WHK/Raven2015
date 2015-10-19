@@ -45,24 +45,43 @@ int main() {
     std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
-    ex::Entity entity1 = game.entities.create();
-	ex::Entity temp = game.entities.create();
-    entity1.assign<Pawn>();
-	temp.assign<BoxCollider>();
-	entity1.component<BoxCollider>()->height = 2.0;
-	entity1.component<BoxCollider>()->width = 2.0;
-	temp.component<BoxCollider>()->height = 2.0;
-	temp.component<BoxCollider>()->width = 2.0;
-	temp.component<Transform>()->transform.x = 50.0f;
-	temp.component<Transform>()->transform.y = 50.0f;
-	entity1.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-	temp.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-    ex::ComponentHandle<rvn::Renderer> renderer = entity1.assign<rvn::Renderer>();
-	ex::ComponentHandle<rvn::Renderer> temprend = temp.assign<rvn::Renderer>();
-    renderer->sprites["BlueDot"].reset(new RenderableSprite(
-        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
-	temprend->sprites["BlueDot"].reset(new RenderableSprite(
+
+	//Create pawn entity that plaer will control
+    ex::Entity pawnEntity = game.entities.create();
+	pawnEntity.assign<Pawn>();
+	pawnEntity.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+	ex::ComponentHandle<rvn::Renderer> pawnRend = pawnEntity.assign<rvn::Renderer>();
+	pawnRend->sprites["BlueDot"].reset(new RenderableSprite(
 		"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+	//Create tracker entity that will follow closest pawn
+	ex::Entity trackerEntity = game.entities.create();
+	trackerEntity.assign<Tracker>();
+	trackerEntity.component<Transform>()->transform.x = 400.0f;
+	trackerEntity.component<Transform>()->transform.y = 5.0f;
+	trackerEntity.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+	ex::ComponentHandle<rvn::Renderer> trackerRend = trackerEntity.assign<rvn::Renderer>();
+	trackerRend->sprites["BlueDot"].reset(new RenderableSprite(
+		"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+	//Create vertical pacer
+	ex::Entity vertPacerEntity = game.entities.create();
+	vertPacerEntity.assign<Pacer>(VERT_PATH, sf::Vector2f(200.0, 200.0), 20.0);
+	vertPacerEntity.component<Transform>()->transform.x = 200.0f;
+	vertPacerEntity.component<Transform>()->transform.y = 200.0f;
+	ex::ComponentHandle<rvn::Renderer> vertPacerRend = vertPacerEntity.assign<rvn::Renderer>();
+	vertPacerRend->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+	//Create horizontal pacer
+	ex::Entity horPacerEntity = game.entities.create();
+	horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0, 500.0), 50.0);
+	horPacerEntity.component<Transform>()->transform.x = 350.0f;
+	horPacerEntity.component<Transform>()->transform.y = 300.0f;
+	ex::ComponentHandle<rvn::Renderer> horPacerRend = horPacerEntity.assign<rvn::Renderer>();
+	horPacerRend->sprites["BlueDot"].reset(new RenderableSprite(
+		"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 100.0));
@@ -132,7 +151,7 @@ int main() {
     int fps = 0;
     while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
 
-        // Calculate FPS based on iterations game loop has completed in 1 second
+        // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
 			efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
             fpsTimer.restart();
@@ -144,22 +163,19 @@ int main() {
 		currentTime = newTime;
 		accumulator += frameTime;
 
-		game.systems.system<GUISystem>()->clear();
-
 		//If we have reached delta time value, update game systems, increment FPS counter,
 		//subtract delta time from accumulator so we don't lose any leftover time,
 		//and clear window to prepare for next display.
 		while (accumulator >= FPS_100_TICK_TIME) {
-			fps++;
 			game.systems.system<GUISystem>()->pollEvents();
-			
+			game.systems.system<GUISystem>()->clear();
 			game.update(frameTime);
+			fps++;
 			accumulator -= FPS_100_TICK_TIME;
 		}
 
 		game.systems.system<GUISystem>()->display();
     }
-
 
     return 0;
 }
