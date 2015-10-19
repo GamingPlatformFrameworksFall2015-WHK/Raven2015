@@ -29,9 +29,11 @@
 #include "RenderingSystem.h"
 #include "GUISystem.h"
 #include "entityx/deps/Dependencies.h"
+#include "Game.h"
 
 using namespace Raven;
 
+/*
 class Game : public ex::EntityX {
 public:
     explicit Game(sf::RenderTarget &target) : Game() {}
@@ -56,6 +58,7 @@ public:
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 };
+*/
 
 int main() {
 

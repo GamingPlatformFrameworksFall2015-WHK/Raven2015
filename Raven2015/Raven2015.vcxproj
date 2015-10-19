@@ -172,6 +172,7 @@
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
     <ClCompile Include="entityx-master\entityx\help\Timer.cc" />
     <ClCompile Include="entityx-master\entityx\System.cc" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GUISystem.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="main.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="entityx\System.h" />
     <ClInclude Include="entityx\tags\TagsComponent.h" />
     <ClInclude Include="EventLibrary.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="GUISystem.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="MovementSystem.h" />
