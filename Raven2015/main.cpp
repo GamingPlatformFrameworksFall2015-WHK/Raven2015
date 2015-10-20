@@ -29,34 +29,9 @@
 #include "RenderingSystem.h"
 #include "GUISystem.h"
 #include "entityx/deps/Dependencies.h"
+#include "Game.h"
 
 using namespace Raven;
-
-class Game : public ex::EntityX {
-public:
-    explicit Game(sf::RenderTarget &target) : Game() {}
-
-    explicit Game() {
-        systems.add<MovementSystem>();  // No dependencies
-        systems.add<AudioSystem>();     // No dependencies
-        systems.add<CollisionSystem>(); // No dependencies
-        systems.add<InputSystem>();     // No dependencies
-        systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
-        systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
-        systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
-		systems.add<ex::deps::Dependency<Pawn, BoxCollider, Rigidbody, Transform>>();
-        systems.configure();
-    }
-
-    void update(ex::TimeDelta dt) {
-        systems.update<InputSystem>(dt);     // process new instructions for entities
-        systems.update<MovementSystem>(dt);  // move entities
-        systems.update<CollisionSystem>(dt); // check whether entities are now colliding
-        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
-        systems.update<GUISystem>(dt);       // update and draw GUI widgets
-    }
-};
 
 int main() {
 
@@ -70,29 +45,53 @@ int main() {
     std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
-    ex::Entity entity1 = game.entities.create();
-	ex::Entity temp = game.entities.create();
-    entity1.assign<Pawn>();
-	temp.assign<BoxCollider>();
-	entity1.component<BoxCollider>()->height = 2.0;
-	entity1.component<BoxCollider>()->width = 2.0;
-	temp.component<BoxCollider>()->height = 2.0;
-	temp.component<BoxCollider>()->width = 2.0;
-	temp.component<Transform>()->transform.x = 50.0f;
-	temp.component<Transform>()->transform.y = 50.0f;
-	entity1.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-	temp.component<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-    ex::ComponentHandle<rvn::Renderer> renderer = entity1.assign<rvn::Renderer>();
-	ex::ComponentHandle<rvn::Renderer> temprend = temp.assign<rvn::Renderer>();
-    renderer->sprites["BlueDot"].reset(new RenderableSprite(
-        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
-	temprend->sprites["BlueDot"].reset(new RenderableSprite(
-		"Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 100.0));
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
         new Animation("Resources/Textures/BlueDot_damaged.png", 4, true));
+
+
+    //Create pawn entity that plaer will control
+    ex::Entity pawnEntity = game.entities.create();
+    pawnEntity.assign<Pawn>();
+    pawnEntity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+    ex::ComponentHandle<rvn::Renderer> pawnRend = pawnEntity.assign<rvn::Renderer>();
+    pawnRend->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+    //Create tracker entity that will follow closest pawn
+    ex::Entity trackerEntity = game.entities.create();
+    trackerEntity.assign<Tracker>();
+    trackerEntity.assign<Transform>()->transform.x = 400.0f;
+    trackerEntity.component<Transform>()->transform.y = 5.0f;
+    trackerEntity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+    ex::ComponentHandle<rvn::Renderer> trackerRend = trackerEntity.assign<rvn::Renderer>();
+    trackerRend->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+    //Create vertical pacer
+    ex::Entity vertPacerEntity = game.entities.create();
+    vertPacerEntity.assign<Pacer>(VERT_PATH, sf::Vector2f(200.0f, 200.0f), 20.0f);
+    vertPacerEntity.assign<Transform>();
+    vertPacerEntity.component<Transform>()->transform.x = 200.0f;
+    vertPacerEntity.component<Transform>()->transform.y = 200.0f;
+    vertPacerEntity.assign<Rigidbody>();
+    ex::ComponentHandle<rvn::Renderer> vertPacerRend = vertPacerEntity.assign<rvn::Renderer>();
+    vertPacerRend->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+
+    //Create horizontal pacer
+    ex::Entity horPacerEntity = game.entities.create();
+    horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0f, 300.0f), 50.0f);
+    horPacerEntity.assign<Transform>();
+    horPacerEntity.component<Transform>()->transform.x = 350.0f;
+    horPacerEntity.component<Transform>()->transform.y = 300.0f;
+    horPacerEntity.assign<Rigidbody>();
+    ex::ComponentHandle<rvn::Renderer> horPacerRend = horPacerEntity.assign<rvn::Renderer>();
+    horPacerRend->sprites["BlueDot"].reset(new RenderableSprite(
+        "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
 
     ex::Entity efps = game.entities.create();
     efps.assign<Transform>(400.0f, 50.0f, 90.0f);
@@ -108,34 +107,6 @@ int main() {
     std::string tab = "";           //The current level of tabbing executed
     const std::string tinc = "  ";  //tab increment length
 
-    // The following code successfully stores the contents of a Transform component into an XMLDocument object
-    xml = "<?xml version=\"1.0\"?>" + EOLN +
-        "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">" + EOLN +
-        "<RAVEN>" + EOLN;
-    xml += efps.component<Transform>()->serialize(tab += tinc);
-    xml += "</RAVEN>";
-    doc.Parse(xml.c_str());
-    doc.Print(&printer);
-    cout << printer.CStr() << endl;
-    /******************************************************************************************/
-
-    // The following code successfully loads a Transform component from the XMLDocument content
-    XMLNode* node = doc.FirstChildElement("RAVEN")->FirstChild();
-    ex::Entity e = game.entities.create();
-
-    e.assign<Transform>();
-    cout << e.component<Transform>()->getElementName() << endl;
-    cout << e.component<Transform>()->transform.x << endl;
-    cout << e.component<Transform>()->transform.y << endl;
-    cout << e.component<Transform>()->rotation << endl;
-
-    e.component<Transform>()->deserialize(node);
-    cout << e.component<Transform>()->getElementName() << endl;
-    cout << e.component<Transform>()->transform.x << endl;
-    cout << e.component<Transform>()->transform.y << endl;
-    cout << e.component<Transform>()->rotation << endl;
-    /*******************************************************************************************/
-
     ex::Entity entity2 = game.entities.create();
     entity2.assign<BoxCollider>();
     entity2.assign<SoundMaker>();
@@ -144,45 +115,44 @@ int main() {
     game.events.emit<AudioEvent>("Resources/Audio/Sounds/choose.ogg", entity2.component<SoundMaker>().get(),
         cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
 
+
+    //std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
     Timer fpsTimer;
-	Timer gameTimer;
-	double currentTime = 0.0;
-	double accumulator = 0.0;
+    Timer gameTimer;
+    double currentTime = 0.0;
+    double accumulator = 0.0;
     int fps = 0;
     while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
 
-        // Calculate FPS based on iterations game loop has completed in 1 second
+        // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
-			efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
+            efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
             fpsTimer.restart();
             fps = 0;
         }
 
-		double newTime = gameTimer.getElapsedTime();
-		double frameTime = newTime - currentTime;
-		currentTime = newTime;
-		accumulator += frameTime;
+        double newTime = gameTimer.getElapsedTime();
+        double frameTime = newTime - currentTime;
+        currentTime = newTime;
+        accumulator += frameTime;
 
-		game.systems.system<GUISystem>()->clear();
+        //If we have reached delta time value, update game systems, increment FPS counter,
+        //subtract delta time from accumulator so we don't lose any leftover time,
+        //and clear window to prepare for next display.
+        while (accumulator >= FPS_100_TICK_TIME) {
+            game.systems.system<GUISystem>()->pollEvents();
+            game.systems.system<GUISystem>()->clear();
+            game.update(frameTime);
+            fps++;
+            accumulator -= FPS_100_TICK_TIME;
+        }
 
-		//If we have reached delta time value, update game systems, increment FPS counter,
-		//subtract delta time from accumulator so we don't lose any leftover time,
-		//and clear window to prepare for next display.
-		while (accumulator >= FPS_100_TICK_TIME) {
-			fps++;
-			game.systems.system<GUISystem>()->pollEvents();
-			
-			game.update(frameTime);
-			accumulator -= FPS_100_TICK_TIME;
-		}
-
-		game.systems.system<GUISystem>()->display();
+        game.systems.system<GUISystem>()->display();
     }
-
 
     return 0;
 }

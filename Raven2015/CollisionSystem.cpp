@@ -47,7 +47,7 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 void CollisionSystem::receive(const CollisionEvent &event) {
 
-	cout << "Collision occurred" << endl;
+	//cout << "Collision occurred" << endl;
 
 	ex::ComponentHandle<Rigidbody> leftRigidbody = event.leftRigidbody;
 	ex::ComponentHandle<Rigidbody> rightRigidbody = event.rightRigidbody;

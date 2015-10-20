@@ -114,6 +114,9 @@
     <ClCompile Include="WidgetLibrary.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -188,9 +191,6 @@
     <ClInclude Include="ComponentLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="EntityLibrary.h">
-      <Filter>Header Files\Libraries</Filter>
-    </ClInclude>
     <ClInclude Include="EventLibrary.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
@@ -199,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="DataAssetLibrary.h">
       <Filter>Header Files\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

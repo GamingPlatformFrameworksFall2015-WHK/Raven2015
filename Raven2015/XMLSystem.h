@@ -3,16 +3,28 @@
 #include "Common.h"
 #include "entityx/System.h"
 #include "ComponentLibrary.h"
+#include "EventLibrary.h"
 #include <map>
 
 namespace Raven {
 
-    class XMLSystem :
-        public ex::System<XMLSystem>
-    {
+    class XMLSystem : public ex::System<XMLSystem>, public ex::Receiver<XMLSystem> {
     public:
-        XMLSystem(std::shared_ptr<ex::EntityManager> e);
+        XMLSystem();
         ~XMLSystem();
+
+        // Does nothing
+        void update(ex::EntityManager &es, ex::EventManager &events,
+            ex::TimeDelta dt) override {}
+
+        void receive(const XMLLoadEvent& e);
+        void receive(const XMLSaveEvent& e);
+
+        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
+
+        XMLDocument doc;
+
+        static const std::string xmlFileName;
 
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
@@ -39,6 +51,7 @@ namespace Raven {
         // Essentially maps a level name to a set of named entities that may or may not be prefabs
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
+    private:
         std::string serializeTextureFilePathSet(std::string tab);
         std::string serializeMusicFilePathSet(std::string tab);
         std::string serializeSoundFilePathSet(std::string tab);
@@ -63,13 +76,11 @@ namespace Raven {
         void deserializePrefabMap(XMLNode* node);
         void deserializeLevelMap(XMLNode* node);
 
+        std::string serializeRavenGame();
+        void deserializeRavenGame();
+
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
-
-        std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
-
-        std::shared_ptr<ex::EntityManager> entities;
-
     };
 
 }

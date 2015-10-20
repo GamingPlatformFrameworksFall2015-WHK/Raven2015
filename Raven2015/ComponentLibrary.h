@@ -26,7 +26,7 @@
 
 namespace Raven {
 
-	// Helper macros /*************************************************************************************************/
+    // Helper macros /*************************************************************************************************/
 #define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
 #define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
 /******************************************************************************************************************/
@@ -34,9 +34,9 @@ namespace Raven {
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, Pawn##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, Pawn##_t, Tracker##_t, Pacer##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, Pawn, SoundMaker, MusicMaker, Renderer, TimeTable
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, Pawn, Tracker, Pacer, SoundMaker, MusicMaker, Renderer, TimeTable
 // Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
 // Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
 #define COMPONENTS_OF_ENTITY(e) \
@@ -44,7 +44,9 @@ namespace Raven {
             *e.component<Transform>().get(), \
             *e.component<Rigidbody>().get(), \
             *e.component<BoxCollider>().get(), \
-			*e.component<Pawn>().get(), \
+            *e.component<Pawn>().get(), \
+            *e.component<Tracker>().get(), \
+            *e.component<Pacer>().get(), \
             *e.component<SoundMaker>().get(), \
             *e.component<MusicMaker>().get(), \
             *e.component<Renderer>().get(), \
@@ -55,7 +57,9 @@ namespace Raven {
             SERIALIZE_COMPONENT(Transform, e, str); \
             SERIALIZE_COMPONENT(Rigidbody, e, str); \
             SERIALIZE_COMPONENT(BoxCollider, e, str); \
-			SERIALIZE_COMPONENT(Pawn, e, str); \
+            SERIALIZE_COMPONENT(Pawn, e, str); \
+            SERIALIZE_COMPONENT(Tracker, e, str); \
+            SERIALIZE_COMPONENT(Pacer, e, str); \
             SERIALIZE_COMPONENT(SoundMaker, e, str); \
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
@@ -66,7 +70,9 @@ namespace Raven {
             DESERIALIZE_COMPONENT(Transform, e, node); \
             DESERIALIZE_COMPONENT(Rigidbody, e, node); \
             DESERIALIZE_COMPONENT(BoxCollider, e, node); \
-			DESERIALIZE_COMPONENT(Pawn, e, node); \
+            DESERIALIZE_COMPONENT(Pawn, e, node); \
+            DESERIALIZE_COMPONENT(Tracker, e, node); \
+            DESERIALIZE_COMPONENT(Pacer, e, node); \
             DESERIALIZE_COMPONENT(SoundMaker, e, node); \
             DESERIALIZE_COMPONENT(MusicMaker, e, node); \
             DESERIALIZE_COMPONENT(Renderer, e, node); \
@@ -238,19 +244,85 @@ namespace Raven {
         ADD_STATICS(BoxCollider);
     };
 
-	// A component enabling a passive physical state. Required for placement.
-	struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+    // An abstract component used to classify player objects
+    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pawn() {}
 
-		// Default constructor. All fields initialzied to zero
-		Pawn() {}
+        // Copy Constructor
+        Pawn(const Pawn& other)  {}
 
-		// Copy Constructor
-		Pawn(const Pawn& other)  {}
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pawn);
+    };
 
-		virtual std::string serialize(std::string tab) override;
-		virtual void deserialize(XMLNode* node) override;
-		ADD_STATICS(Pawn);
-	};
+    // An abstract component used to classify AI objects
+    // Tracker will follow closest pawn (player) object
+    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
+        // Creates new instance of struct
+        Tracker() {}
+
+        // Copy Constructor
+        Tracker(const Tracker& other) {}
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Tracker);
+    };
+
+    // An abstract component used to classify AI objects
+    // Pacer will continuously pace with a horizontal(HOR_PATH),
+    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
+    // movement radius.
+    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+            : direction(direction), origin(origin), radius(radius) {
+
+            // Vertical path will only have a velocity in the y direction
+            if (direction == VERT_PATH) {
+                velocity.x = 0.f;
+                velocity.y = 0.1f;
+            }
+            // Horizontal path will only have velocity in the x direction
+            else if (direction == HOR_PATH) {
+                velocity.x = 0.1f;
+                velocity.y = 0.f;
+            }
+            // Diagonal path will have both x and y velocities
+            else {
+                velocity.x = 0.1f;
+                velocity.y = 0.1f;
+            }
+        }
+
+        // Copy Constructor
+        Pacer(const Pacer& other) {
+            direction = other.direction;
+            velocity = other.velocity;
+        }
+
+        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
+        std::string direction;
+
+        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
+        sf::Vector2f velocity;
+
+        // Center point of pacer's path
+        sf::Vector2f origin;
+
+        // Distance out in either direction that pacer willtravel from its center point
+        float radius;
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pacer);
+    };
+    
 
 #pragma endregion
 

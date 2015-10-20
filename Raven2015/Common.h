@@ -9,6 +9,14 @@
 #define SOUNDMAP_T std::map<std::string, std::shared_ptr<sf::SoundBuffer>>
 #define MUSICMAP_T std::map<std::string, std::shared_ptr<sf::Music>>
 #define NO_ACTION_STR "NO ACTION"
+#define HOR_PATH "Horizontal"
+#define VERT_PATH "Vertical"
+#define DIAG_PATH "Diagonal"
+
+
+// CollisionLayerSettings
+#define COLLISION_LAYER_SETTINGS_SOLID "Solid"
+#define COLLISION_LAYER_SETTINGS_FIXED "Fixed"
 
 
 // CollisionLayerSettings
@@ -30,6 +38,8 @@ using namespace tinyxml2;
 namespace ex = entityx;
 
 namespace Raven {
+
+    class Game;
 
     namespace Common {
 
@@ -120,6 +130,10 @@ namespace Raven {
             static const std::set<std::string> settings;
 
         };
+
+        extern ex::EntityManager* entities;
+        extern ex::EventManager* events;
+        extern Game* game;
     };
 
 }

@@ -120,13 +120,29 @@ namespace Raven {
         }
     }
 
-	std::string Pawn::serialize(std::string) {
-		return "";
-	}
+    std::string Pawn::serialize(std::string) {
+        return "";
+    }
 
-	void Pawn::deserialize(XMLNode*) {
+    void Pawn::deserialize(XMLNode*) {
 
-	}
+    }
+
+    std::string Tracker::serialize(std::string) {
+        return "";
+    }
+
+    void Tracker::deserialize(XMLNode*) {
+
+    }
+
+    std::string Pacer::serialize(std::string) {
+        return "";
+    }
+
+    void Pacer::deserialize(XMLNode*) {
+
+    }
 
 #pragma endregion
 

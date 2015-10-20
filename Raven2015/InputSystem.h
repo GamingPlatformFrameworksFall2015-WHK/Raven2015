@@ -26,7 +26,7 @@ namespace Raven {
         //Perform initializations
         explicit InputSystem() {
             movementThresX = 0.0;
-			movementThresY = 0.0;
+            movementThresY = 0.0;
             key = "";
             read_file(CONFIG);
         }
@@ -65,16 +65,18 @@ namespace Raven {
             { sf::Keyboard::Right,	"move_right" },
             { sf::Keyboard::Up,		"move_up" },
             { sf::Keyboard::Down,	"move_down" },
-            { sf::Keyboard::Escape, "exit" }
+            { sf::Keyboard::Escape, "exit" },
+			{ sf::Keyboard::Tilde,	"switch_mode" }
         };
 
         std::map<sf::Mouse::Button, std::string> mouse_map{
             { sf::Mouse::Button::Left,	"left_click"},
         };
 
-        double movementThresX;
-		double movementThresY;
+        float movementThresX;
+        float movementThresY;
         std::string key;
+		bool editMode = true;
 
         void insert_input(sf::Keyboard::Key key, std::string action);
 

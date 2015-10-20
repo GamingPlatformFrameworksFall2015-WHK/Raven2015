@@ -184,6 +184,7 @@ namespace Raven {
         void GUISystem::sceneHierachyButton(Button::Ptr clickedButton);
         void canvasClickHandler();
         Label::Ptr currentBrush = Label::Create("Create");
+
     };
 
 }

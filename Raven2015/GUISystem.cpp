@@ -186,7 +186,7 @@ namespace Raven {
     // Format the Sound List widget
     SOUND_LIST_WTYPE_SPTR GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
         sl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
-
+        
         sl->AddWithViewport(ButtonList::Create());
         
         return sl;
@@ -266,18 +266,33 @@ namespace Raven {
         return t;
     }
 
-    void GUISystem::brushToolbarButtonClick(sfg::Button::Ptr clickedButton) {
+    void GUISystem::brushToolbarButtonClick(Button::Ptr clickedButton) {
         cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
         currentBrush->SetText(clickedButton->GetLabel().toAnsiString());
     }
 
     void GUISystem::canvasClickHandler() {
         sf::Vector2i position = sf::Mouse::getPosition();
-        cout << currentBrush->GetText().toAnsiString() << " at " << position.x << " " << position.y << endl;
+        //cout << getCanvas()->GetAbsolutePosition().x << " " << getCanvas()->GetAbsolutePosition().y << endl;
+        if (currentBrush->GetText().toAnsiString() == "Create") {
+            ex::Entity entity = cmn::entities->create();
+            entity.assign<Tracker>();
+            entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+            entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
+            //entity.assign<Transform>()->transform.x = getCanvas()->GetAbsolutePosition().x - (float)position.x;
+            //entity.component<Transform>()->transform.y = getCanvas()->GetAbsolutePosition().y - (float)position.y;
+            cout << "Created entity" << endl;
+            ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
+            renderer->sprites["BlueDot"].reset(new RenderableSprite(
+                "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+        }
     }
 
-    void GUISystem::sceneHierachyButton(sfg::Button::Ptr clickedButton) {
+    void GUISystem::sceneHierachyButton(Button::Ptr clickedButton) {
         cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
         //change things in the entity designer and display things according to the
         //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
     }

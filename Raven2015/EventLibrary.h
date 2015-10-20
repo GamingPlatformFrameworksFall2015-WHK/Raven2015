@@ -139,5 +139,17 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region XMLEvents
+
+    struct XMLLoadEvent : public ex::Event<XMLLoadEvent> {
+        XMLLoadEvent() {}
+    };
+
+    struct XMLSaveEvent : public ex::Event<XMLSaveEvent> {
+        XMLSaveEvent() {}
+    };
+
+#pragma endregion
+
 
 }
