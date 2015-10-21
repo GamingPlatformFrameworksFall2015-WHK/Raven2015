@@ -130,46 +130,54 @@ namespace Raven {
     // auto buttonList = ButtonList::Create();
     // ButtonList::appendButton(buttonList, "My Button Label");
     // 
-    class ButtonList {
+    template <typename W> // where W is a type of Widget to be embedded in the List items
+    class WidgetList {
     public:
-
-        static void insertButton(BUTTON_LIST_WTYPE_SPTR type, size_t position, std::string labelName) {
-            appendButton(type, labelName);
+        static void insertWidget(Box::Ptr type, size_t position, std::string labelName) {
+            appendWidget(type, labelName);
             type->ReorderChild(type->GetChildren().back(), position);
         }
 
-        static void appendButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackEnd(makeButtonBox(labelName), true, true);
+        static void appendWidget(Box::Ptr type, std::string labelName) {
+            type->PackEnd(makeWidgetBox(labelName), true, true);
         }
 
-        static void prependButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackStart(makeButtonBox(labelName), true, true);
+        static void prependWidget(Box::Ptr type, std::string labelName) {
+            type->PackStart(makeWidgetBox(labelName), true, true);
         }
 
-        static void removeButton(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
+        static void removeWidget(Box::Ptr type, size_t position) {
             type->Remove(type->GetChildren()[position]);
         }
 
-        static BUTTON_LIST_WTYPE_SPTR getButtonBox(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
-            return WIDGET_CAST(type->GetChildren()[position], BUTTON_LIST_WTYPE);
+        static void sortList(Box::Ptr type) {
+
         }
 
-        static size_t length(BUTTON_LIST_WTYPE_SPTR type) {
+        static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
+            return (Box::Ptr) type->GetChildren()[position];
+        }
+
+        static size_t length(Box::Ptr type) {
             return type->GetChildren().size();
         }
 
-        static BUTTON_LIST_WTYPE_SPTR Create() {
-            return BUTTON_LIST_WTYPE::Create(BUTTON_LIST_WTYPE::Orientation::VERTICAL);
+        static Box::Ptr Create() {
+            return Box::Create(Box::Orientation::VERTICAL);
         }
 
     private:
-        ButtonList();
+        WidgetList(); //Cannot be instantiated
 
-        static SPTR(Box) makeButtonBox(std::string labelName) {
-            auto type = Box::Create(Box::Orientation::HORIZONTAL);
-            auto button = Button::Create(labelName);
-            type->Pack(button, true, false);
-            return type;
+        static SPTR(Box) makeWidgetBox(std::string labelName) {
+            auto box = Box::Create(Box::Orientation::HORIZONTAL);
+            auto widget = W::Create(labelName);
+            box->Pack(widget, true, false);
+            return box;
+        }
+
+        static int compareWidgets(W first, W second) {
+            return 0;
         }
     };
 
