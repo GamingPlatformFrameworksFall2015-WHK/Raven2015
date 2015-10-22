@@ -114,7 +114,7 @@ int main() {
         cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_PLAY, cmn::EAudioLoop::LOOP_UNCHANGED);
 
 
-	//std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
+    //std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
 
     cout << "Starting game loop..." << endl;

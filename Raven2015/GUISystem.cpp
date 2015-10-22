@@ -259,7 +259,7 @@ namespace Raven {
         brushList->Pack(moveBrush, true, true);
         t->Pack(currentBrush);
         t->Pack(brushList);
-
+        
         return t;
     }
 
