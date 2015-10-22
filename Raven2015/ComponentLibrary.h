@@ -247,10 +247,45 @@ namespace Raven {
     // An abstract component used to classify player objects
     struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
         // Creates new instance of struct
-        Pawn() {}
+        Pawn() : playerId(initId()) {
+            if (playerId == -1) {
+                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
+                    " This Pawn will not respond to input." << endl;
+            }
+            else {
+                Pawn::ids.set(playerId);
+            }
+        }
+
+        Pawn(int playerId) {
+            if (!ids.test(playerId)) {
+                this->playerId = playerId;
+                ids.set(playerId);
+            }
+            else {
+                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
+                    " to the given entity." << endl;
+                int i = Pawn::initId();
+                if (i == -1) {
+                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
+                }
+                else {
+                    playerId = i;
+                    Pawn::ids.set(i);
+                }
+            }
+        }
 
         // Copy Constructor
         Pawn(const Pawn& other)  {}
+
+        ~Pawn() { ids.reset(playerId); }
+
+        int playerId;
+
+        static std::bitset<4> ids;
+
+        static int initId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
 
         //Serialization and deserialization for edit/play mode
         virtual std::string serialize(std::string tab) override;

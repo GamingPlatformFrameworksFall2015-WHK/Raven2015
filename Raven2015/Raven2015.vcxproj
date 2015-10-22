@@ -167,6 +167,7 @@
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="ComponentLibrary.cpp" />
+    <ClCompile Include="EntityLibrary.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
     <ClCompile Include="entityx-master\entityx\help\Pool.cc" />
@@ -189,6 +190,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="ComponentLibrary.h" />
     <ClInclude Include="DataAssetLibrary.h" />
+    <ClInclude Include="EntityLibrary.h" />
     <ClInclude Include="entityx\3rdparty\catch.hpp" />
     <ClInclude Include="entityx\3rdparty\simplesignal.h" />
     <ClInclude Include="entityx\config.h" />

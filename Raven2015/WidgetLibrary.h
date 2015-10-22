@@ -1,6 +1,7 @@
 #pragma once
 #include "Common.h"
 #include "SFGUI/Widgets.hpp"
+#include <algorithm>
 
 using namespace sfg;
 
@@ -111,7 +112,7 @@ namespace Raven {
     // treat custom Widgets more like how the algorithms of <algorithm> work, taking a container
     // as a parameter rather than operating from a particular container instance.
     // 
-    // Each class should have all static functions, no non-static member variables, a 
+    // Each "class" should have all static functions, no non-static member variables, a 
     // private constructor (so instances cannot be made), and a creation function:
     // static [top-level widget type here] Create() {...}
     // ...where [top-level widget type] is a type deriving from Widget
@@ -130,46 +131,80 @@ namespace Raven {
     // auto buttonList = ButtonList::Create();
     // ButtonList::appendButton(buttonList, "My Button Label");
     // 
-    class ButtonList {
+    template <typename... Args> // where W is the types of Widgets to be embedded in the List items
+    class WidgetList {
     public:
-
-        static void insertButton(BUTTON_LIST_WTYPE_SPTR type, size_t position, std::string labelName) {
-            appendButton(type, labelName);
+        static void insertWidget(Box::Ptr type, size_t position, std::string labelName) {
+            appendWidget(type, labelName);
             type->ReorderChild(type->GetChildren().back(), position);
+            //sortList(type);
         }
 
-        static void appendButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackEnd(makeButtonBox(labelName), true, true);
+        static void appendWidget(Box::Ptr type, std::string labelName) {
+            type->PackEnd(makeWidgetBox<Args>(labelName), true, true);
+            //sortList(type);
         }
 
-        static void prependButton(BUTTON_LIST_WTYPE_SPTR type, std::string labelName) {
-            type->PackStart(makeButtonBox(labelName), true, true);
+        static void prependWidget(Box::Ptr type, std::string labelName) {
+            type->PackStart(makeWidgetBox<Args>(labelName), true, true);
+            //sortList(type);
         }
 
-        static void removeButton(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
+        static void removeWidget(Box::Ptr type, size_t position) {
             type->Remove(type->GetChildren()[position]);
+            //sortList(type);
         }
 
-        static BUTTON_LIST_WTYPE_SPTR getButtonBox(BUTTON_LIST_WTYPE_SPTR type, size_t position) {
-            return WIDGET_CAST(type->GetChildren()[position], BUTTON_LIST_WTYPE);
+        static void sortList(Box::Ptr type) {
+            std::sort(type->GetChildren().begin(), type->GetChildren().end(), compareWidgets);
         }
 
-        static size_t length(BUTTON_LIST_WTYPE_SPTR type) {
+        static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
+            return (Box::Ptr) type->GetChildren()[position];
+        }
+
+        static size_t length(Box::Ptr type) {
             return type->GetChildren().size();
         }
 
-        static BUTTON_LIST_WTYPE_SPTR Create() {
-            return BUTTON_LIST_WTYPE::Create(BUTTON_LIST_WTYPE::Orientation::VERTICAL);
+        static Box::Ptr Create() {
+            return Box::Create(Box::Orientation::VERTICAL);
         }
 
     private:
-        ButtonList();
+        WidgetList(); //Cannot be instantiated
 
-        static SPTR(Box) makeButtonBox(std::string labelName) {
-            auto type = Box::Create(Box::Orientation::HORIZONTAL);
-            auto button = Button::Create(labelName);
-            type->Pack(button, true, false);
-            return type;
+        static unsigned int counter;
+
+        // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
+        template <typename W>
+        static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr) {
+            if (!box) {
+                box = Box::Create(Box::Orientation::HORIZONTAL);
+            }
+            auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
+            box->Pack(widget, true, false);
+            Box::Ptr finalBox = box; // save the address of the box
+            counter = 0; //set our counter to 0 for the next makeWidget call
+            box = nullptr; // ensure that box starts out as null for the next 
+            return finalBox;
+        }
+
+        // Recursive case for recursive parameter pack widget box creation. Should be called initially with just the labelName
+        // Example:
+        // Box::Ptr myBoxWithALabelAndAButton = makeWidgetBox<Label, Button>("MyAwesomeBox");
+        template <typename W, typename... Widgets>
+        static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr) {
+            if (!box) {
+                box = Box::Create(Box::Orientation::HORIZONTAL);
+            }
+            auto widget = W::Create(labelName + "Item " + std::to_string(counter++));
+            box->Pack(widget, true, false);
+            return makeWidgetBox<Widgets>(labelName, box);
+        }
+
+        static bool compareWidgets(Box::Ptr first, Box::Ptr second) {
+            return first->GetChildren().front()->getName() < second->GetChildren().front()->getName() ? true : false;
         }
     };
 

@@ -160,7 +160,7 @@ namespace Raven {
     COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl) {
         cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        cl->AddWithViewport(ButtonList::Create());
+        //cl->AddWithViewport(ButtonList::Create());
 
         return cl;
     }
@@ -169,7 +169,7 @@ namespace Raven {
     TEXTURE_LIST_WTYPE_SPTR GUISystem::formatTextureList(TEXTURE_LIST_WTYPE_SPTR tl) {
         tl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        tl->AddWithViewport(ButtonList::Create());
+        //tl->AddWithViewport(ButtonList::Create());
         
         return tl;
     }
@@ -178,7 +178,7 @@ namespace Raven {
     MUSIC_LIST_WTYPE_SPTR GUISystem::formatMusicList(MUSIC_LIST_WTYPE_SPTR ml) {
         ml->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        ml->AddWithViewport(ButtonList::Create());
+        //ml->AddWithViewport(ButtonList::Create());
         
         return ml;
     }
@@ -187,7 +187,7 @@ namespace Raven {
     SOUND_LIST_WTYPE_SPTR GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
         sl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
         
-        sl->AddWithViewport(ButtonList::Create());
+        //sl->AddWithViewport(ButtonList::Create());
         
         return sl;
     }
@@ -196,7 +196,7 @@ namespace Raven {
     FONT_LIST_WTYPE_SPTR GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
         fl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        fl->AddWithViewport(ButtonList::Create());
+        //fl->AddWithViewport(ButtonList::Create());
         
         return fl;
     }
@@ -230,7 +230,7 @@ namespace Raven {
     PREFAB_LIST_WTYPE_SPTR GUISystem::formatPrefabList(PREFAB_LIST_WTYPE_SPTR pl) {
         pl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        pl->AddWithViewport(ButtonList::Create());
+        //pl->AddWithViewport(ButtonList::Create());
 
         return pl;
     }
@@ -253,16 +253,13 @@ namespace Raven {
         deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, deleteBrush));
         auto moveBrush = Button::Create("Move");
         moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, moveBrush));
-        auto toggleGridTracking = CheckButton::Create("Grid Tracking Enabled");
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
         brushList->Pack(deleteBrush, true, true);
         brushList->Pack(moveBrush, true, true);
-        brushList->Pack(Label::Create("   "), true, true); // For the next toggle's padding
-        brushList->Pack(toggleGridTracking, true, true);
         t->Pack(currentBrush);
         t->Pack(brushList);
-
+        
         return t;
     }
 
