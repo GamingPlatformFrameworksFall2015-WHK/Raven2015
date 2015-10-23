@@ -11,6 +11,7 @@
 #include "RenderingSystem.h"
 #include "XMLSystem.h"
 #include "entityx/deps/Dependencies.h"
+#include "EntityLibrary.h"
 
 namespace Raven {
 
@@ -71,7 +72,7 @@ namespace Raven {
             return nullptr;
         }
         else {
-            ComponentLibrary::copyEntity(*e, *map[prefabName]);
+            EntityLibrary::copyEntity(*e, *map[prefabName]);
             e->component<Data>()->name = name;
             systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(name, e));
             return e;

@@ -1,10 +1,77 @@
 #include "XMLSystem.h"
+#include "EntityLibrary.h"
 
 namespace Raven {
 
     XMLSystem::XMLSystem() {}
 
     XMLSystem::~XMLSystem() {}
+
+    const std::string XMLSystem::xmlFileName = "raven.xml";
+
+#pragma region Raven Game Serialization
+
+    std::string XMLSystem::serializeRavenGame() {
+        return "<?xml version=\"1.0\"?>\r\n"
+            "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
+            "<RAVEN>\r\n"
+            "  <Assets>\r\n" +
+            serializeTextureFilePathSet("    ") +
+            serializeMusicFilePathSet("    ") +
+            serializeSoundFilePathSet("    ") +
+            serializeFontFilePathSet("    ") +
+            serializeAnimationMap("    ") +
+            "    <Renderables>\r\n" +
+            serializeRenderableTextMap("      ") +
+            serializeRenderableRectangleMap("      ") +
+            serializeRenderableCircleMap("      ") +
+            serializeRenderableSpriteMap("      ") +
+            "    </Renderables>\r\n"
+            "  </Assets>\r\n" +
+            serializePrefabMap("  ") +
+            serializeLevelMap("  ") +
+            "</RAVEN>\r\n";
+    }
+
+    void XMLSystem::deserializeRavenGame() {
+        XMLElement* raven = doc.FirstChildElement("RAVEN");
+        XMLElement* assets = raven->FirstChildElement("Assets");
+        deserializeTextureFilePathSet(assets->FirstChildElement("Textures"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Music"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Sounds"));
+        deserializeTextureFilePathSet(assets->FirstChildElement("Fonts"));
+        deserializeAnimationMap(assets->FirstChildElement("Animations"));
+        XMLElement* renderables = assets->FirstChildElement("Renderables");
+        deserializeRenderableTextMap(renderables->FirstChildElement("RenderableTexts"));
+        deserializeRenderableRectangleMap(renderables->FirstChildElement("RenderableRectangles"));
+        deserializeRenderableCircleMap(renderables->FirstChildElement("RenderableCircles"));
+        deserializeRenderableSpriteMap(renderables->FirstChildElement("RenderableSprites"));
+        deserializePrefabMap(raven->FirstChildElement("Prefabs"));
+        deserializeLevelMap(raven->FirstChildElement("Levels"));
+    }
+
+#pragma endregion
+
+#pragma region Entity Serialization
+
+    std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab) {
+        std::string str =
+            tab + "<Entity>\r\n";
+        std::string tempTab = tab;  // save tab
+        tab += "  ";                // increment tab
+        SERIALIZE_COMPONENTS(e, str)// process components
+        tab = tempTab;              // reinstate tab
+        return str +=
+            tab + "</Entity>\r\n";
+    }
+
+    void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node) {
+        DESERIALIZE_COMPONENTS(e, node)
+    }
+
+#pragma endregion
+
+#pragma region Serialization Events
 
     void XMLSystem::receive(const XMLLoadEvent& e) {
         doc.LoadFile(xmlFileName.c_str());
@@ -16,7 +83,7 @@ namespace Raven {
         doc.SaveFile(xmlFileName.c_str());
     }
 
-    const std::string XMLSystem::xmlFileName = "raven.xml";
+#pragma endregion
 
 #pragma region Serialization
 
@@ -129,7 +196,7 @@ namespace Raven {
         std::string prefabMapContent = "";
         for (auto item : prefabMap) {
             prefabMapContent +=
-                ComponentLibrary::serializeEntity(*item.second, tab + "  ");
+                serializeEntity(*item.second, tab + "  ");
         }
         return
             tab + "<Prefabs>\r\n" +
@@ -156,7 +223,7 @@ namespace Raven {
                 }
                 // Else, if we need to store its information, serialize each of its components
                 else {
-                    levelMapContent += ComponentLibrary::serializeEntity(*name_entity.second, tab + "    ");
+                    levelMapContent += serializeEntity(*name_entity.second, tab + "    ");
                 }
             }
 
@@ -316,7 +383,7 @@ namespace Raven {
         XMLElement* elem = node->FirstChildElement("Entity");
         while (elem) {
             std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
-            ComponentLibrary::deserializeEntity(*entity, elem);
+            XMLSystem::deserializeEntity(*entity, elem);
             prefabMap.insert(std::make_pair(entity->component<Data>()->name, entity));
             elem = elem->NextSiblingElement("Entity");
         }
@@ -331,10 +398,10 @@ namespace Raven {
                 std::string prefabName = item->FirstChildElement("PrefabName")->GetText();
                 std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
                 if (prefabName == "") {
-                    ComponentLibrary::deserializeEntity(*entity, item->FirstChildElement("Entity"));
+                    XMLSystem::deserializeEntity(*entity, item->FirstChildElement("Entity"));
                 }
                 else {
-                    ComponentLibrary::copyEntity(*entity, *prefabMap[prefabName]);
+                    EntityLibrary::copyEntity(*entity, *prefabMap[prefabName]);
                 }
                 levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
                 levelMap[levelName].insert(std::make_pair(entity->component<Data>()->name, entity));
@@ -342,49 +409,6 @@ namespace Raven {
             }
             lnode = lnode->NextSiblingElement("Level");
         }
-    }
-
-#pragma endregion
-
-#pragma region Raven Game Serialization
-
-    std::string XMLSystem::serializeRavenGame() {
-        return "<?xml version=\"1.0\"?>\r\n"
-            "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
-            "<RAVEN>\r\n"
-            "  <Assets>\r\n" +
-            serializeTextureFilePathSet("    ") +
-            serializeMusicFilePathSet("    ") +
-            serializeSoundFilePathSet("    ") +
-            serializeFontFilePathSet("    ") +
-            serializeAnimationMap("    ") +
-            "    <Renderables>\r\n" +
-            serializeRenderableTextMap("      ") +
-            serializeRenderableRectangleMap("      ") +
-            serializeRenderableCircleMap("      ") +
-            serializeRenderableSpriteMap("      ") +
-            "    </Renderables>\r\n"
-            "  </Assets>\r\n" +
-            serializePrefabMap("  ") +
-            serializeLevelMap("  ") +
-            "</RAVEN>\r\n";
-    }
-
-    void XMLSystem::deserializeRavenGame() {
-        XMLElement* raven = doc.FirstChildElement("RAVEN");
-        XMLElement* assets = raven->FirstChildElement("Assets");
-        deserializeTextureFilePathSet(assets->FirstChildElement("Textures"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Music"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Sounds"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Fonts"));
-        deserializeAnimationMap(assets->FirstChildElement("Animations"));
-        XMLElement* renderables = assets->FirstChildElement("Renderables");
-        deserializeRenderableTextMap(renderables->FirstChildElement("RenderableTexts"));
-        deserializeRenderableRectangleMap(renderables->FirstChildElement("RenderableRectangles"));
-        deserializeRenderableCircleMap(renderables->FirstChildElement("RenderableCircles"));
-        deserializeRenderableSpriteMap(renderables->FirstChildElement("RenderableSprites"));
-        deserializePrefabMap(raven->FirstChildElement("Prefabs"));
-        deserializeLevelMap(raven->FirstChildElement("Levels"));
     }
 
 #pragma endregion
@@ -401,7 +425,6 @@ namespace Raven {
         }
     }
 
-#pragma endregion
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";
