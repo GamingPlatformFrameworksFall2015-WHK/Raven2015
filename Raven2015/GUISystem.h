@@ -114,10 +114,6 @@ namespace Raven {
         template <class T>
         std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
 
-        // Makes a GUI widget, but without giving it a name / storing it in the WidgetMap. For when you don't need direct access.
-        template <class T>
-        std::shared_ptr<T> makeWidget();
-
         // Format the Master Table widget
         //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
@@ -173,6 +169,8 @@ namespace Raven {
 
         // A pointer to the table organizing the content in the mainGUIWindow
         std::shared_ptr<Table> table;
+
+        
 
         // A mapping between widget names and their shared pointers
         std::map <std::string, std::shared_ptr<Widget>> widgetMap;

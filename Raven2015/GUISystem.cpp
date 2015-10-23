@@ -56,7 +56,7 @@ namespace Raven {
         auto canvas = formatCanvas(makeWidget<CANVAS_WTYPE>(TO_STR(CANVAS_WTYPE), CANVAS_NAME));
         auto sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME));
         auto content = formatContent(makeWidget<CONTENT_WTYPE>(TO_STR(CONTENT_WTYPE), CONTENT_NAME));
-        auto toolbar = formatToolbar(makeWidget<TOOLBAR_WTYPE>(TO_STR(TOOLBAR_WTYPE), TOOLBAR_NAME));
+        auto toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
         auto entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME));
         auto prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME));
         
@@ -68,6 +68,8 @@ namespace Raven {
         table->Attach(toolbar, sf::Rect<sf::Uint32>(1, 4, 3, 1), all, all);
         table->Attach(content, sf::Rect<sf::Uint32>(0, 5, 2, 2), all, all);
         table->Attach(entityDesigner, sf::Rect<sf::Uint32>(2, 5, 3, 2), all, all);
+        /* By this point, All top-level widget panels (i.e. stuff in the table) should have 5 instances within this scope */
+
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
     }
@@ -78,16 +80,6 @@ namespace Raven {
         std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
         widgetMap.insert(std::make_pair(widgetName, widget));
-        // Add it to the desktop so that it will be updated
-        desktop->Add(widget); 
-        // Return the factory-generated widget pointer
-        return widget;
-    }
-
-    template <class T>
-    std::shared_ptr<T> GUISystem::makeWidget() {
-        // Create an instance <- works because all Widgets have a static Create() factory method
-        std::shared_ptr<T> widget(T::Create());
         // Add it to the desktop so that it will be updated
         desktop->Add(widget); 
         // Return the factory-generated widget pointer
@@ -244,7 +236,8 @@ namespace Raven {
     // Format the Toolbar widget
     TOOLBAR_WTYPE_SPTR GUISystem::formatToolbar(TOOLBAR_WTYPE_SPTR t) {
 
-        t = Box::Create(Box::Orientation::VERTICAL);
+        widgetMap.insert(std::make_pair(TOOLBAR_NAME, t));
+        desktop->Add(t);
         auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
@@ -270,7 +263,9 @@ namespace Raven {
 
     void GUISystem::canvasClickHandler() {
         sf::Vector2i position = sf::Mouse::getPosition();
-        //cout << getCanvas()->GetAbsolutePosition().x << " " << getCanvas()->GetAbsolutePosition().y << endl;
+        //std::shared_ptr<Canvas> c((Canvas*)(widgetMap["Canvas"].get()));
+        //cout << c->GetAbsolutePosition().x << " " << c->GetAbsolutePosition().y << endl;
+        //cout << "Current Canvas Use_Count: " << widgetMap["Canvas"].use_count() << endl;
         if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = cmn::entities->create();
             entity.assign<Tracker>();

@@ -48,9 +48,9 @@ int main() {
 
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
-        new Animation("Resources/Textures/BlueDot_vibrating.png", 2, true, 100.0));
-    game.systems.system<RenderingSystem>()->registerAnimation("BlueDotDamaged",
-        new Animation("Resources/Textures/BlueDot_damaged.png", 4, true));
+        new Animation("Resources/Textures/BlueDot_vibrating.png", 4, true, 100.0));
+    game.systems.system<RenderingSystem>()->registerAnimation("Bomb",
+        new Animation("Resources/Textures/Circle_Flashing_YellowOrangeRed.png", 4, true));
 
 
     //Create pawn entity that plaer will control
@@ -144,7 +144,8 @@ int main() {
         while (accumulator >= FPS_100_TICK_TIME) {
             game.systems.system<GUISystem>()->pollEvents();
             game.systems.system<GUISystem>()->clear();
-            game.update(frameTime);
+            //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
+            game.updateGameMode(frameTime);
             fps++;
             accumulator -= FPS_100_TICK_TIME;
         }

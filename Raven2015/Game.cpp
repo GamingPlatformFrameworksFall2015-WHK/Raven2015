@@ -19,7 +19,7 @@ namespace Raven {
 
     }
 
-    Game::Game() {
+    Game::Game() : editMode(true) {
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
@@ -36,10 +36,15 @@ namespace Raven {
         cmn::game = this;
     }
 
-    void Game::update(ex::TimeDelta dt) {
+    void Game::updateGameMode(ex::TimeDelta dt) {
         systems.update<InputSystem>(dt);     // process new instructions for entities
         systems.update<MovementSystem>(dt);  // move entities
         systems.update<CollisionSystem>(dt); // check whether entities are now colliding
+        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
+        systems.update<GUISystem>(dt);       // update and draw GUI widgets
+    }
+
+    void Game::updateEditMode(ex::TimeDelta dt) {
         systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
