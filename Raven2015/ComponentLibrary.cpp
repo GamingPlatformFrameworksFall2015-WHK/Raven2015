@@ -120,6 +120,8 @@ namespace Raven {
         }
     }
 
+    std::bitset<4> Pawn::ids;
+
 	std::string Pawn::serialize(std::string) {
 		return "";
 	}
