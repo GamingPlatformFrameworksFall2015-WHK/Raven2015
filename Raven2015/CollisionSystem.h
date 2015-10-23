@@ -46,7 +46,7 @@ namespace Raven {
         /*
          * Tests whether two entities' colliders register a collision.
          */
-        std::unique_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
+        std::shared_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEntity,
             ex::Entity rightEntity);
 
     private:

@@ -11,6 +11,7 @@
 #include "RenderingSystem.h"
 #include "XMLSystem.h"
 #include "entityx/deps/Dependencies.h"
+#include "EntityLibrary.h"
 
 namespace Raven {
 
@@ -18,7 +19,7 @@ namespace Raven {
 
     }
 
-    Game::Game() {
+    Game::Game() : editMode(true) {
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
@@ -35,10 +36,15 @@ namespace Raven {
         cmn::game = this;
     }
 
-    void Game::update(ex::TimeDelta dt) {
+    void Game::updateGameMode(ex::TimeDelta dt) {
         systems.update<InputSystem>(dt);     // process new instructions for entities
         systems.update<MovementSystem>(dt);  // move entities
         systems.update<CollisionSystem>(dt); // check whether entities are now colliding
+        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
+        systems.update<GUISystem>(dt);       // update and draw GUI widgets
+    }
+
+    void Game::updateEditMode(ex::TimeDelta dt) {
         systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
@@ -71,7 +77,7 @@ namespace Raven {
             return nullptr;
         }
         else {
-            ComponentLibrary::copyEntity(*e, *map[prefabName]);
+            EntityLibrary::copyEntity(*e, *map[prefabName]);
             e->component<Data>()->name = name;
             systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(name, e));
             return e;

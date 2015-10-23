@@ -71,7 +71,7 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
 
     // Error checking for window validity
     if (!canvas) {
-        cerr << "Error: RenderingSystem::window invalid during attempt to draw on RenderingSystem::update" << endl;
+        cerr << "Error: RenderingSystem::canvas invalid during attempt to draw on RenderingSystem::update" << endl;
         throw 1;
     }
     
@@ -122,14 +122,17 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
-                name_renderable.second->sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                name_renderable.second->sprite.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
 
             // If the exact address of this texture is not the same as the one on record, reacquire it
             if (name_renderable.second->sprite.getTexture() != &textureMap[name_renderable.second->textureFileName]) {
-                cout << "Note: Re-applying texture to sprite" << endl;
+                //cout << "Note: Re-applying texture to sprite" << endl;
+                //This section is always entered for some reason...
                 name_renderable.second->sprite.setTexture(textureMap[name_renderable.second->textureFileName]);
             }
         }
@@ -140,10 +143,11 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
                 name_renderable.second->rectangle.setPosition(
-                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
         }
 
@@ -153,15 +157,26 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
                 name_renderable.second->circle.setPosition(
-                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
         }
 
         for (std::pair<std::string, std::shared_ptr<RenderableText>> name_renderable : renderer.texts) {
             renderableHeap.push(*name_renderable.second);
+
+            // Acquire the transform of the entity
+            ex::ComponentHandle<Transform> transform = entity.component<Transform>();
+
+            // Ensure that the asset is positioned properly
+            if (transform) {
+                name_renderable.second->text.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
+            }
         }
     });
 

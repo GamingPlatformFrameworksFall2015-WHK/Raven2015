@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "entityx/System.h"
 #include "ComponentLibrary.h"
+#include "EntityLibrary.h"
 #include "EventLibrary.h"
 #include <map>
 
@@ -17,14 +18,29 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override {}
 
+        // Upon reception of an XMLLoadEvent, the system will de-serialize the XMLDocument and reinstate the previous game state
         void receive(const XMLLoadEvent& e);
+        // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state
         void receive(const XMLSaveEvent& e);
 
         std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
 
         XMLDocument doc;
 
+        // The constant file name used to represent the game's xml serialization file
         static const std::string xmlFileName;
+
+        // Serializes the internal XMLDocument
+        std::string serializeRavenGame();
+
+        // De-Serializes the internal XMLDocument
+        void deserializeRavenGame();
+
+        // Serializes all components on the given entity while taking into account the current tab amount
+        std::string serializeEntity(ex::Entity e, std::string tab);
+
+        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
+        void deserializeEntity(ex::Entity e, XMLNode* node);
 
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
@@ -75,9 +91,6 @@ namespace Raven {
         void deserializeRenderableSpriteMap(XMLNode* node);
         void deserializePrefabMap(XMLNode* node);
         void deserializeLevelMap(XMLNode* node);
-
-        std::string serializeRavenGame();
-        void deserializeRavenGame();
 
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);

@@ -244,120 +244,6 @@ namespace Raven {
         ADD_STATICS(BoxCollider);
     };
 
-    // An abstract component used to classify player objects
-    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pawn() : playerId(initId()) {
-            if (playerId == -1) {
-                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
-                    " This Pawn will not respond to input." << endl;
-            }
-            else {
-                Pawn::ids.set(playerId);
-            }
-        }
-
-        Pawn(int playerId) {
-            if (!ids.test(playerId)) {
-                this->playerId = playerId;
-                ids.set(playerId);
-            }
-            else {
-                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
-                    " to the given entity." << endl;
-                int i = Pawn::initId();
-                if (i == -1) {
-                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
-                }
-                else {
-                    playerId = i;
-                    Pawn::ids.set(i);
-                }
-            }
-        }
-
-        // Copy Constructor
-        Pawn(const Pawn& other)  {}
-
-        ~Pawn() { ids.reset(playerId); }
-
-        int playerId;
-
-        static std::bitset<4> ids;
-
-        static int initId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pawn);
-    };
-
-    // An abstract component used to classify AI objects
-    // Tracker will follow closest pawn (player) object
-    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
-        // Creates new instance of struct
-        Tracker() {}
-
-        // Copy Constructor
-        Tracker(const Tracker& other) {}
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Tracker);
-    };
-
-    // An abstract component used to classify AI objects
-    // Pacer will continuously pace with a horizontal(HOR_PATH),
-    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
-    // movement radius.
-    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pacer(std::string direction, sf::Vector2f origin, float radius) 
-            : direction(direction), origin(origin), radius(radius) {
-
-            // Vertical path will only have a velocity in the y direction
-            if (direction == VERT_PATH) {
-                velocity.x = 0.f;
-                velocity.y = 0.1f;
-            }
-            // Horizontal path will only have velocity in the x direction
-            else if (direction == HOR_PATH) {
-                velocity.x = 0.1f;
-                velocity.y = 0.f;
-            }
-            // Diagonal path will have both x and y velocities
-            else {
-                velocity.x = 0.1f;
-                velocity.y = 0.1f;
-            }
-        }
-
-        // Copy Constructor
-        Pacer(const Pacer& other) {
-            direction = other.direction;
-            velocity = other.velocity;
-        }
-
-        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-        std::string direction;
-
-        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
-        sf::Vector2f velocity;
-
-        // Center point of pacer's path
-        sf::Vector2f origin;
-
-        // Distance out in either direction that pacer willtravel from its center point
-        float radius;
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pacer);
-    };
-    
 
 #pragma endregion
 
@@ -474,7 +360,122 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    // Behaviors
+    // An abstract component used to classify player objects
+    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pawn() : playerId(initId()) {
+            if (playerId == -1) {
+                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
+                    " This Pawn will not respond to input." << endl;
+            }
+            else {
+                Pawn::ids.set(playerId);
+            }
+        }
+
+        Pawn(int playerId) {
+            if (!ids.test(playerId)) {
+                this->playerId = playerId;
+                ids.set(playerId);
+            }
+            else {
+                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
+                    " to the given entity." << endl;
+                int i = Pawn::initId();
+                if (i == -1) {
+                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
+                }
+                else {
+                    playerId = i;
+                    Pawn::ids.set(i);
+                }
+            }
+        }
+
+        // Copy Constructor
+        Pawn(const Pawn& other)  {}
+
+        ~Pawn() { ids.reset(playerId); }
+
+        int playerId;
+
+        static std::bitset<4> ids;
+
+        static int initId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pawn);
+    };
+
+    // An abstract component used to classify AI objects
+    // Tracker will follow closest pawn (player) object
+    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
+        // Creates new instance of struct
+        Tracker(ComponentType type = ComponentType::Pawn_t) : target(type) {}
+
+        // Copy Constructor
+        Tracker(const Tracker& other) : target(other.target) {}
+
+        ComponentType target;
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Tracker);
+    };
+
+    // An abstract component used to classify AI objects
+    // Pacer will continuously pace with a horizontal(HOR_PATH),
+    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
+    // movement radius.
+    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+        // Creates new instance of struct
+        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+            : direction(direction), origin(origin), radius(radius) {
+
+            // Vertical path will only have a velocity in the y direction
+            if (direction == VERT_PATH) {
+                velocity.x = 0.f;
+                velocity.y = 0.1f;
+            }
+            // Horizontal path will only have velocity in the x direction
+            else if (direction == HOR_PATH) {
+                velocity.x = 0.1f;
+                velocity.y = 0.f;
+            }
+            // Diagonal path will have both x and y velocities
+            else {
+                velocity.x = 0.1f;
+                velocity.y = 0.1f;
+            }
+        }
+
+        // Copy Constructor
+        Pacer(const Pacer& other) {
+            direction = other.direction;
+            velocity = other.velocity;
+        }
+
+        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
+        std::string direction;
+
+        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
+        sf::Vector2f velocity;
+
+        // Center point of pacer's path
+        sf::Vector2f origin;
+
+        // Distance out in either direction that pacer willtravel from its center point
+        float radius;
+
+        //Serialization and deserialization for edit/play mode
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Pacer);
+    };
+    
 
 #pragma endregion
 
@@ -485,44 +486,6 @@ namespace Raven {
     // and call attachComponent as necessary
     struct ComponentLibrary {
 
-        // Serializes all components on the given entity while taking into account the current tab amount
-        static std::string serializeEntity(ex::Entity e, std::string tab);
-
-        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
-        static void deserializeEntity(ex::Entity e, XMLNode* node);
-
-        // Turns the first entity into a replica of the second entity before returning the first entity.
-        // Simply combines the use of clearEntity and copyComponents with the full set of template parameters.
-        static ex::Entity copyEntity(ex::Entity toReturn, ex::Entity toCopy);
-
-        // Clears the last component from an entity. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static void clearEntity(ex::Entity e, T last);
-
-        // Clears all components from the given entity
-        // Usage:
-        // /* Entity e1 with Data, Transform, and Rigidbody */
-        // clearEntity<Data, Transform, Rigibody>(e1); // OR
-        // clearEntity<Data, Transform, Rigibody, BoxCollider, etc.>(e1);
-        template <typename T, typename... Args>
-        static void clearEntity(ex::Entity e, T first, Args... args);
-
-        // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T last);
-
-        // Copies all possible components from the given toCopy entity into the toReturn entity
-        // By the end, the following 4 conditions will be true:
-        // 1. If toReturn has a component that toCopy has, toReturn's version will be replaced with a copy of toCopy's
-        // 2. If toReturn does not have a component that toCopy has, it will not have a copy of toCopy's
-        // 3. Any components that toReturn has that toCopy doesn't will remain untouched
-        // 4. Component pointer members will have deep copies made
-        // Usage:
-        // /* Entity e1 with some set of components, Entity e2 with some different set of components */
-        // copyComponents<Data, Transform, etc.>(e1, e2, *e2.component<Data>().get(), *e2.component<Transform>().get(), etc.); // OR
-        // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
-        template <typename T, typename... Args>
-        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
     };
 
 #pragma endregion
