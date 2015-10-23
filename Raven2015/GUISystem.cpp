@@ -267,16 +267,16 @@ namespace Raven {
         sf::Vector2i position = sf::Mouse::getPosition();
         cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
         if (currentBrush->GetText().toAnsiString() == "Create") {
-            ex::Entity entity = EntityLibrary::Create::Entity();
+            ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-            entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
-            entity.component<Transform>()->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
-            entity.component<Transform>()->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
+            auto transform = entity.component<Transform>();
+            transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
+            transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
             cout << "Created entity" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"].reset(new RenderableSprite(
-                "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, cmn::ERenderingLayer::Foreground, 0));
+                "Resources/Textures/BlueDot_vibrating.png", "BlueDotIdle", 0, 0.f, 0.f, cmn::ERenderingLayer::Foreground, 0));
         }
     }
 
