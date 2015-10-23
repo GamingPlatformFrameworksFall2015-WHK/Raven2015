@@ -2,7 +2,7 @@
 
 namespace Raven {
 
-    unsigned int counter = 0;
+    unsigned int EntityLibrary::Create::counter = 0;
 
     ex::Entity EntityLibrary::copyEntity(ex::Entity toReturn, ex::Entity toCopy) {
         clearEntity<COMPONENT_TYPE_LIST>(toReturn, COMPONENTS_OF_ENTITY(toReturn));

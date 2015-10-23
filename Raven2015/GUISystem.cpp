@@ -12,6 +12,7 @@
  */
 #include "GUISystem.h"
 #include "WidgetLibrary.h"
+#include "EntityLibrary.h"
 
 using namespace sfg;
 
@@ -53,12 +54,12 @@ namespace Raven {
         // 4|SH| T| T| T|PL|
         // 5| C| C|ED|ED|ED|
         // 6| C| C|ED|ED|ED|
-        auto canvas = formatCanvas(makeWidget<CANVAS_WTYPE>(TO_STR(CANVAS_WTYPE), CANVAS_NAME));
-        auto sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME));
-        auto content = formatContent(makeWidget<CONTENT_WTYPE>(TO_STR(CONTENT_WTYPE), CONTENT_NAME));
-        auto toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
-        auto entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME));
-        auto prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME));
+        canvas = formatCanvas(makeWidget<CANVAS_WTYPE>(TO_STR(CANVAS_WTYPE), CANVAS_NAME));
+        sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME));
+        content = formatContent(makeWidget<CONTENT_WTYPE>(TO_STR(CONTENT_WTYPE), CONTENT_NAME));
+        toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
+        entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME));
+        prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME));
         
         // Add all of the various windows to the table, assigning dimensions and settings to the table
         Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
@@ -79,7 +80,7 @@ namespace Raven {
         // Create an instance <- works because all Widgets have a static Create() factory method
         std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
-        widgetMap.insert(std::make_pair(widgetName, widget));
+        //widgetMap.insert(std::make_pair(widgetName, widget));
         // Add it to the desktop so that it will be updated
         desktop->Add(widget); 
         // Return the factory-generated widget pointer
@@ -195,17 +196,17 @@ namespace Raven {
 
     // Format the Content widget
     CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
-        auto cl = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>(TO_STR(COMPONENT_LIST_WTYPE), COMPONENT_LIST_NAME));
-        auto tl = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME));
-        auto ml = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME));
-        auto sl = formatSoundList(makeWidget<SOUND_LIST_WTYPE>(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME));
-        auto fl = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME));
+        componentList = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>(TO_STR(COMPONENT_LIST_WTYPE), COMPONENT_LIST_NAME));
+        textureList = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME));
+        musicList = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME));
+        soundList = formatSoundList(makeWidget<SOUND_LIST_WTYPE>(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME));
+        fontList = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME));
         //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
-        c->AppendPage(cl, Label::Create(COMPONENT_LIST_NAME));
-        c->AppendPage(tl, Label::Create(TEXTURE_LIST_NAME));
-        c->AppendPage(ml, Label::Create(MUSIC_LIST_NAME));
-        c->AppendPage(sl, Label::Create(SOUND_LIST_NAME));
-        c->AppendPage(fl, Label::Create(FONT_LIST_NAME));
+        c->AppendPage(componentList, Label::Create(COMPONENT_LIST_NAME));
+        c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));
+        c->AppendPage(musicList, Label::Create(MUSIC_LIST_NAME));
+        c->AppendPage(soundList, Label::Create(SOUND_LIST_NAME));
+        c->AppendPage(fontList, Label::Create(FONT_LIST_NAME));
         //c->AppendPage(ll, Label::Create(LEVEL_LIST_NAME));
 
         return c;
@@ -236,8 +237,9 @@ namespace Raven {
     // Format the Toolbar widget
     TOOLBAR_WTYPE_SPTR GUISystem::formatToolbar(TOOLBAR_WTYPE_SPTR t) {
 
-        widgetMap.insert(std::make_pair(TOOLBAR_NAME, t));
-        desktop->Add(t);
+        //widgetMap.insert(std::make_pair(TOOLBAR_NAME, t));
+        desktop->Add(t); // Must be manually added to the desktop because the makeWidget function doesn't allow for constructors which
+                         // we need for the Box constructor
         auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
@@ -263,16 +265,14 @@ namespace Raven {
 
     void GUISystem::canvasClickHandler() {
         sf::Vector2i position = sf::Mouse::getPosition();
-        //std::shared_ptr<Canvas> c((Canvas*)(widgetMap["Canvas"].get()));
-        //cout << c->GetAbsolutePosition().x << " " << c->GetAbsolutePosition().y << endl;
-        //cout << "Current Canvas Use_Count: " << widgetMap["Canvas"].use_count() << endl;
+        cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
         if (currentBrush->GetText().toAnsiString() == "Create") {
-            ex::Entity entity = cmn::entities->create();
+            ex::Entity entity = EntityLibrary::Create::Entity();
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             entity.component<Transform>()->transform = sf::Vector2f((float)position.x,(float)position.y);
-            //entity.assign<Transform>()->transform.x = getCanvas()->GetAbsolutePosition().x - (float)position.x;
-            //entity.component<Transform>()->transform.y = getCanvas()->GetAbsolutePosition().y - (float)position.y;
+            entity.component<Transform>()->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
+            entity.component<Transform>()->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
             cout << "Created entity" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"].reset(new RenderableSprite(
