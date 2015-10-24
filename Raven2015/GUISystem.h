@@ -88,6 +88,45 @@ namespace Raven {
         // Processes the event stack and permits both RenderWindows and SFGUI widgets to react to events
         void pollEvents();
 
+        //--------------------Callback Methods-----------------------
+
+        // Switches the currentBrush based on the button clicked, thereby changing the canvasClickHandler operation
+        void brushToolbarButtonHandler(Button::Ptr clickedButton);
+
+        // Displays the selected Entity's component list in the EntityDesigner panel
+        void sceneHierachySelectButtonHandler(Button::Ptr clickedButton);
+
+        // Destroys the Entity instance and removes its record from the LevelMap
+        void sceneHierachyDeleteButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves up one
+        void sceneHierachyMoveUpButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves down one
+        void sceneHierachyMoveDownButtonHandler(Button::Ptr clickedButton);
+
+        // When modified, updates the name of the given entity
+        void sceneHierachyEntryHandler(Entry::Ptr updatedEntry);
+
+        // Displays the selected Entity's component list in the EntityDesigner panel
+        void prefabListSelectButtonHandler(Button::Ptr clickedButton);
+
+        // Destroys the Entity instance and removes its record from the LevelMap
+        void prefabListDeleteButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the prefabListBox so that the clicked prefab moves up one
+        void prefabListMoveUpButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the prefabListBox so that the clicked prefab moves down one
+        void prefabListMoveDownButtonHandler(Button::Ptr clickedButton);
+
+        // When modified, updates the name of the given prefab
+        void prefabListEntryHandler(Entry::Ptr updatedEntry);
+
+        // Performs an operation on the Canvas based on the current brush mode
+        void canvasClickHandler();
+
+
         //---------------------Member Variables----------------------
 
         // A pointer to the RenderWindow representing the actual window created from SFML
@@ -111,13 +150,24 @@ namespace Raven {
         // A pointer to the table organizing the content in the mainGUIWindow
         Table::Ptr table;
 
-        // Top level widget panels
+        //-------------Top level widget panels and their sub-widget-containers------------------
+
+        // The window upon which the game is drawn
         Canvas::Ptr canvas;
+        // The panel displaying entities currently in the level
         ScrolledWindow::Ptr sceneHierarchy;
+        // The procedurally generated box managed by the Scene Hierarchy. Contains a list of the entities in the level
+        Box::Ptr sceneHierarchyBox; 
+        // The tabbed list of assets available to the user
         Notebook::Ptr content;
+        // The list of commands available to the user when interacting with the Canvas
         Box::Ptr toolbar;
+        // The window allowing for the user to modify which components are on an entity and modify their member values
         ScrolledWindow::Ptr entityDesigner;
+        // The panel displaying entities are currently stored as prefabs
         ScrolledWindow::Ptr prefabList;
+        // The procedurally generated box managed by the PrefabList. Contains a list of the prefabs that can be instantiated
+        Box::Ptr prefabListBox; 
 
         //Notebook'd SubPanels in Content
         ScrolledWindow::Ptr componentList;
@@ -126,14 +176,11 @@ namespace Raven {
         ScrolledWindow::Ptr soundList;
         ScrolledWindow::Ptr fontList;
 
-        // The preset name for the main window of the engine
-        const static std::string MAIN_WINDOW_NAME;
-
-        void brushToolbarButtonClick(Button::Ptr clickedButton);
-        void GUISystem::sceneHierachyButton(Button::Ptr clickedButton);
-        void canvasClickHandler();
+        // The label for the specific brush currently in use
         Label::Ptr currentBrush = Label::Create("Create");
 
+        // The preset name for the main window of the engine
+        const static std::string MAIN_WINDOW_NAME;
     };
 
 }
