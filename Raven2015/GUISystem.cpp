@@ -43,18 +43,6 @@ namespace Raven {
         // Create the base Table
         auto table = Table::Create();
 
-        /*
-        //auto window = ScrolledWindow::Create();
-        //window->AddWithViewport(e);
-        Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
-        table->Attach(e, sf::Rect<sf::Uint32>(0, 0, 1, 5), all, all);
-        table->Attach(Button::Create("Test 1"), sf::Rect<sf::Uint32>(1, 0, 1, 1), all, all);
-        table->Attach(Button::Create("Test 2"), sf::Rect<sf::Uint32>(1, 1, 1, 1), all, all);
-        mainGUIWindow->Add(table);
-        desktop->Add(mainGUIWindow);
-        */
-
-
         // Create the various windows that will go inside the table and allocate regions of space for them
         // Implement a 6x5 table with the following structure
         // Scene Hierarchy(SH), Content(C), Entity Designer (ED), Prefab List(PL), Canvas(V), Toolbar(T)
@@ -84,18 +72,7 @@ namespace Raven {
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
-    }
-
-    template <class T>
-    std::shared_ptr<T> GUISystem::makeWidget() {
-        // Create an instance <- works because all Widgets have a static Create() factory method
-        std::shared_ptr<T> widget(T::Create());
-        // Keep a record of this exact window
-        //widgetMap.insert(std::make_pair(widgetName, widget));
-        // Add it to the desktop so that it will be updated
-        desktop->Add(widget); 
-        // Return the factory-generated widget pointer
-        return widget;
+        desktop->Add(mainGUIWindow);
     }
 
     void GUISystem::pollEvents() {
