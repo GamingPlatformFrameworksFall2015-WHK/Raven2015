@@ -1,6 +1,11 @@
+/*
+ *
+ */
+#include "Common.h"
 #include "RenderingSystem.h"
 #include "SFML/Graphics.hpp"
 #include <algorithm>
+#include "Game.h"
 
 using namespace Raven;
 
@@ -71,16 +76,23 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
 
     // Error checking for window validity
     if (!canvas) {
-        cerr << "Error: RenderingSystem::window invalid during attempt to draw on RenderingSystem::update" << endl;
+        cerr << "Error: RenderingSystem::canvas invalid during attempt to draw on RenderingSystem::update" << endl;
         throw 1;
     }
-    
+
     // Determine the next image to be drawn to the screen for each sprite
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
 
+        // If we are currently in editMode, don't bother updating the animation frames.
+        // Just draw everything as-is.
+        // DEV WARNING: This resulted in sprites being drawn as full textures w/o animation, even after EditMode was toggled off
+        //if (cmn::game->editMode) {
+        //   return;
+        //}
+
         // Acquire each std::string-RenderableSprite pair in the renderer
         for (auto name_renderable : renderer.sprites) {
-
+    
             // Save the current Animation
             Animation anim = animationMap[name_renderable.second->animName];
 
@@ -122,14 +134,17 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
-                name_renderable.second->sprite.setPosition(transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                name_renderable.second->sprite.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
 
             // If the exact address of this texture is not the same as the one on record, reacquire it
             if (name_renderable.second->sprite.getTexture() != &textureMap[name_renderable.second->textureFileName]) {
-                cout << "Note: Re-applying texture to sprite" << endl;
+                //cout << "Note: Re-applying texture to sprite" << endl;
+                //This section is always entered for some reason...
                 name_renderable.second->sprite.setTexture(textureMap[name_renderable.second->textureFileName]);
             }
         }
@@ -140,10 +155,11 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
                 name_renderable.second->rectangle.setPosition(
-                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
         }
 
@@ -153,15 +169,26 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
             // Acquire the transform of the entity
             ex::ComponentHandle<Transform> transform = entity.component<Transform>();
 
-            // Ensure that the sprite is positioned properly
+            // Ensure that the asset is positioned properly
             if (transform) {
                 name_renderable.second->circle.setPosition(
-                    transform->transform.x - cmn::STD_UNITX*.5f, transform->transform.y - cmn::STD_UNITY*.5f);
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
             }
         }
 
         for (std::pair<std::string, std::shared_ptr<RenderableText>> name_renderable : renderer.texts) {
             renderableHeap.push(*name_renderable.second);
+
+            // Acquire the transform of the entity
+            ex::ComponentHandle<Transform> transform = entity.component<Transform>();
+
+            // Ensure that the asset is positioned properly
+            if (transform) {
+                name_renderable.second->text.setPosition(
+                    transform->transform.x - cmn::STD_UNITX*.5f + name_renderable.second->offsetX,
+                    transform->transform.y - cmn::STD_UNITY*.5f + name_renderable.second->offsetY);
+            }
         }
     });
 

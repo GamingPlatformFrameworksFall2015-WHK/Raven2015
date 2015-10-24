@@ -75,17 +75,23 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
     es.each<Pacer>([&](ex::Entity entity, Pacer &pacer) {
         // If pacer has reached limit of its travel radius,
         // reverse its velocity so it will travel in opposite direction
-        if (pacer.direction == VERT_PATH) {
-            if (abs(entity.component<Transform>()->transform.y) > 
-                abs(pacer.origin.y) + abs(pacer.radius)) {
-                pacer.velocity = -pacer.velocity;
-            }
-        }
-        else if (pacer.direction == HOR_PATH || pacer.direction == DIAG_PATH) {
+        auto horAction = [&]() {
             if (abs(entity.component<Transform>()->transform.x) >
                 abs(pacer.origin.x) + abs(pacer.radius)) {
                 pacer.velocity = -pacer.velocity;
             }
+        };
+        auto vertAction = [&]() {
+            if (abs(entity.component<Transform>()->transform.y) > 
+                abs(pacer.origin.y) + abs(pacer.radius)) {
+                pacer.velocity = -pacer.velocity;
+            }
+        };
+
+        switch (pacer.direction) {
+        case Pacer::Direction::HORIZONTAL: horAction(); break;
+        case Pacer::Direction::VERTICAL: vertAction(); break;
+        case Pacer::Direction::DIAGONAL: horAction(); vertAction(); break;
         }
 
         entity.component<Rigidbody>()->velocity = pacer.velocity;

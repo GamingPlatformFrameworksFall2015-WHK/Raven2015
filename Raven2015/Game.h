@@ -10,7 +10,8 @@ namespace Raven {
         explicit Game(sf::RenderTarget &target);
         explicit Game();
 
-        void update(ex::TimeDelta dt);
+        void updateGameMode(ex::TimeDelta dt);
+        void updateEditMode(ex::TimeDelta dt);
 
         // Provides custom method for assigning default components to an entity
         ex::Entity makeEntity();
@@ -24,6 +25,9 @@ namespace Raven {
 
         // Used to create unique entity names and track the number of entities that have been created thus far
         unsigned int entityCounter;
+
+        // Whether we are currently in edit mode
+        bool editMode;
     };
 
 }

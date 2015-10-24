@@ -35,6 +35,7 @@ namespace ex = entityx;
 namespace Raven {
 
     class Game;
+    class XMLSystem;
 
     namespace Common {
 
@@ -67,10 +68,10 @@ namespace Raven {
         typedef ELayer ERenderingLayer;
 
         // A standard pixel-based unit of measurement for the x-axis
-        static const float STD_UNITX = 64.0f;
+        static const float STD_UNITX = 32.0f;
 
         // A standard pixel-based unit of measurement for the y-axis
-        static const float STD_UNITY = 64.0f;
+        static const float STD_UNITY = 32.0f;
 
         // The size of borders for imported spritesheets, in pixels
         static const int BORDER_PADDING = 2;

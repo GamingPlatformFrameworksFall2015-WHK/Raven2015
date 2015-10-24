@@ -55,69 +55,6 @@ namespace Raven {
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
-        // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        SCENE_HIERARCHY_WTYPE_SPTR getSceneHierarchy() {
-            return WIDGET_CAST(widgetMap[SCENE_HIERARCHY_NAME], SCENE_HIERARCHY_WTYPE);
-        }
-
-        // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        COMPONENT_LIST_WTYPE_SPTR getComponentList() {
-            return WIDGET_CAST(widgetMap[COMPONENT_LIST_NAME], COMPONENT_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
-        TEXTURE_LIST_WTYPE_SPTR getTextureList() {
-            return WIDGET_CAST(widgetMap[TEXTURE_LIST_NAME], TEXTURE_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
-        MUSIC_LIST_WTYPE_SPTR getMusicList() { 
-            return WIDGET_CAST(widgetMap[MUSIC_LIST_NAME], MUSIC_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
-        SOUND_LIST_WTYPE_SPTR getSoundList() {
-            return WIDGET_CAST(widgetMap[SOUND_LIST_NAME], SOUND_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
-        FONT_LIST_WTYPE_SPTR getFontList() {
-            return WIDGET_CAST(widgetMap[FONT_LIST_NAME], FONT_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
-        CONTENT_WTYPE_SPTR getContent() {
-            return WIDGET_CAST(widgetMap[CONTENT_NAME], CONTENT_WTYPE);
-        }
-
-        // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        ENTITY_DESIGNER_WTYPE_SPTR getEntityDesigner() {
-            return WIDGET_CAST(widgetMap[ENTITY_DESIGNER_NAME], ENTITY_DESIGNER_WTYPE);
-        }
-
-        // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        PREFAB_LIST_WTYPE_SPTR getPrefabList() {
-            return WIDGET_CAST(widgetMap[PREFAB_LIST_NAME], PREFAB_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Canvas, a renderable screen into the game space
-        CANVAS_WTYPE_SPTR getCanvas() {
-            return WIDGET_CAST(widgetMap[CANVAS_NAME], CANVAS_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
-        TOOLBAR_WTYPE_SPTR getToolbar() {
-            return WIDGET_CAST(widgetMap[TOOLBAR_NAME], TOOLBAR_WTYPE);
-        }
-
-        // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
-        template <class T>
-        std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
-
-        // Makes a GUI widget, but without giving it a name / storing it in the WidgetMap. For when you don't need direct access.
-        template <class T>
-        std::shared_ptr<T> makeWidget();
-
         // Format the Master Table widget
         //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
@@ -169,13 +106,25 @@ namespace Raven {
         std::shared_ptr<InputSystem> input;
 
         // A pointer to the top-level GUI container for the entire editor
-        std::shared_ptr<Window> mainGUIWindow;
+        Window::Ptr mainGUIWindow;
 
         // A pointer to the table organizing the content in the mainGUIWindow
-        std::shared_ptr<Table> table;
+        Table::Ptr table;
 
-        // A mapping between widget names and their shared pointers
-        std::map <std::string, std::shared_ptr<Widget>> widgetMap;
+        // Top level widget panels
+        Canvas::Ptr canvas;
+        ScrolledWindow::Ptr sceneHierarchy;
+        Notebook::Ptr content;
+        Box::Ptr toolbar;
+        ScrolledWindow::Ptr entityDesigner;
+        ScrolledWindow::Ptr prefabList;
+
+        //Notebook'd SubPanels in Content
+        ScrolledWindow::Ptr componentList;
+        ScrolledWindow::Ptr textureList;
+        ScrolledWindow::Ptr musicList;
+        ScrolledWindow::Ptr soundList;
+        ScrolledWindow::Ptr fontList;
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
