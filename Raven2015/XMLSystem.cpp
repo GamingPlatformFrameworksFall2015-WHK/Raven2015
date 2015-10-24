@@ -71,6 +71,8 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region Events
+
 #pragma region Serialization Events
 
     void XMLSystem::receive(const XMLLoadEvent& e) {
@@ -82,6 +84,35 @@ namespace Raven {
         doc.Parse(serializeRavenGame().c_str());
         doc.SaveFile(xmlFileName.c_str());
     }
+
+#pragma endregion
+
+#pragma region Data Management Events
+
+    void XMLSystem::receive(const XMLUpdateEntityNameEvent& event) {
+        ex::Entity e = event.entity;
+        std::string newName = event.newName;
+        // Acquire the map
+        auto map = levelMap[cmn::game->currentLevelName];
+        // Double check whether we can even find a record of the entity's name
+        if (map.find(e.component<Data>()->name) != map.end()) {
+            // Acquire the entity pointer
+            std::shared_ptr<ex::Entity> ptr = map[e.component<Data>()->name];
+            // Destroy the record of the previous name
+            map.erase(e.component<Data>()->name);
+            // Create a new record using the new name
+            map.insert(std::make_pair(newName, ptr));
+            // Assign the new name to the entity itself
+            ptr->component<Data>()->name = newName;
+        }
+        // Else, simply add the new record
+        else {
+            e.component<Data>()->name = newName;
+            map.insert(std::make_pair(newName, std::shared_ptr<ex::Entity>(new ex::Entity(e))));
+        }
+    }
+
+#pragma endregion
 
 #pragma endregion
 

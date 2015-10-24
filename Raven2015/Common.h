@@ -35,6 +35,7 @@ namespace ex = entityx;
 namespace Raven {
 
     class Game;
+    class XMLSystem;
 
     namespace Common {
 

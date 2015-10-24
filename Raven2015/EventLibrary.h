@@ -149,6 +149,15 @@ namespace Raven {
         XMLSaveEvent() {}
     };
 
+    struct XMLUpdateEntityNameEvent : public ex::Event<XMLUpdateEntityNameEvent> {
+
+        XMLUpdateEntityNameEvent(ex::Entity e, std::string s) : entity(e), newName(s) {}
+
+        ex::Entity entity;
+
+        std::string newName;
+    };
+
 #pragma endregion
 
 

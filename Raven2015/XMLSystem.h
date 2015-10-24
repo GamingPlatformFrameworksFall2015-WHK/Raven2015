@@ -67,6 +67,8 @@ namespace Raven {
         // Essentially maps a level name to a set of named entities that may or may not be prefabs
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
+        void receive(const XMLUpdateEntityNameEvent& event);
+
     private:
         std::string serializeTextureFilePathSet(std::string tab);
         std::string serializeMusicFilePathSet(std::string tab);
@@ -94,6 +96,7 @@ namespace Raven {
 
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
+
     };
 
 }

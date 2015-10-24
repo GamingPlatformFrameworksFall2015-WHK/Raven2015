@@ -34,9 +34,9 @@ namespace Raven {
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, Pawn##_t, Tracker##_t, Pacer##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, Pawn, Tracker, Pacer, SoundMaker, MusicMaker, Renderer, TimeTable
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable, Pawn, Villain, Tracker, Pacer
 // Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
 // Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
 #define COMPONENTS_OF_ENTITY(e) \
@@ -44,39 +44,42 @@ namespace Raven {
             *e.component<Transform>().get(), \
             *e.component<Rigidbody>().get(), \
             *e.component<BoxCollider>().get(), \
-            *e.component<Pawn>().get(), \
-            *e.component<Tracker>().get(), \
-            *e.component<Pacer>().get(), \
             *e.component<SoundMaker>().get(), \
             *e.component<MusicMaker>().get(), \
             *e.component<Renderer>().get(), \
-            *e.component<TimeTable>().get() //<- an actual TimeTable, not a TimeTable* or ex::ComponentHandle<TimeTable>, etc.
+            *e.component<TimeTable>().get(), \
+            *e.component<Pawn>().get(), \
+            *e.component<Villain>().get(), \
+            *e.component<Tracker>().get(), \
+            *e.component<Pacer>().get() 
 // Used to serialize each component
 #define SERIALIZE_COMPONENTS(e, str) \
             SERIALIZE_COMPONENT(Data, e, str); \
             SERIALIZE_COMPONENT(Transform, e, str); \
             SERIALIZE_COMPONENT(Rigidbody, e, str); \
             SERIALIZE_COMPONENT(BoxCollider, e, str); \
-            SERIALIZE_COMPONENT(Pawn, e, str); \
-            SERIALIZE_COMPONENT(Tracker, e, str); \
-            SERIALIZE_COMPONENT(Pacer, e, str); \
             SERIALIZE_COMPONENT(SoundMaker, e, str); \
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
-            SERIALIZE_COMPONENT(TimeTable, e, str);
+            SERIALIZE_COMPONENT(TimeTable, e, str); \
+            SERIALIZE_COMPONENT(Pawn, e, str); \
+            SERIALIZE_COMPONENT(Villain, e, str); \
+            SERIALIZE_COMPONENT(Tracker, e, str); \
+            SERIALIZE_COMPONENT(Pacer, e, str); 
 // Used to deserialize each component
 #define DESERIALIZE_COMPONENTS(e, node) \
             DESERIALIZE_COMPONENT(Data, e, node); \
             DESERIALIZE_COMPONENT(Transform, e, node); \
             DESERIALIZE_COMPONENT(Rigidbody, e, node); \
             DESERIALIZE_COMPONENT(BoxCollider, e, node); \
-            DESERIALIZE_COMPONENT(Pawn, e, node); \
-            DESERIALIZE_COMPONENT(Tracker, e, node); \
-            DESERIALIZE_COMPONENT(Pacer, e, node); \
             DESERIALIZE_COMPONENT(SoundMaker, e, node); \
             DESERIALIZE_COMPONENT(MusicMaker, e, node); \
             DESERIALIZE_COMPONENT(Renderer, e, node); \
-            DESERIALIZE_COMPONENT(TimeTable, e, node);
+            DESERIALIZE_COMPONENT(TimeTable, e, node); \
+            DESERIALIZE_COMPONENT(Pawn, e, node); \
+            DESERIALIZE_COMPONENT(Villain, e, node); \
+            DESERIALIZE_COMPONENT(Tracker, e, node); \
+            DESERIALIZE_COMPONENT(Pacer, e, node); 
 /******************************************************************************************************************/
     enum ComponentType {
         COMPONENT_TYPES(_t)
@@ -362,8 +365,8 @@ namespace Raven {
 
     // An abstract component used to classify player objects
     struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pawn() : playerId(initId()) {
+        // Creates new instance of Pawn with an assumed ID
+        Pawn() : playerId(getId()) {
             if (playerId == -1) {
                 cerr << "WARNING: Pawn component generated with automatic invalid player ID."
                     " This Pawn will not respond to input." << endl;
@@ -373,6 +376,7 @@ namespace Raven {
             }
         }
 
+        // Creates a new instance of Pawn and attempts to assign a given ID
         Pawn(int playerId) {
             if (!ids.test(playerId)) {
                 this->playerId = playerId;
@@ -381,7 +385,7 @@ namespace Raven {
             else {
                 cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
                     " to the given entity." << endl;
-                int i = Pawn::initId();
+                int i = getId();
                 if (i == -1) {
                     cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
                 }
@@ -397,16 +401,29 @@ namespace Raven {
 
         ~Pawn() { ids.reset(playerId); }
 
+        // The distinct id associated with the Pawn
         int playerId;
 
+        // The total set of possible IDs available for Pawns
         static std::bitset<4> ids;
 
-        static int initId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+        // Acquires the next available ID
+        static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
 
         //Serialization and deserialization for edit/play mode
         virtual std::string serialize(std::string tab) override;
         virtual void deserialize(XMLNode* node) override;
         ADD_STATICS(Pawn);
+    };
+
+    // A tagging component used to quickly identify enemies in the game
+    struct Villain : public ex::Component<Villain>, public cmn::Serializable {
+
+        Villain() {}
+
+        virtual std::string serialize(std::string tab) override;
+        virtual void deserialize(XMLNode* node) override;
+        ADD_STATICS(Villain);
     };
 
     // An abstract component used to classify AI objects
@@ -431,24 +448,33 @@ namespace Raven {
     // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
     // movement radius.
     struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+
+        enum Direction {
+            VERTICAL,
+            HORIZONTAL,
+            DIAGONAL
+        };
+
         // Creates new instance of struct
-        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+        Pacer(Direction direction, sf::Vector2f origin, float radius) 
             : direction(direction), origin(origin), radius(radius) {
 
+            switch (direction) {
+            case Direction::VERTICAL:
             // Vertical path will only have a velocity in the y direction
-            if (direction == VERT_PATH) {
                 velocity.x = 0.f;
                 velocity.y = 0.1f;
-            }
+                break;
+            case Direction::HORIZONTAL:
             // Horizontal path will only have velocity in the x direction
-            else if (direction == HOR_PATH) {
                 velocity.x = 0.1f;
                 velocity.y = 0.f;
-            }
-            // Diagonal path will have both x and y velocities
-            else {
+                break;
+            case Direction::DIAGONAL:
+                // Diagonal path will have both x and y velocities
                 velocity.x = 0.1f;
                 velocity.y = 0.1f;
+                break;
             }
         }
 
@@ -456,10 +482,11 @@ namespace Raven {
         Pacer(const Pacer& other) {
             direction = other.direction;
             velocity = other.velocity;
+            origin = other.origin;
         }
 
-        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-        std::string direction;
+        // The direction along which the Pacer should move
+        Direction direction;
 
         // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
         sf::Vector2f velocity;

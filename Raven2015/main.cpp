@@ -46,7 +46,6 @@ int main() {
     std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
-
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 4, true, 100.0));
@@ -76,7 +75,7 @@ int main() {
 
     //Create vertical pacer
     ex::Entity vertPacerEntity = EntityLibrary::Create::Entity("Vertical Pacer");
-    vertPacerEntity.assign<Pacer>(VERT_PATH, sf::Vector2f(200.0f, 200.0f), 20.0f);
+    vertPacerEntity.assign<Pacer>(Pacer::Direction::VERTICAL, sf::Vector2f(200.0f, 200.0f), 20.0f);
     vertPacerEntity.component<Transform>()->transform.x = 200.0f;
     vertPacerEntity.component<Transform>()->transform.y = 200.0f;
     vertPacerEntity.component<Rigidbody>();
@@ -86,7 +85,7 @@ int main() {
 
     //Create horizontal pacer
     ex::Entity horPacerEntity = EntityLibrary::Create::Entity("Horizontal Pacer");
-    horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0f, 500.0f), 50.0f);
+    horPacerEntity.assign<Pacer>(Pacer::Direction::HORIZONTAL, sf::Vector2f(350.0f, 500.0f), 50.0f);
     horPacerEntity.component<Transform>()->transform.x = 350.0f;
     horPacerEntity.component<Transform>()->transform.y = 300.0f;
     horPacerEntity.component<Rigidbody>();

@@ -1,6 +1,9 @@
 #pragma once
 #include "Common.h"
 #include "ComponentLibrary.h"
+#include "Game.h"
+#include "entityx/System.h"
+#include "EventLibrary.h"
 
 namespace Raven {
 
@@ -39,13 +42,18 @@ namespace Raven {
         template <typename T, typename... Args>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
 
+        static void updateEntityRecord(ex::Entity e, std::string newName) {
+            cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName);
+        }
+
         struct Create {
 
             static ex::Entity Entity(std::string entityName = "Default Entity") {
                 ex::Entity e = cmn::entities->create();
-                e.assign<Data>()->name = entityName + " " + std::to_string(counter++);
+                std::string s = (e.assign<Data>()->name = entityName + " " + std::to_string(counter++));
                 e.assign<Transform>();
                 e.assign<Rigidbody>();
+                updateEntityRecord(e, s);
                 return e;
             }
 

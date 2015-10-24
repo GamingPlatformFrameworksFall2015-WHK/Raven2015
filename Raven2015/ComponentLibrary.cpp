@@ -120,32 +120,6 @@ namespace Raven {
         }
     }
 
-    std::bitset<4> Pawn::ids;
-
-    std::string Pawn::serialize(std::string) {
-        return "";
-    }
-
-    void Pawn::deserialize(XMLNode*) {
-
-    }
-
-    std::string Tracker::serialize(std::string) {
-        return "";
-    }
-
-    void Tracker::deserialize(XMLNode*) {
-
-    }
-
-    std::string Pacer::serialize(std::string) {
-        return "";
-    }
-
-    void Pacer::deserialize(XMLNode*) {
-
-    }
-
 #pragma endregion
 
 #pragma region Audio
@@ -238,7 +212,76 @@ namespace Raven {
 
 #pragma region Behaviors
 
+    std::bitset<4> Pawn::ids;
 
+    std::string Pawn::serialize(std::string tab) {
+        return 
+            tab + "<Pawn>\r\n" +
+            tab + "  <PlayerID>" + std::to_string(playerId) + "</PlayerID>\r\n" +
+            tab + "</Pawn>\r\n";
+    }
+
+    void Pawn::deserialize(XMLNode* node) {
+        XMLElement* e = node->FirstChildElement("PlayerID");
+        ids.reset(playerId);
+        e->QueryIntText(&playerId);
+        if (ids.test(playerId)) {
+            cerr << "Warning: Deserialized Pawn using ID already assigned in Pawn::ids" << endl;
+    }
+        ids.set(playerId);
+    }
+
+    std::string Villain::serialize(std::string tab) {
+        return 
+            tab + "<Villain>\r\n" + 
+            tab + "</Villain>\r\n";
+    }
+
+    void Villain::deserialize(XMLNode* node) {
+
+    }
+
+    std::string Tracker::serialize(std::string tab) {
+        return
+            tab + "<Tracker>\r\n" +
+            tab + "  <Target>" + std::to_string(target) + "</Target>\r\n" +
+            tab + "</Tracker>\r\n";
+        }
+
+    void Tracker::deserialize(XMLNode* node) {
+        int i;
+        node->FirstChildElement("Target")->QueryIntText(&i);
+        target = (ComponentType) i;
+    }
+
+    std::string Pacer::serialize(std::string tab) {
+        return
+            tab + "<Pacer>\r\n" +
+            tab + "  <Direction>" + std::to_string(direction) + "</Direction>\r\n" +
+            tab + "  <Velocity>\r\n" +
+            tab + "    <X>" + std::to_string(velocity.x) + "</X>\r\n" +
+            tab + "    <Y>" + std::to_string(velocity.y) + "</Y>\r\n" +
+            tab + "  </Velocity>\r\n" +
+            tab + "  <Origin>\r\n" +
+            tab + "    <X>" + std::to_string(velocity.x) + "</X>\r\n" +
+            tab + "    <Y>" + std::to_string(velocity.y) + "</Y>\r\n" +
+            tab + "  </Origin>\r\n" +
+            tab + "  <Radius>" + std::to_string(radius) + "</Radius>\r\n" +
+            tab + "</Pacer>\r\n";
+        }
+
+    void Pacer::deserialize(XMLNode* node) {
+        int i;
+        node->FirstChildElement("Direction")->QueryIntText(&i);
+        direction = (Direction) i;
+        XMLElement* vector = node->FirstChildElement("Velocity");
+        vector->FirstChildElement("X")->QueryFloatText(&velocity.x);
+        vector->FirstChildElement("Y")->QueryFloatText(&velocity.y);
+        vector = node->FirstChildElement("Origin");
+        vector->FirstChildElement("X")->QueryFloatText(&velocity.x);
+        vector->FirstChildElement("Y")->QueryFloatText(&velocity.y);
+        node->FirstChildElement("Radius")->QueryFloatText(&radius);
+    }
 
 #pragma endregion
 

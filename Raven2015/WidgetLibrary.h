@@ -98,114 +98,138 @@ using namespace sfg;
 
 ///// Low-Level Widgets
 
-// ButtonList
-#define BUTTON_LIST_WTYPE BOX_T
-#define BUTTON_LIST_WTYPE_SPTR SPTR(BUTTON_LIST_WTYPE)
+#define SCENE_HIERARCHY_LIST_ITEM_TEMPLATE WidgetLibrary::MyEntry, Button, Button, Button, Button
+
 
 /////////////////////
 
 namespace Raven {
 
-    // --------------------------------------------------------------------------------------------
-    // To interface with any custom Widget class, you must treat it purely as a utility class.
-    // This is because SFGUI manages its own memory regarding Widgets. Instead, you must
-    // treat custom Widgets more like how the algorithms of <algorithm> work, taking a container
-    // as a parameter rather than operating from a particular container instance.
-    // 
-    // Each "class" should have all static functions, no non-static member variables, a 
-    // private constructor (so instances cannot be made), and a creation function:
-    // static [top-level widget type here] Create() {...}
-    // ...where [top-level widget type] is a type deriving from Widget
-    //
-    // All interactions with the widget pointer created by the Create() function must then involve
-    // a pointer to the top-level widget type as a first parameter
-    // static void performCustomWidgetOperation([top-level widget type], param1, param2, ...) {...}
-    //
-    // If operations are performed on the created type without the use of the custom Widget class
-    // static functions, the resulting state of the widget from all future operations is undefined.
-    // --------------------------------------------------------------------------------------------
+    namespace WidgetLibrary {
 
-    // ButtonList is used to create a vertical box that adds and removes Button widgets dynamically
-    //
-    // Example:
-    // auto buttonList = ButtonList::Create();
-    // ButtonList::appendButton(buttonList, "My Button Label");
-    // 
-    template <typename... Args> // where W is the types of Widgets to be embedded in the List items
-    class WidgetList {
-    public:
-        static void insertWidget(Box::Ptr type, size_t position, std::string labelName) {
-            appendWidget(type, labelName);
-            type->ReorderChild(type->GetChildren().back(), position);
-            //sortList(type);
-        }
+        // --------------------------------------------------------------------------------------------
+        // To interface with any custom Widget class, you must treat it purely as a utility class.
+        // This is because SFGUI manages its own memory regarding Widgets. Instead, you must
+        // treat custom Widgets more like how the algorithms of <algorithm> work, taking a container
+        // as a parameter rather than operating from a particular container instance.
+        // 
+        // Each "class" should have all static functions, no non-static member variables, a 
+        // private constructor (so instances cannot be made), and a creation function:
+        // static [top-level widget type here] Create() {...}
+        // ...where [top-level widget type] is a type deriving from Widget
+        //
+        // All interactions with the widget pointer created by the Create() function must then involve
+        // a pointer to the top-level widget type as a first parameter
+        // static void performCustomWidgetOperation([top-level widget type], param1, param2, ...) {...}
+        //
+        // If operations are performed on the created type without the use of the custom Widget class
+        // static functions, the resulting state of the widget from all future operations is undefined.
+        // --------------------------------------------------------------------------------------------
 
-        static void appendWidget(Box::Ptr type, std::string labelName) {
-            type->PackEnd(makeWidgetBox<Args>(labelName), true, true);
-            //sortList(type);
-        }
-
-        static void prependWidget(Box::Ptr type, std::string labelName) {
-            type->PackStart(makeWidgetBox<Args>(labelName), true, true);
-            //sortList(type);
-        }
-
-        static void removeWidget(Box::Ptr type, size_t position) {
-            type->Remove(type->GetChildren()[position]);
-            //sortList(type);
-        }
-
-        static void sortList(Box::Ptr type) {
-            std::sort(type->GetChildren().begin(), type->GetChildren().end(), compareWidgets);
-        }
-
-        static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
-            return (Box::Ptr) type->GetChildren()[position];
-        }
-
-        static size_t length(Box::Ptr type) {
-            return type->GetChildren().size();
-        }
-
-        static Box::Ptr Create() {
-            return Box::Create(Box::Orientation::VERTICAL);
-        }
-
-    private:
-        WidgetList(); //Cannot be instantiated
-
-        static unsigned int counter;
-
-        // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
-        template <typename W>
-        static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr) {
-            if (!box) {
-                box = Box::Create(Box::Orientation::HORIZONTAL);
-            }
-            auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
-            box->Pack(widget, true, false);
-            Box::Ptr finalBox = box; // save the address of the box
-            counter = 0; //set our counter to 0 for the next makeWidget call
-            box = nullptr; // ensure that box starts out as null for the next 
-            return finalBox;
-        }
-
-        // Recursive case for recursive parameter pack widget box creation. Should be called initially with just the labelName
+        // ButtonList is used to create a vertical box that adds and removes Button widgets dynamically
+        //
         // Example:
-        // Box::Ptr myBoxWithALabelAndAButton = makeWidgetBox<Label, Button>("MyAwesomeBox");
-        template <typename W, typename... Widgets>
-        static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr) {
-            if (!box) {
-                box = Box::Create(Box::Orientation::HORIZONTAL);
+        // auto buttonList = ButtonList::Create();
+        // ButtonList::appendButton(buttonList, "My Button Label");
+        // 
+        template <typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
+        class WidgetList {
+        public:
+            static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+                Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
+                type->Pack(b, true, true);
+                listItemFormatter(b);
+                type->ReorderChild(box, position);
+                //sortList(type);
+                return b;
             }
-            auto widget = W::Create(labelName + "Item " + std::to_string(counter++));
-            box->Pack(widget, true, false);
-            return makeWidgetBox<Widgets>(labelName, box);
-        }
 
-        static bool compareWidgets(Box::Ptr first, Box::Ptr second) {
-            return first->GetChildren().front()->getName() < second->GetChildren().front()->getName() ? true : false;
-        }
-    };
+            static Box::Ptr appendWidget(Box::Ptr type, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+                Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
+                type->Pack(b, true, true);
+                listItemFormatter(b);
+                //sortList(type);
+                return b;
+            }
+
+            static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+                Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
+                type->PackStart(b, true, true);
+                listItemFormatter(b);
+                //sortList(type);
+                return b;
+            }
+
+            static void removeWidget(Box::Ptr type, size_t position) {
+                type->Remove(type->GetChildren()[position]);
+                //sortList(type);
+            }
+
+            static void sortList(Box::Ptr type) {
+                std::sort(type->GetChildren().begin(), type->GetChildren().end(), compareWidgets);
+            }
+
+            static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
+                // Not sure this will work since I was getting errors when casting 
+                // the return value of GetChildren()[#] to Box::Ptr in a different function.
+                return (Box::Ptr) type->GetChildren()[position];
+            }
+
+            static size_t length(Box::Ptr type) {
+                return type->GetChildren().size();
+            }
+
+            static Box::Ptr Create() {
+                return Box::Create(Box::Orientation::VERTICAL, 15.f);
+            }
+
+        private:
+            WidgetList(); //Cannot be instantiated
+
+            static unsigned int counter;
+
+            // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
+            template <typename W>
+            static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr, std::shared_ptr<std::tuple<W>> t = nullptr) {
+                if (!box) {
+                    box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
+                }
+                auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
+                box->Pack(widget, true, true);
+                Box::Ptr finalBox = box; // save the address of the box
+                counter = 0; //set our counter to 0 for the next makeWidget call
+                return finalBox;
+            }
+
+            // Recursive case for recursive parameter pack widget box creation. Should be called initially with just the labelName
+            // Example:
+            // Box::Ptr myBoxWithALabelAndAButton = makeWidgetBox<Label, Button>("MyAwesomeBox");
+            template <typename W, typename... Widgets>
+            static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr, std::shared_ptr<std::tuple<Widgets...>> t = nullptr) {
+                if (!box) {
+                    box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
+                }
+                auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
+                box->Pack(widget, true, true);
+                return makeWidgetBox<Widgets...>(labelName, box, nullptr);
+            }
+
+            static bool compareWidgets(Box::Ptr first, Box::Ptr second) {
+                return first->GetChildren().front()->GetName() < second->GetChildren().front()->GetName() ? true : false;
+            }
+        };
+
+        class MyEntry : public Entry {
+
+            MyEntry() : Entry() {
+
+            }
+
+            void HandleKeyEvent( sf::Keyboard::Key key, bool press) override {
+                cout << "Character was pressed: " << key << " " << press << endl;
+            }
+
+        };
+    }
 
 }
