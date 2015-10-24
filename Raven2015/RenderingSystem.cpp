@@ -85,9 +85,10 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
 
         // If we are currently in editMode, don't bother updating the animation frames.
         // Just draw everything as-is.
-        if (cmn::game->editMode) {
-            return;
-        }
+        // DEV WARNING: This resulted in sprites being drawn as full textures w/o animation, even after EditMode was toggled off
+        //if (cmn::game->editMode) {
+        //   return;
+        //}
 
         // Acquire each std::string-RenderableSprite pair in the renderer
         for (auto name_renderable : renderer.sprites) {
