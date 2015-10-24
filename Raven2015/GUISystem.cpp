@@ -34,7 +34,7 @@ namespace Raven {
         mainWindow->setPosition(sf::Vector2i(cmn::WINDOW_XPOS, cmn::WINDOW_YPOS));
 
         // Create the mainGUIWindow
-        mainGUIWindow = makeWidget<MASTER_WINDOW_WTYPE>();
+        mainGUIWindow = Window::Create();
         mainGUIWindow->SetStyle(MASTER_WINDOW_WTYPE::Style::BACKGROUND | MASTER_WINDOW_WTYPE::Style::RESIZE);
         mainGUIWindow->SetTitle(MASTER_WINDOW_NAME);
         mainGUIWindow->SetRequisition(sf::Vector2f(cmn::WINDOW_WIDTH,
