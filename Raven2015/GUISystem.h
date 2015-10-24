@@ -171,10 +171,15 @@ namespace Raven {
 
         //Notebook'd SubPanels in Content
         ScrolledWindow::Ptr componentList;
+        Box::Ptr componentListBox;
         ScrolledWindow::Ptr textureList;
+        Box::Ptr textureListBox;
         ScrolledWindow::Ptr musicList;
+        Box::Ptr musicListBox;
         ScrolledWindow::Ptr soundList;
+        Box::Ptr soundListBox;
         ScrolledWindow::Ptr fontList;
+        Box::Ptr fontListBox;
 
         // The label for the specific brush currently in use
         Label::Ptr currentBrush = Label::Create("Create");

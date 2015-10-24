@@ -109,7 +109,7 @@ namespace Raven {
         auto formatListItem = [](Box::Ptr aBox) {
             // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
             // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
-            WidgetLibrary::MyEntry* e = (WidgetLibrary::MyEntry*) aBox->GetChildren()[0].get();
+            Entry* e = (Entry*) aBox->GetChildren()[0].get();
             e->SetRequisition(sf::Vector2f(160.f, 20.f));
             Button* b1 = (Button*)aBox->GetChildren()[1].get();
             b1->SetLabel("Select"); // For selecting the Entity
