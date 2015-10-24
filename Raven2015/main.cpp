@@ -151,8 +151,8 @@ int main() {
         while (accumulator >= FPS_100_TICK_TIME) {
             game.systems.system<GUISystem>()->pollEvents();
             game.systems.system<GUISystem>()->clear();
-            //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
-            game.updateGameMode(frameTime);
+            game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
+            //game.updateGameMode(frameTime);
             fps++;
             accumulator -= FPS_100_TICK_TIME;
         }
