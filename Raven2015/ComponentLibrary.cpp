@@ -231,6 +231,16 @@ namespace Raven {
         ids.set(playerId);
     }
 
+    std::string Villain::serialize(std::string tab) {
+        return 
+            tab + "<Villain>\r\n" + 
+            tab + "</Villain>\r\n";
+    }
+
+    void Villain::deserialize(XMLNode* node) {
+
+    }
+
     std::string Tracker::serialize(std::string tab) {
         return
             tab + "<Tracker>\r\n" +
