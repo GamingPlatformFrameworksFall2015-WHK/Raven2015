@@ -30,7 +30,7 @@ namespace Raven {
         event(new sf::Event()),
         input(inputSystem) {
 
-        mainWindow->resetGLStates(); // Without this, items will not be rendered propetly immediately
+        mainWindow->resetGLStates(); // Without this, items will not be rendered properly immediately
         mainWindow->setPosition(sf::Vector2i(cmn::WINDOW_XPOS, cmn::WINDOW_YPOS));
 
         // Create the mainGUIWindow
@@ -104,11 +104,13 @@ namespace Raven {
         Label::Ptr l = Label::Create("Scene Hierarchy\n");
         top->Pack(l, true, true);
 
-        auto list = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::Create();
+        sceneHierarchyBox = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::Create();
 
         auto formatListItem = [](Box::Ptr aBox) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
             WidgetLibrary::MyEntry* e = (WidgetLibrary::MyEntry*) aBox->GetChildren()[0].get();
-            e->SetRequisition(sf::Vector2f(180.f, 20.f));
+            e->SetRequisition(sf::Vector2f(160.f, 20.f));
             Button* b1 = (Button*)aBox->GetChildren()[1].get();
             b1->SetLabel("Select"); // For selecting the Entity
             Button* b2 = (Button*)aBox->GetChildren()[2].get();
@@ -120,10 +122,12 @@ namespace Raven {
         };
 
         // For testing purposes
-        Box::Ptr b = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 1", formatListItem);
-        Box::Ptr c = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 2", formatListItem);
-        Box::Ptr d = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 3", formatListItem);
-        top->Pack(list, true, true);
+        // These should be added by "creating" entities with the create brush
+        // They will be removed by clicking on the X button next to the entity name
+        Box::Ptr b = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(sceneHierarchyBox, "Entity 1", formatListItem);
+        Box::Ptr c = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(sceneHierarchyBox, "Entity 2", formatListItem);
+        Box::Ptr d = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(sceneHierarchyBox, "Entity 3", formatListItem);
+        top->Pack(sceneHierarchyBox, true, true);
 
         /*
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
@@ -240,11 +244,11 @@ namespace Raven {
         auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
-        createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, createBrush));
+        createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, createBrush));
         auto deleteBrush = Button::Create("Delete");
-        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, deleteBrush));
+        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, deleteBrush));
         auto moveBrush = Button::Create("Move");
-        moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonClick, this, moveBrush));
+        moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, moveBrush));
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
         brushList->Pack(deleteBrush, true, true);
@@ -255,9 +259,69 @@ namespace Raven {
         return t;
     }
 
-    void GUISystem::brushToolbarButtonClick(Button::Ptr clickedButton) {
-        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
-        currentBrush->SetText(clickedButton->GetLabel().toAnsiString());
+    void GUISystem::brushToolbarButtonHandler(Button::Ptr button) {
+        cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        currentBrush->SetText(button->GetLabel().toAnsiString());
+    }
+
+    void GUISystem::sceneHierachySelectButtonHandler(Button::Ptr button) {
+        cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
+
+    void GUISystem::sceneHierachyDeleteButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::sceneHierachyMoveUpButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::sceneHierachyMoveDownButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::sceneHierachyEntryHandler(Entry::Ptr entry) {
+        cout << entry->GetText().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
+
+    void GUISystem::prefabListSelectButtonHandler(Button::Ptr button) {
+        cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
+
+    void GUISystem::prefabListDeleteButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::prefabListMoveUpButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::prefabListMoveDownButtonHandler(Button::Ptr button) {
+
+    }
+
+    void GUISystem::prefabListEntryHandler(Entry::Ptr entry) {
+        cout << entry->GetText().toAnsiString() << " Button Clicked" << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
     }
 
     void GUISystem::canvasClickHandler() {
@@ -277,12 +341,4 @@ namespace Raven {
         }
     }
 
-    void GUISystem::sceneHierachyButton(Button::Ptr clickedButton) {
-        cout << clickedButton->GetLabel().toAnsiString() << " Button Clicked" << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
-    }
 }
