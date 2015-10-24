@@ -34,14 +34,21 @@ namespace Raven {
         mainWindow->setPosition(sf::Vector2i(cmn::WINDOW_XPOS, cmn::WINDOW_YPOS));
 
         // Create the mainGUIWindow
-        mainGUIWindow = makeWidget<MASTER_WINDOW_WTYPE>(TO_STR(MASTER_WINDOW_WTYPE), MASTER_WINDOW_NAME);
+        mainGUIWindow = makeWidget<MASTER_WINDOW_WTYPE>();
         mainGUIWindow->SetStyle(MASTER_WINDOW_WTYPE::Style::BACKGROUND | MASTER_WINDOW_WTYPE::Style::RESIZE);
         mainGUIWindow->SetTitle(MASTER_WINDOW_NAME);
         mainGUIWindow->SetRequisition(sf::Vector2f(cmn::WINDOW_WIDTH,
             cmn::WINDOW_HEIGHT));
 
+        Entry::Ptr e = Entry::Create();
+        e->SetRequisition(sf::Vector2f(180.f, 20.f));
+        e->SetText("Hello World");
+        mainGUIWindow->Add(e);
+
+        /*
+
         // Create the base Table
-        auto table = makeWidget<MASTER_TABLE_WTYPE>(TO_STR(MASTER_TABLE_WTYPE), MASTER_TABLE_NAME);
+        auto table = makeWidget<MASTER_TABLE_WTYPE>();
 
         // Create the various windows that will go inside the table and allocate regions of space for them
         // Implement a 6x5 table with the following structure
@@ -54,12 +61,12 @@ namespace Raven {
         // 4|SH| T| T| T|PL|
         // 5| C| C|ED|ED|ED|
         // 6| C| C|ED|ED|ED|
-        canvas = formatCanvas(makeWidget<CANVAS_WTYPE>(TO_STR(CANVAS_WTYPE), CANVAS_NAME));
-        sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>(TO_STR(SCENE_HIERARCHY_WTYPE), SCENE_HIERARCHY_NAME));
-        content = formatContent(makeWidget<CONTENT_WTYPE>(TO_STR(CONTENT_WTYPE), CONTENT_NAME));
+        canvas = formatCanvas(makeWidget<CANVAS_WTYPE>());
+        sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>());
+        content = formatContent(makeWidget<CONTENT_WTYPE>());
         toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
-        entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>(TO_STR(ENTITY_DESIGNER_WTYPE), ENTITY_DESIGNER_NAME));
-        prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>(TO_STR(PREFAB_LIST_WTYPE), PREFAB_LIST_NAME));
+        entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>());
+        prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>());
         
         // Add all of the various windows to the table, assigning dimensions and settings to the table
         Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
@@ -69,14 +76,14 @@ namespace Raven {
         table->Attach(toolbar, sf::Rect<sf::Uint32>(1, 4, 3, 1), all, all);
         table->Attach(content, sf::Rect<sf::Uint32>(0, 5, 2, 2), all, all);
         table->Attach(entityDesigner, sf::Rect<sf::Uint32>(2, 5, 3, 2), all, all);
-        /* By this point, All top-level widget panels (i.e. stuff in the table) should have 5 instances within this scope */
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
+        */
     }
 
     template <class T>
-    std::shared_ptr<T> GUISystem::makeWidget(std::string widgetType, std::string widgetName) {
+    std::shared_ptr<T> GUISystem::makeWidget() {
         // Create an instance <- works because all Widgets have a static Create() factory method
         std::shared_ptr<T> widget(T::Create());
         // Keep a record of this exact window
@@ -111,8 +118,30 @@ namespace Raven {
     SCENE_HIERARCHY_WTYPE_SPTR GUISystem::formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR sh) {
         sh->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
-        auto list = WidgetList<Label, Box, Button, Button>::Create();
-        auto label = Label::Create(std::to_string(list->GetChildren().size()).c_str());
+        // For some vertical padding at the top
+        Box::Ptr top = Box::Create(Box::Orientation::VERTICAL);
+        Label::Ptr l = Label::Create("Scene Hierarchy\n");
+        top->Pack(l, true, true);
+
+        auto list = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::Create();
+
+        auto formatListItem = [](Box::Ptr aBox) {
+            WidgetLibrary::MyEntry* e = (WidgetLibrary::MyEntry*) aBox->GetChildren()[0].get();
+            e->SetRequisition(sf::Vector2f(180.f, 20.f));
+            Button* b1 = (Button*)aBox->GetChildren()[1].get();
+            b1->SetLabel("Select"); // For selecting the Entity
+            Button* b2 = (Button*)aBox->GetChildren()[2].get();
+            b2->SetLabel("X");      // For deleting the Entity
+            Button* b3 = (Button*)aBox->GetChildren()[3].get();
+            b3->SetLabel("+");      // For moving the Entity up in the list
+            Button* b4 = (Button*)aBox->GetChildren()[4].get();
+            b4->SetLabel("-");      // For moving the Entity down in the list
+        };
+
+        Box::Ptr b = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 1", formatListItem);
+        Box::Ptr c = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 2", formatListItem);
+        Box::Ptr d = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 3", formatListItem);
+        top->Pack(list, true, true);
 
         /*
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
@@ -133,8 +162,7 @@ namespace Raven {
         vbox->Pack(hbox3, true, true);
         */
 
-        sh->AddWithViewport(label);
-        sh->AddWithViewport(list);
+        sh->AddWithViewport(top);
 
         return sh;
     }
@@ -186,11 +214,11 @@ namespace Raven {
 
     // Format the Content widget
     CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
-        componentList = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>(TO_STR(COMPONENT_LIST_WTYPE), COMPONENT_LIST_NAME));
-        textureList = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>(TO_STR(TEXTURE_LIST_WTYPE), TEXTURE_LIST_NAME));
-        musicList = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>(TO_STR(MUSIC_LIST_WTYPE), MUSIC_LIST_NAME));
-        soundList = formatSoundList(makeWidget<SOUND_LIST_WTYPE>(TO_STR(SOUND_LIST_WTYPE), SOUND_LIST_NAME));
-        fontList = formatFontList(makeWidget<FONT_LIST_WTYPE>(TO_STR(FONT_LIST_WTYPE), FONT_LIST_NAME));
+        componentList = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>());
+        textureList = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>());
+        musicList = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>());
+        soundList = formatSoundList(makeWidget<SOUND_LIST_WTYPE>());
+        fontList = formatFontList(makeWidget<FONT_LIST_WTYPE>());
         //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
         c->AppendPage(componentList, Label::Create(COMPONENT_LIST_NAME));
         c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));

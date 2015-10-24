@@ -57,7 +57,7 @@ namespace Raven {
 
         // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
         template <class T>
-        std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
+        std::shared_ptr<T> makeWidget();
 
         // Format the Master Table widget
         //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);

@@ -2,6 +2,8 @@
 
 namespace Raven {
 
-    template <typename... Widgets>
-    unsigned int WidgetList<Widgets...>::counter = 0;
+    namespace WidgetLibrary {
+
+        unsigned int WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::counter = 0;
+    }
 }

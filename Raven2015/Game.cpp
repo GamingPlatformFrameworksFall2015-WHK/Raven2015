@@ -45,7 +45,7 @@ namespace Raven {
     }
 
     void Game::updateEditMode(ex::TimeDelta dt) {
-        systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
+        //systems.update<RenderingSystem>(dt); // draw all entities to the Canvas
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 
