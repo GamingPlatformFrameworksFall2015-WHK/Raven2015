@@ -267,7 +267,7 @@ namespace Raven {
         XMLElement* vector = node->FirstChildElement("Velocity");
         vector->FirstChildElement("X")->QueryFloatText(&velocity.x);
         vector->FirstChildElement("Y")->QueryFloatText(&velocity.y);
-        XMLElement* vector = node->FirstChildElement("Origin");
+        vector = node->FirstChildElement("Origin");
         vector->FirstChildElement("X")->QueryFloatText(&velocity.x);
         vector->FirstChildElement("Y")->QueryFloatText(&velocity.y);
         node->FirstChildElement("Radius")->QueryFloatText(&radius);

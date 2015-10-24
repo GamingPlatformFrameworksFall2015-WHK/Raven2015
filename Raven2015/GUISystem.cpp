@@ -91,7 +91,6 @@ namespace Raven {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
             if (event->type == sf::Event::Closed) {
-                //desktop->Remove(getCanvas());
                 mainWindow->close();
             }
             //-----------------------------------------------
@@ -99,8 +98,6 @@ namespace Raven {
             // Use the value returned by this function to then call another function that will emit an event that triggers the
             // corresponding action on all entities listening for that action via a Pawn component.
             //-----------------------------------------------
-            //if(widgetMap["Canvas"]->OnMouseLeftPress)
-            //cout << widgetMap["Canvas"]->GetAbsolutePosition().x << " " << widgetMap["Canvas"]->GetAbsolutePosition().y << endl;
             input->handleEvent(*event);
         }
     }
@@ -114,6 +111,10 @@ namespace Raven {
     SCENE_HIERARCHY_WTYPE_SPTR GUISystem::formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR sh) {
         sh->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
+        auto list = WidgetList<Label, Box, Button, Button>::Create();
+        auto label = Label::Create(std::to_string(list->GetChildren().size()).c_str());
+
+        /*
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
         auto hbox1 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
         auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
@@ -130,21 +131,10 @@ namespace Raven {
         vbox->Pack(hbox1, true, true);
         vbox->Pack(hbox2, true, true);
         vbox->Pack(hbox3, true, true);
+        */
 
-        sh->AddWithViewport(vbox);
-
-        /*auto box = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
-        auto button1 = sfg::Button::Create();
-        auto button2 = sfg::Button::Create();
-        auto label = sfg::Label::Create();
-        button1->SetLabel("Foo");
-        button2->SetLabel("Bar");
-        label->SetText("Baz");
-        box->Pack(button1);
-        box->Pack(label);
-        box->Pack(button2);
-        box->SetSpacing(0.5f);
-        sh->AddWithViewport(box);*/
+        sh->AddWithViewport(label);
+        sh->AddWithViewport(list);
 
         return sh;
     }
