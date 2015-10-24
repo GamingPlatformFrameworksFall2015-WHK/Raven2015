@@ -1,6 +1,11 @@
+/*
+ *
+ */
+#include "Common.h"
 #include "RenderingSystem.h"
 #include "SFML/Graphics.hpp"
 #include <algorithm>
+#include "Game.h"
 
 using namespace Raven;
 
@@ -74,13 +79,19 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         cerr << "Error: RenderingSystem::canvas invalid during attempt to draw on RenderingSystem::update" << endl;
         throw 1;
     }
-    
+
     // Determine the next image to be drawn to the screen for each sprite
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
 
+        // If we are currently in editMode, don't bother updating the animation frames.
+        // Just draw everything as-is.
+        if (cmn::game->editMode) {
+            return;
+        }
+
         // Acquire each std::string-RenderableSprite pair in the renderer
         for (auto name_renderable : renderer.sprites) {
-
+    
             // Save the current Animation
             Animation anim = animationMap[name_renderable.second->animName];
 

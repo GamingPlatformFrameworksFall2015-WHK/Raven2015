@@ -131,7 +131,7 @@ namespace Raven {
     // auto buttonList = ButtonList::Create();
     // ButtonList::appendButton(buttonList, "My Button Label");
     // 
-    template <typename... Args> // where W is the types of Widgets to be embedded in the List items
+    template <typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
     class WidgetList {
     public:
         static void insertWidget(Box::Ptr type, size_t position, std::string labelName) {
@@ -141,12 +141,12 @@ namespace Raven {
         }
 
         static void appendWidget(Box::Ptr type, std::string labelName) {
-            type->PackEnd(makeWidgetBox<Args>(labelName), true, true);
+            type->PackEnd(makeWidgetBox<Widgets>(labelName), true, true);
             //sortList(type);
         }
 
         static void prependWidget(Box::Ptr type, std::string labelName) {
-            type->PackStart(makeWidgetBox<Args>(labelName), true, true);
+            type->PackStart(makeWidgetBox<Widgets>(labelName), true, true);
             //sortList(type);
         }
 
@@ -186,7 +186,6 @@ namespace Raven {
             box->Pack(widget, true, false);
             Box::Ptr finalBox = box; // save the address of the box
             counter = 0; //set our counter to 0 for the next makeWidget call
-            box = nullptr; // ensure that box starts out as null for the next 
             return finalBox;
         }
 
@@ -200,11 +199,11 @@ namespace Raven {
             }
             auto widget = W::Create(labelName + "Item " + std::to_string(counter++));
             box->Pack(widget, true, false);
-            return makeWidgetBox<Widgets>(labelName, box);
+            return makeWidgetBox<Widgets...>(labelName, box);
         }
 
         static bool compareWidgets(Box::Ptr first, Box::Ptr second) {
-            return first->GetChildren().front()->getName() < second->GetChildren().front()->getName() ? true : false;
+            return first->GetChildren().front()->GetName() < second->GetChildren().front()->GetName() ? true : false;
         }
     };
 

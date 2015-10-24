@@ -2,6 +2,6 @@
 
 namespace Raven {
 
-    template <typename... Args>
-    unsigned int WidgetList<Args...>::counter = 0;
+    template <typename... Widgets>
+    unsigned int WidgetList<Widgets...>::counter = 0;
 }

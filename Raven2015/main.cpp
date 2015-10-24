@@ -76,7 +76,7 @@ int main() {
 
     //Create vertical pacer
     ex::Entity vertPacerEntity = EntityLibrary::Create::Entity("Vertical Pacer");
-    vertPacerEntity.assign<Pacer>(VERT_PATH, sf::Vector2f(200.0f, 200.0f), 20.0f);
+    vertPacerEntity.assign<Pacer>(Pacer::Direction::VERTICAL, sf::Vector2f(200.0f, 200.0f), 20.0f);
     vertPacerEntity.component<Transform>()->transform.x = 200.0f;
     vertPacerEntity.component<Transform>()->transform.y = 200.0f;
     vertPacerEntity.component<Rigidbody>();
@@ -86,7 +86,7 @@ int main() {
 
     //Create horizontal pacer
     ex::Entity horPacerEntity = EntityLibrary::Create::Entity("Horizontal Pacer");
-    horPacerEntity.assign<Pacer>(HOR_PATH, sf::Vector2f(350.0f, 500.0f), 50.0f);
+    horPacerEntity.assign<Pacer>(Pacer::Direction::HORIZONTAL, sf::Vector2f(350.0f, 500.0f), 50.0f);
     horPacerEntity.component<Transform>()->transform.x = 350.0f;
     horPacerEntity.component<Transform>()->transform.y = 300.0f;
     horPacerEntity.component<Rigidbody>();

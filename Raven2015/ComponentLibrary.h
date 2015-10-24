@@ -362,8 +362,8 @@ namespace Raven {
 
     // An abstract component used to classify player objects
     struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pawn() : playerId(initId()) {
+        // Creates new instance of Pawn with an assumed ID
+        Pawn() : playerId(getId()) {
             if (playerId == -1) {
                 cerr << "WARNING: Pawn component generated with automatic invalid player ID."
                     " This Pawn will not respond to input." << endl;
@@ -373,6 +373,7 @@ namespace Raven {
             }
         }
 
+        // Creates a new instance of Pawn and attempts to assign a given ID
         Pawn(int playerId) {
             if (!ids.test(playerId)) {
                 this->playerId = playerId;
@@ -381,7 +382,7 @@ namespace Raven {
             else {
                 cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
                     " to the given entity." << endl;
-                int i = Pawn::initId();
+                int i = getId();
                 if (i == -1) {
                     cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
                 }
@@ -397,11 +398,14 @@ namespace Raven {
 
         ~Pawn() { ids.reset(playerId); }
 
+        // The distinct id associated with the Pawn
         int playerId;
 
+        // The total set of possible IDs available for Pawns
         static std::bitset<4> ids;
 
-        static int initId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+        // Acquires the next available ID
+        static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
 
         //Serialization and deserialization for edit/play mode
         virtual std::string serialize(std::string tab) override;
@@ -431,24 +435,33 @@ namespace Raven {
     // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
     // movement radius.
     struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+
+        enum Direction {
+            VERTICAL,
+            HORIZONTAL,
+            DIAGONAL
+        };
+
         // Creates new instance of struct
-        Pacer(std::string direction, sf::Vector2f origin, float radius) 
+        Pacer(Direction direction, sf::Vector2f origin, float radius) 
             : direction(direction), origin(origin), radius(radius) {
 
+            switch (direction) {
+            case Direction::VERTICAL:
             // Vertical path will only have a velocity in the y direction
-            if (direction == VERT_PATH) {
                 velocity.x = 0.f;
                 velocity.y = 0.1f;
-            }
+                break;
+            case Direction::HORIZONTAL:
             // Horizontal path will only have velocity in the x direction
-            else if (direction == HOR_PATH) {
                 velocity.x = 0.1f;
                 velocity.y = 0.f;
-            }
-            // Diagonal path will have both x and y velocities
-            else {
+                break;
+            case Direction::DIAGONAL:
+                // Diagonal path will have both x and y velocities
                 velocity.x = 0.1f;
                 velocity.y = 0.1f;
+                break;
             }
         }
 
@@ -456,10 +469,11 @@ namespace Raven {
         Pacer(const Pacer& other) {
             direction = other.direction;
             velocity = other.velocity;
+            origin = other.origin;
         }
 
-        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-        std::string direction;
+        // The direction along which the Pacer should move
+        Direction direction;
 
         // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
         sf::Vector2f velocity;
