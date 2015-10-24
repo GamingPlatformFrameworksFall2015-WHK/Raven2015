@@ -55,10 +55,6 @@ namespace Raven {
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
-        // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
-        template <class T>
-        std::shared_ptr<T> makeWidget();
-
         // Format the Master Table widget
         //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
