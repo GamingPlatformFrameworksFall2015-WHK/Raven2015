@@ -98,7 +98,8 @@ using namespace sfg;
 
 ///// Low-Level Widgets
 
-#define SCENE_HIERARCHY_LIST_ITEM_TEMPLATE WidgetLibrary::MyEntry, Button, Button, Button, Button
+#define SCENE_HIERARCHY_LIST_ITEM_TEMPLATE Entry, Button, Button, Button, Button
+#define PREFAB_LIST_LIST_ITEM_TEMPLATE Entry, Button, Button, Button, Button
 
 
 /////////////////////
@@ -217,18 +218,6 @@ namespace Raven {
             static bool compareWidgets(Box::Ptr first, Box::Ptr second) {
                 return first->GetChildren().front()->GetName() < second->GetChildren().front()->GetName() ? true : false;
             }
-        };
-
-        class MyEntry : public Entry {
-
-            MyEntry() : Entry() {
-
-            }
-
-            void HandleKeyEvent( sf::Keyboard::Key key, bool press) override {
-                cout << "Character was pressed: " << key << " " << press << endl;
-            }
-
         };
     }
 
