@@ -46,7 +46,6 @@ int main() {
     std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
     // This should all eventually get converted into XML, that way no "registration" is required
-    /*
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
         new Animation("Resources/Textures/BlueDot_vibrating.png", 4, true, 100.0));
@@ -123,7 +122,6 @@ int main() {
 
     //std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
-    */
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
@@ -136,7 +134,7 @@ int main() {
 
         // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
-            //efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
+            efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
             fpsTimer.restart();
             fps = 0;
         }
@@ -152,9 +150,7 @@ int main() {
         while (accumulator >= FPS_100_TICK_TIME) {
             game.systems.system<GUISystem>()->pollEvents();
             game.systems.system<GUISystem>()->clear();
-            //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
-            game.updateEditMode(frameTime);
-            //game.systems.system<GUISystem>()->update(frameTime);
+            game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
             fps++;
             accumulator -= FPS_100_TICK_TIME;
         }

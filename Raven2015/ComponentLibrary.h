@@ -34,9 +34,9 @@ namespace Raven {
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t, 
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable, Pawn, Villain, Tracker, Pacer, 
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable, Pawn, Villain, Tracker, Pacer
 // Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
 // Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
 #define COMPONENTS_OF_ENTITY(e) \

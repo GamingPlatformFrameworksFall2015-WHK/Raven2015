@@ -40,15 +40,20 @@ namespace Raven {
         mainGUIWindow->SetRequisition(sf::Vector2f(cmn::WINDOW_WIDTH,
             cmn::WINDOW_HEIGHT));
 
-        Entry::Ptr e = Entry::Create();
-        e->SetRequisition(sf::Vector2f(180.f, 20.f));
-        e->SetText("Hello World");
-        mainGUIWindow->Add(e);
+        // Create the base Table
+        auto table = Table::Create();
 
         /*
+        //auto window = ScrolledWindow::Create();
+        //window->AddWithViewport(e);
+        Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
+        table->Attach(e, sf::Rect<sf::Uint32>(0, 0, 1, 5), all, all);
+        table->Attach(Button::Create("Test 1"), sf::Rect<sf::Uint32>(1, 0, 1, 1), all, all);
+        table->Attach(Button::Create("Test 2"), sf::Rect<sf::Uint32>(1, 1, 1, 1), all, all);
+        mainGUIWindow->Add(table);
+        desktop->Add(mainGUIWindow);
+        */
 
-        // Create the base Table
-        auto table = makeWidget<MASTER_TABLE_WTYPE>();
 
         // Create the various windows that will go inside the table and allocate regions of space for them
         // Implement a 6x5 table with the following structure
@@ -61,12 +66,12 @@ namespace Raven {
         // 4|SH| T| T| T|PL|
         // 5| C| C|ED|ED|ED|
         // 6| C| C|ED|ED|ED|
-        canvas = formatCanvas(makeWidget<CANVAS_WTYPE>());
-        sceneHierarchy = formatSceneHierarchy(makeWidget<SCENE_HIERARCHY_WTYPE>());
-        content = formatContent(makeWidget<CONTENT_WTYPE>());
+        canvas = formatCanvas(Canvas::Create("Canvas"));
+        sceneHierarchy = formatSceneHierarchy(ScrolledWindow::Create());
+        content = formatContent(Notebook::Create());
         toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
-        entityDesigner = formatEntityDesigner(makeWidget<ENTITY_DESIGNER_WTYPE>());
-        prefabList = formatPrefabList(makeWidget<PREFAB_LIST_WTYPE>());
+        entityDesigner = formatEntityDesigner(ScrolledWindow::Create());
+        prefabList = formatPrefabList(ScrolledWindow::Create());
         
         // Add all of the various windows to the table, assigning dimensions and settings to the table
         Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
@@ -79,7 +84,6 @@ namespace Raven {
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
-        */
     }
 
     template <class T>
@@ -138,6 +142,7 @@ namespace Raven {
             b4->SetLabel("-");      // For moving the Entity down in the list
         };
 
+        // For testing purposes
         Box::Ptr b = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 1", formatListItem);
         Box::Ptr c = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 2", formatListItem);
         Box::Ptr d = WidgetLibrary::WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::appendWidget(list, "Entity 3", formatListItem);
@@ -214,11 +219,11 @@ namespace Raven {
 
     // Format the Content widget
     CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
-        componentList = formatComponentList(makeWidget<COMPONENT_LIST_WTYPE>());
-        textureList = formatTextureList(makeWidget<TEXTURE_LIST_WTYPE>());
-        musicList = formatMusicList(makeWidget<MUSIC_LIST_WTYPE>());
-        soundList = formatSoundList(makeWidget<SOUND_LIST_WTYPE>());
-        fontList = formatFontList(makeWidget<FONT_LIST_WTYPE>());
+        componentList = formatComponentList(ScrolledWindow::Create());
+        textureList = formatTextureList(ScrolledWindow::Create());
+        musicList = formatMusicList(ScrolledWindow::Create());
+        soundList = formatSoundList(ScrolledWindow::Create());
+        fontList = formatFontList(ScrolledWindow::Create());
         //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
         c->AppendPage(componentList, Label::Create(COMPONENT_LIST_NAME));
         c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));
@@ -255,9 +260,6 @@ namespace Raven {
     // Format the Toolbar widget
     TOOLBAR_WTYPE_SPTR GUISystem::formatToolbar(TOOLBAR_WTYPE_SPTR t) {
 
-        //widgetMap.insert(std::make_pair(TOOLBAR_NAME, t));
-        desktop->Add(t); // Must be manually added to the desktop because the makeWidget function doesn't allow for constructors which
-                         // we need for the Box constructor
         auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
