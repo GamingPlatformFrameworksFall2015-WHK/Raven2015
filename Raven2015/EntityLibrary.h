@@ -42,18 +42,23 @@ namespace Raven {
         template <typename T, typename... Args>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
 
-        static void updateEntityRecord(ex::Entity e, std::string newName) {
-            cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName);
+        static void updateEntityRecord(ex::Entity e, std::string newName, bool isPrefab) {
+            cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName, isPrefab);
         }
 
         struct Create {
 
-            static ex::Entity Entity(std::string entityName = "Default Entity") {
+            static ex::Entity Entity(std::string entityName = "Default Entity", bool isPrefab = false) {
                 ex::Entity e = cmn::entities->create();
-                std::string s = (e.assign<Data>()->name = entityName + " " + std::to_string(counter++));
+                ex::ComponentHandle<Data> data = e.assign<Data>();
                 e.assign<Transform>();
                 e.assign<Rigidbody>();
-                updateEntityRecord(e, s);
+                std::string name = entityName;
+                if (!isPrefab) {
+                    name += " " + std::to_string(counter++);
+                }
+                data->name = name;
+                updateEntityRecord(e, name, isPrefab);
                 return e;
             }
 

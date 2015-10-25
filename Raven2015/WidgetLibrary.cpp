@@ -2,8 +2,6 @@
 
 namespace Raven {
 
-    namespace WidgetLibrary {
-
-        unsigned int WidgetList<SCENE_HIERARCHY_LIST_ITEM_TEMPLATE>::counter = 0;
-    }
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::counter = 0;
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::counter = 0;
 }

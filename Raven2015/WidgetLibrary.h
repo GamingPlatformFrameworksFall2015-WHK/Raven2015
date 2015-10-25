@@ -5,107 +5,103 @@
 
 using namespace sfg;
 
-// Shared pointer to a given type t
+namespace Raven {
+
+    struct WidgetLibrary {
+
+        // Shared pointer to a given type t
 #define SPTR(t) std::shared_ptr<t>
 // Shared pointer to an Widget
 #define WSPTR SPTR(Widget)
 // Convert contents into something within a string
 #define TO_STR(s) #s
-// Statically casts an instance of std::shared_ptr<Widget> wptr to a shared pointer of the given Widget type t
-// For example: WIDGET_CAST(vector<std::shared_ptr<Widget>>().front(), Box) provides a shared pointer to an Box
-//     IF the first item in the vector is, in fact, an Box.
-// Use only when you are absolutely sure of wptr's runtime type
-#define WIDGET_CAST(wptr, t) SPTR(t)( (t*) wptr.get() )
 
 //////// Type Macros //////////
-
-///// Widget Types
-#define WIDGET_T Widget
-#define WINDOW_T Window
-#define SCROLLEDWINDOW_T ScrolledWindow
-#define NOTEBOOK_T Notebook
-#define BOX_T Box
-#define TABLE_T Table
-#define CANVAS_T Canvas
-#define BUTTON_T Button
 
 ///// High-Level Widgets
 
 // MasterWindow
-#define MASTER_WINDOW_WTYPE WINDOW_T
+#define MASTER_WINDOW_WTYPE Window 
 #define MASTER_WINDOW_WTYPE_SPTR SPTR(WINDOW_T)
 #define MASTER_WINDOW_NAME "Master Window"
 
 // MasterTable
-#define MASTER_TABLE_WTYPE TABLE_T
+#define MASTER_TABLE_WTYPE Table
 #define MASTER_TABLE_WTYPE_SPTR SPTR(TABLE_T)
 #define MASTER_TABLE_NAME "Layout Table"
 
 // SceneHierarchy
-#define SCENE_HIERARCHY_WTYPE SCROLLEDWINDOW_T
+#define SCENE_HIERARCHY_WTYPE ScrolledWindow
+class SceneHierarchyPanel {};
 #define SCENE_HIERARCHY_WTYPE_SPTR SPTR(SCENE_HIERARCHY_WTYPE)
 #define SCENE_HIERARCHY_NAME "Scene Hierarchy"
 
 // ComponentList
-#define COMPONENT_LIST_WTYPE SCROLLEDWINDOW_T
+#define COMPONENT_LIST_WTYPE ScrolledWindow
+class ComponentListPanel {};
 #define COMPONENT_LIST_WTYPE_SPTR SPTR(COMPONENT_LIST_WTYPE)
 #define COMPONENT_LIST_NAME "Components"
 
 // TextureList
-#define TEXTURE_LIST_WTYPE SCROLLEDWINDOW_T
+#define TEXTURE_LIST_WTYPE ScrolledWindow
+class TextureListPanel {};
 #define TEXTURE_LIST_WTYPE_SPTR SPTR(TEXTURE_LIST_WTYPE)
 #define TEXTURE_LIST_NAME "Textures"
 
 // MusicList
-#define MUSIC_LIST_WTYPE SCROLLEDWINDOW_T
+#define MUSIC_LIST_WTYPE ScrolledWindow
+class MusicListPanel {};
 #define MUSIC_LIST_WTYPE_SPTR SPTR(MUSIC_LIST_WTYPE)
 #define MUSIC_LIST_NAME "Music"
 
 // SoundList
-#define SOUND_LIST_WTYPE SCROLLEDWINDOW_T
+#define SOUND_LIST_WTYPE ScrolledWindow
+class SoundListPanel {};
 #define SOUND_LIST_WTYPE_SPTR SPTR(SOUND_LIST_WTYPE)
 #define SOUND_LIST_NAME "Sounds"
 
 // FontList
-#define FONT_LIST_WTYPE SCROLLEDWINDOW_T
+#define FONT_LIST_WTYPE ScrolledWindow
+class FontListPanel {};
 #define FONT_LIST_WTYPE_SPTR SPTR(FONT_LIST_WTYPE)
 #define FONT_LIST_NAME "Fonts"
 
 // Content
-#define CONTENT_WTYPE NOTEBOOK_T
+#define CONTENT_WTYPE Notebook
+class ContentPanel {};
 #define CONTENT_WTYPE_SPTR SPTR(CONTENT_WTYPE)
 #define CONTENT_NAME "Content"
 
 // EntityDesigner
-#define ENTITY_DESIGNER_WTYPE SCROLLEDWINDOW_T
+#define ENTITY_DESIGNER_WTYPE ScrolledWindow
+class EntityDesignerPanel {};
 #define ENTITY_DESIGNER_WTYPE_SPTR SPTR(ENTITY_DESIGNER_WTYPE)
 #define ENTITY_DESIGNER_NAME "Entity Designer"
 
 // PrefabList
-#define PREFAB_LIST_WTYPE SCROLLEDWINDOW_T
+#define PREFAB_LIST_WTYPE ScrolledWindow
+class PrefabListPanel {};
 #define PREFAB_LIST_WTYPE_SPTR SPTR(PREFAB_LIST_WTYPE)
 #define PREFAB_LIST_NAME "Prefab List"
 
-// Canvas
-#define CANVAS_WTYPE CANVAS_T
+            // Canvas
+#define CANVAS_WTYPE Canvas
+class CanvasPanel {};
 #define CANVAS_WTYPE_SPTR SPTR(CANVAS_WTYPE)
 #define CANVAS_NAME "Canvas"
 
-// Toolbar
-#define TOOLBAR_WTYPE BOX_T
+        // Toolbar
+#define TOOLBAR_WTYPE Box
+class ToolbarPanel {};
 #define TOOLBAR_WTYPE_SPTR SPTR(TOOLBAR_WTYPE)
 #define TOOLBAR_NAME "Toolbar"
 
-///// Low-Level Widgets
+        ///// Low-Level Widgets
 
-#define SCENE_HIERARCHY_LIST_ITEM_TEMPLATE WidgetLibrary::MyEntry, Button, Button, Button, Button
+#define ENTITY_LIST_LIST_ITEM_TEMPLATE Entry, Button, Button, Button, Button
 
 
 /////////////////////
-
-namespace Raven {
-
-    namespace WidgetLibrary {
 
         // --------------------------------------------------------------------------------------------
         // To interface with any custom Widget class, you must treat it purely as a utility class.
@@ -132,10 +128,10 @@ namespace Raven {
         // auto buttonList = ButtonList::Create();
         // ButtonList::appendButton(buttonList, "My Button Label");
         // 
-        template <typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
+        template <typename PanelType, typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
         class WidgetList {
         public:
-            static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+            static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->Pack(b, true, true);
                 listItemFormatter(b);
@@ -144,7 +140,7 @@ namespace Raven {
                 return b;
             }
 
-            static Box::Ptr appendWidget(Box::Ptr type, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+            static Box::Ptr appendWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->Pack(b, true, true);
                 listItemFormatter(b);
@@ -152,7 +148,7 @@ namespace Raven {
                 return b;
             }
 
-            static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void (*listItemFormatter)(Box::Ptr)) {
+            static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->PackStart(b, true, true);
                 listItemFormatter(b);
@@ -160,8 +156,13 @@ namespace Raven {
                 return b;
             }
 
-            static void removeWidget(Box::Ptr type, size_t position) {
-                type->Remove(type->GetChildren()[position]);
+            static void removeWidget(Box::Ptr type, std::string labelName) {
+                for (int i = 0; i < type->GetChildren().size(); ++i) {
+                    if (labelName == type->GetChildren()[i]->GetName()) {
+                        type->Remove(type->GetChildren()[i]);
+                        break;
+                    }
+                }
                 //sortList(type);
             }
 
@@ -194,10 +195,9 @@ namespace Raven {
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
+                auto widget = W::Create(labelName + " " + std::to_string(counter++));
                 box->Pack(widget, true, true);
                 Box::Ptr finalBox = box; // save the address of the box
-                counter = 0; //set our counter to 0 for the next makeWidget call
                 return finalBox;
             }
 
@@ -209,7 +209,7 @@ namespace Raven {
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " Item " + std::to_string(counter++));
+                auto widget = W::Create(labelName + " " + std::to_string(counter));
                 box->Pack(widget, true, true);
                 return makeWidgetBox<Widgets...>(labelName, box, nullptr);
             }
@@ -218,18 +218,5 @@ namespace Raven {
                 return first->GetChildren().front()->GetName() < second->GetChildren().front()->GetName() ? true : false;
             }
         };
-
-        class MyEntry : public Entry {
-
-            MyEntry() : Entry() {
-
-            }
-
-            void HandleKeyEvent( sf::Keyboard::Key key, bool press) override {
-                cout << "Character was pressed: " << key << " " << press << endl;
-            }
-
-        };
-    }
-
+    };
 }
