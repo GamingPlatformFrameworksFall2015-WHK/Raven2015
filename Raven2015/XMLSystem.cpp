@@ -25,7 +25,8 @@ namespace Raven {
 #pragma region Raven Game Serialization
 
     std::string XMLSystem::serializeRavenGame() {
-        return "<?xml version=\"1.0\"?>\r\n"
+        std::string s = 
+            "<?xml version=\"1.0\"?>\r\n"
             "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
             "<RAVEN>\r\n"
             "  <Assets>\r\n" +
@@ -44,6 +45,7 @@ namespace Raven {
             serializePrefabMap("  ") +
             serializeLevelMap("  ") +
             "</RAVEN>\r\n";
+        return s;
     }
 
     void XMLSystem::deserializeRavenGame() {
@@ -72,14 +74,54 @@ namespace Raven {
             tab + (forPrefab ? "<P" : "<L") + "Entity>\r\n";
         std::string tempTab = tab;  // save tab
         tab += "  ";                // increment tab
-        SERIALIZE_COMPONENTS(e, str, forPrefab)// process components
+        str += serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab, forPrefab, COMPONENT_TYPES(::getNullPtrToType()));// process components
         tab = tempTab;              // reinstate tab
         return str +=
             tab + (forPrefab ? "</P" : "</L") + "Entity>\r\n";
     }
 
     void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab) {
-        DESERIALIZE_COMPONENTS(e, node, forPrefab)
+        deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, forPrefab, true, COMPONENT_TYPES(::getNullPtrToType()));
+    }
+
+    template <typename C>
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c = nullptr) {
+        if (e.has_component<C>()) {
+            return e.component<C>()->serialize(tab, forPrefab);
+        }
+        return "";
+    }
+
+    template <typename C, typename... Components>
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components) {
+        std::string s = "";
+        if (e.has_component<C>()) {
+            s = e.component<C>()->serialize(tab, forPrefab);
+        }
+        return s + serializeEntityComponents<Components...>(e, tab, forPrefab, components...);
+    }
+
+    template <typename C>
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c) {
+        if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
+        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        if (elem) {
+            e.assign<C>()->deserialize(elem, forPrefab);
+        }
+    }
+
+    template <typename C, typename... Components>
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components) {
+        if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
+        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        if (elem) {
+            e.assign<C>()->deserialize(elem, forPrefab);
+            cout << "Found Component. Deserializing... : " + C::getElementName(forPrefab) << endl;
+        }
+        else {
+            cout << "Could not find component: " + C::getElementName(forPrefab) << endl;
+        }
+        deserializeEntityComponents<Components...>(e, node, forPrefab, false, components...);
     }
 
 #pragma endregion
@@ -292,6 +334,7 @@ namespace Raven {
         for (auto item : prefabMap) {
             prefabMapContent +=
                 serializeEntity(*item.second, tab + "  ", true);
+            cout << "----START----\r\n" << prefabMapContent << "----END----\r\n" << endl;
         }
         return
             tab + "<Prefabs>\r\n" +
@@ -501,7 +544,7 @@ namespace Raven {
             levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
             while (item) {
                 std::string prefabName = item->FirstChildElement("PrefabNameCheck")->GetText();
-                std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
+                std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::entities->create()));
                 if (prefabName == "") {
                     XMLSystem::deserializeEntity(*entity, item->FirstChildElement("LEntity"), false);
                 }

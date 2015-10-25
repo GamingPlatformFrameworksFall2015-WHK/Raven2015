@@ -46,57 +46,22 @@ namespace Raven {
 #define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
 // Used to pass into templated lists for acquiring all component types
 #define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
-// Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
-// Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
-#define COMPONENTS_OF_ENTITY(e) \
-            *e.component<Data>().get(), \
-            *e.component<Transform>().get(), \
-            *e.component<Rigidbody>().get(), \
-            *e.component<BoxCollider>().get(), \
-            *e.component<SoundMaker>().get(), \
-            *e.component<MusicMaker>().get(), \
-            *e.component<Renderer>().get(), \
-            *e.component<Pawn>().get(), \
-            *e.component<Villain>().get(), \
-            *e.component<Tracker>().get(), \
-            *e.component<Pacer>().get() 
-// Used to serialize each component
-#define SERIALIZE_COMPONENTS(e, str, forPrefab) \
-            SERIALIZE_COMPONENT(Data, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Transform, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Rigidbody, e, str, forPrefab); 
-            /*SERIALIZE_COMPONENT(BoxCollider, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(SoundMaker, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(MusicMaker, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Renderer, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Pawn, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Villain, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Tracker, e, str, forPrefab); \
-            SERIALIZE_COMPONENT(Pacer, e, str, forPrefab); */
-// Used to deserialize each component
-#define DESERIALIZE_COMPONENTS(e, node, forPrefab) \
-            DESERIALIZE_COMPONENT(Data, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Transform, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Rigidbody, e, node, forPrefab); 
-            /*DESERIALIZE_COMPONENT(BoxCollider, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(SoundMaker, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(MusicMaker, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Renderer, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Pawn, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Villain, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Tracker, e, node, forPrefab); \
-            DESERIALIZE_COMPONENT(Pacer, e, node, forPrefab); */
 /******************************************************************************************************************/
     enum ComponentType {
         COMPONENT_TYPES(_t)
     };
 
+// serialize:        for serializing the component
+// deserialize:      for de-serializing the component
+// getElementName:   for acquiring the wrapper element name for the component's serialized form
+// getType:          for acquiring a switchable indicator of the component's type (currently unused)
+// getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
 #define ADD_DEFAULTS(type_name) \
         virtual std::string serialize(std::string tab, bool forPrefab) override; \
         virtual void deserialize(XMLNode* node, bool forPrefab) override; \
-        static std::string getElementName() { return #type_name; } \
-        static ComponentType getType() { return ComponentType::type_name##_t; }
-
+        static std::string getElementName(bool forPrefab) { return std::string((forPrefab ? "P" : "L")) + #type_name; } \
+        static ComponentType getType() { return ComponentType::type_name##_t; } \
+        static type_name##* getNullPtrToType() { return nullptr; } 
 
 #pragma region Data
 

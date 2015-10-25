@@ -47,9 +47,15 @@ namespace Raven {
 
         // Serializes all components on the given entity while taking into account the current tab amount
         std::string serializeEntity(ex::Entity e, std::string tab, bool forPrefab);
-
-        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
         void deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab);
+        template <typename C>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c);
+        template <typename C, typename... Components>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components);
+        template <typename C>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c);
+        template <typename C, typename... Components>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components);
 
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
