@@ -189,6 +189,17 @@ namespace Raven {
         bool isPrefab;
     };
 
+    template <typename RenderableAsset>
+    struct XMLDeserializeRendererAsset : public ex::Event<XMLDeserializeRendererAsset<RenderableAsset>> {
+
+        XMLDeserializeRendererAsset(std::string assetName, std::map<std::string, std::shared_ptr<RenderableAsset>>& assets, bool forPrefabs) :
+            assetName(assetName), assets(&assets), forPrefabs(forPrefabs) {}
+
+        std::string assetName;
+        std::map<std::string, std::shared_ptr<RenderableAsset>>* assets;
+        bool forPrefabs;
+    };
+
 #pragma endregion
 
 

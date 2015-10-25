@@ -46,10 +46,10 @@ namespace Raven {
         void deserializeRavenGame();
 
         // Serializes all components on the given entity while taking into account the current tab amount
-        std::string serializeEntity(ex::Entity e, std::string tab);
+        std::string serializeEntity(ex::Entity e, std::string tab, bool forPrefab);
 
         // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
-        void deserializeEntity(ex::Entity e, XMLNode* node);
+        void deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab);
 
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
@@ -109,7 +109,7 @@ namespace Raven {
         void deserializeLevelMap(XMLNode* node);
 
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
-        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
+        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
 
     };
 

@@ -1,22 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <!DOCTYPE RAVEN SYSTEM "raven.dtd">
 <RAVEN>
-    <Assets>
-        <Textures/>
-        <Music/>
-        <Sounds/>
-        <Fonts/>
-        <Animations/>
-        <Renderables>
-            <RenderableTexts/>
-            <RenderableRectangles/>
-            <RenderableCircles/>
-            <RenderableSprites/>
-        </Renderables>
-    </Assets>
-    <Prefabs/>
-  <Levels>
-    <Level Name="Default Level">
-    </Level>
-  </Levels>
+  <Assets>
+    <Textures/>
+    <Music/>
+    <Sounds/>
+    <Fonts/>
+    <Animations/>
+    <Renderables>
+      <RenderableTexts/>
+      <RenderableRectangles/>
+      <RenderableCircles/>
+      <RenderableSprites/>
+    </Renderables>
+  </Assets>
+  <Prefabs>
+    <PEntity>
+      <PData>
+        <PName>Base Entity</PName>
+        <PPrefabName>Base Entity</PPrefabName>
+        <PModified>0</PModified>
+      </PData>
+      <PTransform>
+        <PSubTransform>
+          <PTransformX>0.0000</PTransformX>
+          <PTransformY>0.0000</PTransformY>
+        </PSubTransform>
+        <PRotation>0.0000</PRotation>
+      </PTransform>
+      <PRigidbody>
+        <PVelocity>
+          <PVelocityX>0.0000</PVelocityX>
+          <PVelocityY>0.0000</PVelocityY>
+        </PVelocity>
+        <PAcceleration>
+          <PAccelerationX>0.0000</PAccelerationX>
+          <PAccelerationY>0.0000</PAccelerationY>
+        </PAcceleration>
+        <PRadialVelocity>0.0000</PRadialVelocity>
+      </PRigidbody>
+    </PEntity>
+  </Prefabs>
+    <Levels>
+        <Level Name="Default Level"/>
+    </Levels>
 </RAVEN>

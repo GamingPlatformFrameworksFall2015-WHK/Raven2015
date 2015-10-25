@@ -28,6 +28,7 @@
 #include "InputSystem.h"
 #include "RenderingSystem.h"
 #include "GUISystem.h"
+#include "XMLSystem.h"
 #include "entityx/deps/Dependencies.h"
 #include "EntityLibrary.h"
 #include "Game.h"
@@ -125,7 +126,17 @@ int main() {
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
     */
 
+    game.load();
+    cout << "Loaded game" << endl;
+    auto aLevelMap = game.systems.system<XMLSystem>()->levelMap;
+    if (aLevelMap.find("Default Level") == aLevelMap.end()) {
+        cerr << "WARNING: Could not find initial level." << endl;
+    }
+    else {
+        cout << "Found the Default Level!" << endl;
+    }
     game.save();
+    cout << "Saved game" << endl;
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;

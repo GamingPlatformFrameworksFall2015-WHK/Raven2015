@@ -27,8 +27,17 @@
 namespace Raven {
 
     // Helper macros /*************************************************************************************************/
-#define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
-#define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
+#define SERIALIZE_COMPONENT(type_name, e, str, forPrefab) \
+    ex::ComponentHandle<type_name> a##type_name; \
+    if (e.has_component<type_name>()) { \
+        a##type_name = e.component<type_name>(); \
+    }\
+    str += (a##type_name ? a##type_name->serialize(tab, forPrefab) : "");
+
+#define DESERIALIZE_COMPONENT(type_name, e, node, forPrefab) \
+    std::string word##type_name = (forPrefab ? "P" : "L"); \
+    auto a##type_name = node->FirstChildElement((word##type_name + #type_name).c_str()); \
+    if (a##type_name) e.assign<type_name>()->deserialize(node, forPrefab);
 /******************************************************************************************************************/
 
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
@@ -52,31 +61,31 @@ namespace Raven {
             *e.component<Tracker>().get(), \
             *e.component<Pacer>().get() 
 // Used to serialize each component
-#define SERIALIZE_COMPONENTS(e, str) \
-            SERIALIZE_COMPONENT(Data, e, str); \
-            SERIALIZE_COMPONENT(Transform, e, str); \
-            SERIALIZE_COMPONENT(Rigidbody, e, str); \
-            SERIALIZE_COMPONENT(BoxCollider, e, str); \
-            SERIALIZE_COMPONENT(SoundMaker, e, str); \
-            SERIALIZE_COMPONENT(MusicMaker, e, str); \
-            SERIALIZE_COMPONENT(Renderer, e, str); \
-            SERIALIZE_COMPONENT(Pawn, e, str); \
-            SERIALIZE_COMPONENT(Villain, e, str); \
-            SERIALIZE_COMPONENT(Tracker, e, str); \
-            SERIALIZE_COMPONENT(Pacer, e, str); 
+#define SERIALIZE_COMPONENTS(e, str, forPrefab) \
+            SERIALIZE_COMPONENT(Data, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Transform, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Rigidbody, e, str, forPrefab); 
+            /*SERIALIZE_COMPONENT(BoxCollider, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(SoundMaker, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(MusicMaker, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Renderer, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Pawn, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Villain, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Tracker, e, str, forPrefab); \
+            SERIALIZE_COMPONENT(Pacer, e, str, forPrefab); */
 // Used to deserialize each component
-#define DESERIALIZE_COMPONENTS(e, node) \
-            DESERIALIZE_COMPONENT(Data, e, node); \
-            DESERIALIZE_COMPONENT(Transform, e, node); \
-            DESERIALIZE_COMPONENT(Rigidbody, e, node); \
-            DESERIALIZE_COMPONENT(BoxCollider, e, node); \
-            DESERIALIZE_COMPONENT(SoundMaker, e, node); \
-            DESERIALIZE_COMPONENT(MusicMaker, e, node); \
-            DESERIALIZE_COMPONENT(Renderer, e, node); \
-            DESERIALIZE_COMPONENT(Pawn, e, node); \
-            DESERIALIZE_COMPONENT(Villain, e, node); \
-            DESERIALIZE_COMPONENT(Tracker, e, node); \
-            DESERIALIZE_COMPONENT(Pacer, e, node); 
+#define DESERIALIZE_COMPONENTS(e, node, forPrefab) \
+            DESERIALIZE_COMPONENT(Data, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Transform, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Rigidbody, e, node, forPrefab); 
+            /*DESERIALIZE_COMPONENT(BoxCollider, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(SoundMaker, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(MusicMaker, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Renderer, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Pawn, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Villain, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Tracker, e, node, forPrefab); \
+            DESERIALIZE_COMPONENT(Pacer, e, node, forPrefab); */
 /******************************************************************************************************************/
     enum ComponentType {
         COMPONENT_TYPES(_t)
@@ -224,12 +233,7 @@ namespace Raven {
         
         // The set of layers to which the collider is assigned. 
         // The collider will "collide" with any BoxCollider that possesses the same entry.
-        // The value is a boolean pair of options dictating when CollisionEvents are emitted.
-        //     First="Required". Second="Automatic".
-        // "Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.
-        // "Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.
-        // An "automatic" setting will override any lack of "required" layers
-        std::map<std::string, std::pair<bool, bool>> layers;
+        std::set<std::string> layers;
         
         // The collision settings. Valid values can be found in Common::CollisionLayerSettings
         // SOLID : The layer that indicates the entities should be "pushed out of each other"
@@ -417,7 +421,7 @@ namespace Raven {
         };
 
         // Creates new instance of struct
-        Pacer(Direction direction, sf::Vector2f origin, float radius) 
+        Pacer(Direction direction = Direction::HORIZONTAL, sf::Vector2f origin = sf::Vector2f(), float radius = 0.f) 
             : direction(direction), origin(origin), radius(radius) {
 
             switch (direction) {
@@ -470,9 +474,9 @@ namespace Raven {
     // This struct enables us to organize the serialization of components more easily
     // Now we can acquire the Data component of an entity, cycle through its components set
     // and call attachComponent as necessary
-    struct ComponentLibrary {
+    //struct ComponentLibrary {
 
-    };
+    //};
 
 #pragma endregion
 
