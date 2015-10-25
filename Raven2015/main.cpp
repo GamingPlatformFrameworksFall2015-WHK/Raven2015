@@ -130,8 +130,8 @@ int main() {
     double currentTime = 0.0;
     double accumulator = 0.0;
     int fps = 0;
+	sf::Event event = sf::Event();
     while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
-
         // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
             efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
@@ -148,12 +148,18 @@ int main() {
         //subtract delta time from accumulator so we don't lose any leftover time,
         //and clear window to prepare for next display.
         while (accumulator >= FPS_100_TICK_TIME) {
+			
             game.systems.system<GUISystem>()->pollEvents();
             game.systems.system<GUISystem>()->clear();
             game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
             //game.updateGameMode(frameTime);
             fps++;
             accumulator -= FPS_100_TICK_TIME;
+			/*if (window.get()->pollEvent(event)) {
+				if (event.type == sf::Event::Closed) {
+					window.get()->close();
+				}
+			}*/
         }
 
         game.systems.system<GUISystem>()->display();

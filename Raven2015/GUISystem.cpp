@@ -79,7 +79,7 @@ namespace Raven {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
             if (event->type == sf::Event::Closed) {
-                mainWindow->close();
+                mainWindow.get()->close();
             }
             //-----------------------------------------------
             // Call a function that encapsulates the event.type switch statement and simply returns the corresponding action.
@@ -261,17 +261,14 @@ namespace Raven {
     }
 
     void GUISystem::canvasClickHandler() {
-        sf::Vector2i position = sf::Mouse::getPosition();
-		cout << "   Clicked : " << position.x << " " << position.y << endl;
-        //cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
+        sf::Vector2i position = sf::Mouse::getPosition(*mainWindow.get());
         if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
-			canvas->HandleAbsolutePositionChange();
-            transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
-            transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y; 
+			transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
+            transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
             cout << "Created entity at " << transform->transform.x << " " << transform->transform.y << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"].reset(new RenderableSprite(
