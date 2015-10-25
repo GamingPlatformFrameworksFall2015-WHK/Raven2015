@@ -95,7 +95,12 @@ namespace Raven {
 
     void XMLSystem::receive(const XMLSaveEvent& e) {
         doc.Parse(serializeRavenGame().c_str());
-        doc.SaveFile(xmlFileName.c_str());
+        if (doc.SaveFile(xmlFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Game Failed To Save!" << endl;
+        }
+        else {
+            cout << "Game successfully saved." << endl;
+        }
     }
 
 #pragma endregion

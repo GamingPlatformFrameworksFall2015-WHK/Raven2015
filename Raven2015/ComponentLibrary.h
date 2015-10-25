@@ -34,9 +34,9 @@ namespace Raven {
 /**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, TimeTable, Pawn, Villain, Tracker, Pacer
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
 // Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
 // Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
 #define COMPONENTS_OF_ENTITY(e) \
@@ -47,7 +47,6 @@ namespace Raven {
             *e.component<SoundMaker>().get(), \
             *e.component<MusicMaker>().get(), \
             *e.component<Renderer>().get(), \
-            *e.component<TimeTable>().get(), \
             *e.component<Pawn>().get(), \
             *e.component<Villain>().get(), \
             *e.component<Tracker>().get(), \
@@ -61,7 +60,6 @@ namespace Raven {
             SERIALIZE_COMPONENT(SoundMaker, e, str); \
             SERIALIZE_COMPONENT(MusicMaker, e, str); \
             SERIALIZE_COMPONENT(Renderer, e, str); \
-            SERIALIZE_COMPONENT(TimeTable, e, str); \
             SERIALIZE_COMPONENT(Pawn, e, str); \
             SERIALIZE_COMPONENT(Villain, e, str); \
             SERIALIZE_COMPONENT(Tracker, e, str); \
@@ -75,7 +73,6 @@ namespace Raven {
             DESERIALIZE_COMPONENT(SoundMaker, e, node); \
             DESERIALIZE_COMPONENT(MusicMaker, e, node); \
             DESERIALIZE_COMPONENT(Renderer, e, node); \
-            DESERIALIZE_COMPONENT(TimeTable, e, node); \
             DESERIALIZE_COMPONENT(Pawn, e, node); \
             DESERIALIZE_COMPONENT(Villain, e, node); \
             DESERIALIZE_COMPONENT(Tracker, e, node); \
@@ -85,9 +82,12 @@ namespace Raven {
         COMPONENT_TYPES(_t)
     };
 
-#define ADD_STATICS(type_name) \
+#define ADD_DEFAULTS(type_name) \
+        virtual std::string serialize(std::string tab, bool forPrefab) override; \
+        virtual void deserialize(XMLNode* node, bool forPrefab) override; \
         static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; }
+
 
 #pragma region Data
 
@@ -105,9 +105,7 @@ namespace Raven {
         std::string prefabName;
         bool modified;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Data);
+        ADD_DEFAULTS(Data);
     };
 
 #pragma endregion
@@ -135,9 +133,7 @@ namespace Raven {
         // Assumes that 0 begins at the right, running counterclockwise.
         float rotation;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Transform);
+        ADD_DEFAULTS(Transform);
     };
 
     // A component enabling a dynamic physical state. Required for movement.
@@ -172,9 +168,7 @@ namespace Raven {
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Rigidbody);
+        ADD_DEFAULTS(Rigidbody);
     };
     
     // An abstract component used to identify collision areas.
@@ -242,9 +236,7 @@ namespace Raven {
         // FIXED : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
     
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(BoxCollider);
+        ADD_DEFAULTS(BoxCollider);
     };
 
 
@@ -270,9 +262,7 @@ namespace Raven {
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(SoundMaker);
+        ADD_DEFAULTS(SoundMaker);
     };
 
     // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
@@ -287,9 +277,7 @@ namespace Raven {
         // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(MusicMaker);
+        ADD_DEFAULTS(MusicMaker);
     };
 
 #pragma endregion
@@ -335,28 +323,7 @@ namespace Raven {
         // Maps a string name to a given Sprite to be rendered        
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Renderer);
-    };
-
-#pragma endregion
-
-#pragma region Timers
-
-    struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
-        // Initializes a new instance of the <see cref="TimeTable"/> struct.
-        TimeTable() {}
-        
-        // Copy Constructor
-        TimeTable(const TimeTable& other) : timerMap(other.timerMap) {}
-        
-        // Maps a name to current timers
-        std::map<std::string, Timer> timerMap;
-
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(TimeTable);
+        ADD_DEFAULTS(Renderer);
     };
 
 #pragma endregion
@@ -411,9 +378,7 @@ namespace Raven {
         static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
 
         //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pawn);
+        ADD_DEFAULTS(Pawn);
     };
 
     // A tagging component used to quickly identify enemies in the game
@@ -421,9 +386,7 @@ namespace Raven {
 
         Villain() {}
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Villain);
+        ADD_DEFAULTS(Villain);
     };
 
     // An abstract component used to classify AI objects
@@ -438,9 +401,7 @@ namespace Raven {
         ComponentType target;
 
         //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Tracker);
+        ADD_DEFAULTS(Tracker);
     };
 
     // An abstract component used to classify AI objects
@@ -498,9 +459,7 @@ namespace Raven {
         float radius;
 
         //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pacer);
+        ADD_DEFAULTS(Pacer);
     };
     
 

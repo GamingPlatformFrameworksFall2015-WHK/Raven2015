@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!ELEMENT RAVEN (Assets, Prefabs, Levels)>
+  <!ELEMENT Assets (Textures, Music, Sounds, Fonts, Animations, Renderables)>
+    <!ELEMENT Textures (TextureFilePath*)>
+      <!ELEMENT TextureFilePath (#PCDATA)>
+    <!ELEMENT Music (MusicFilePath*)>
+      <!ELEMENT MusicFilePath (#PCDATA)>
+    <!ELEMENT Sounds (SoundFilePath*)>
+      <!ELEMENT SoundFilePath (#PCDATA)>
+    <!ELEMENT Fonts (FontFilePath*)>
+      <!ELEMENT FontFilePath (#PCDATA)>
+    <!ELEMENT Animations (Animation*)>
+      <!ELEMENT Animation (AnimationTextureFilePath, FrameCount, FrameWidth, FrameHeight, AnimationSpeed, IsLooping)>
+        <!ATTLIST Animation Name CDATA #REQUIRED>
+        <!ELEMENT AnimationTextureFilePath (#PCDATA)>
+        <!ELEMENT FrameCount (#PCDATA)>
+        <!ELEMENT FrameWidth (#PCDATA)>
+        <!ELEMENT FrameHeight (#PCDATA)>
+        <!ELEMENT AnimationSpeed (#PCDATA)>
+        <!ELEMENT IsLooping (#PCDATA)>
+  <!ELEMENT Renderables (RenderableTexts, RenderableRectangles, RenderableCircles, RenderableSprites)>
+    <!ELEMENT RenderableTexts (RenderableText*)>
+      <!ELEMENT RenderableText (RenderableTextRenderLayer, RenderableTextRenderPriority, TextContent, FontFilePath)>
+        <!ATTLIST RenderableText Name CDATA #REQUIRED>
+        <!ELEMENT RenderableTextRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableTextRenderPriority (#PCDATA)>
+        <!ELEMENT TextContent (#PCDATA)>
+        <!ELEMENT RenderableTextFontFilePath (#PCDATA)>
+    <!ELEMENT RenderableRectangles (RenderableRectangle*)>
+      <!ELEMENT RenderableRectangle (RenderableRectangleRenderLayer, RenderableRectangleRenderPriority)>
+        <!ATTLIST RenderableRectangle Name CDATA #REQUIRED>
+        <!ELEMENT RenderableRectangleRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableRectangleRenderPriority (#PCDATA)>
+    <!ELEMENT RenderableCircles (RenderableCircle*)>
+      <!ELEMENT RenderableCircle (RenderableCircleRenderLayer, RenderableCircleRenderPriority)>
+        <!ATTLIST RenderableCircle Name CDATA #REQUIRED>
+        <!ELEMENT RenderableCircleRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableCircleRenderPriority (#PCDATA)>
+    <!ELEMENT RenderableSprites (RenderableSprite*)>
+      <!ELEMENT RenderableSprite (RenderableSpriteRenderLayer, RenderableSpriteRenderPriority, RenderableSpriteTextureFilePath, AnimationName)>
+        <!ATTLIST RenderableSprite Name CDATA #REQUIRED>
+        <!ELEMENT RenderableSpriteRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableSpriteRenderPriority (#PCDATA)>
+        <!ELEMENT RenderableSpriteTextureFilePath (#PCDATA)>
+        <!ELEMENT AnimationName (#PCDATA)>
+  <!ELEMENT Prefabs (PEntity*)>
+    <!ELEMENT PEntity (PDataC, PTransformC, PRigidbodyC, PBoxColliderC?, PSoundMakerC?, PMusicMakerC?, PRendererC?, PPawnC?, PVillainC?, PTrackerC?, PPacerC?)>
+    <!ELEMENT PDataC (PName, PPrefabName, PModified)>
+      <!ELEMENT PName (#PCDATA)>
+      <!ELEMENT PPrefabName (#PCDATA)>
+      <!ELEMENT PModified (#PCDATA)>
+    <!ELEMENT PTransformC (PTransform, PRotation)>
+      <!ELEMENT PTransform (PTransformX, PTransformY)>
+        <!ELEMENT PTransformX (#PCDATA)>
+        <!ELEMENT PTransformY (#PCDATA)>
+      <!ELEMENT PRotation (#PCDATA)>
+    <!ELEMENT PRigidbodyC (PVelocity, PAcceleration, PRadialVelocity)>
+      <!ELEMENT PVelocity (PVelocityX, PVelocityY)>
+        <!ELEMENT PVelocityX (#PCDATA)>
+        <!ELEMENT PVelocityY (#PCDATA)>
+      <!ELEMENT PAcceleration (PAccelerationX, PAccelerationY)>
+        <!ELEMENT PAccelerationX (#PCDATA)>
+        <!ELEMENT PAccelerationY (#PCDATA)>
+      <!ELEMENT PRadialVelocity (#PCDATA)>
+    <!ELEMENT PBoxColliderC (PWidth, PHeight, PXOffset, PYOffset, PLayers, PSettings)>
+      <!ELEMENT PWidth (#PCDATA)>
+      <!ELEMENT PHeight (#PCDATA)>
+      <!ELEMENT PXOffset (#PCDATA)>
+      <!ELEMENT PYOffset (#PCDATA)>
+      <!ELEMENT PLayers (PLayer*)>
+        <!ELEMENT PLayer (#PCDATA)>
+      <!ELEMENT PSettings (PSolid, PFixed)>
+        <!ELEMENT PSolid (#PCDATA)>
+        <!ELEMENT PFixed (#PCDATA)>
+    <!ELEMENT PSoundMakerC (PSoundMakerSoundFilePath*)>
+      <!ELEMENT PSoundMakerSoundFilePath (#PCDATA)>
+    <!ELEMENT PMusicMakerC (PMusicMakerMusicFilePath*)>
+      <!ELEMENT PMusicMakerMusicFilePath (#PCDATA)>
+    <!ELEMENT PRendererC (PTexts, PRectangles, PCircles, PSprites)>
+      <!ELEMENT PTexts (PTextName*)>
+        <!ELEMENT PTextName (#PCDATA)>
+      <!ELEMENT PRectangles (PRectangleName*)>
+        <!ELEMENT PRectangleName (#PCDATA)>
+      <!ELEMENT PCircles (PCircleName*)>
+        <!ELEMENT PCircleName (#PCDATA)>
+      <!ELEMENT PSprites (PSpriteName*)>
+        <!ELEMENT PSpriteName (#PCDATA)>
+    <!ELEMENT PPawnC (PPlayerID)>
+      <!ELEMENT PPlayerID (#PCDATA)>
+    <!ELEMENT PVillainC EMPTY>
+    <!ELEMENT PTrackerC (PTarget)>
+      <!ELEMENT PTarget (#PCDATA)>
+    <!ELEMENT PPacerC (PPacerDirection, PPacerVelocity, PPacerOrigin)>
+      <!ELEMENT PPacerDirection (#PCDATA)>
+      <!ELEMENT PPacerVelocity (PPacerVelocityX, PPacerVelocityY)>
+        <!ELEMENT PPacerVelocityX (#PCDATA)>
+        <!ELEMENT PPacerVelocityY (#PCDATA)>
+      <!ELEMENT PPacerOrigin (PPacerOriginX, PPacerOriginY)>
+        <!ELEMENT PPacerOriginX (#PCDATA)>
+        <!ELEMENT PPacerOriginY (#PCDATA)>
+  <!ELEMENT Levels (Level+)>
+    <!ELEMENT Level (LevelEntity*)>
+    <!ATTLIST Level Name CDATA #REQUIRED>
+    <!ELEMENT LevelEntity (PrefabName, LEntity?)>
+      <!ELEMENT PrefabName (#PCDATA)>
+      <!ELEMENT LEntity (LDataC, LTransformC, LRigidbodyC, LBoxColliderC?, LSoundMakerC?, LMusicMakerC?, LRendererC?, LPawnC?, LVillainC?, LTrackerC?, LPacerC?)>
+        <!ELEMENT LDataC (LName, LPrefabName, LModified)>
+          <!ELEMENT LName (#PCDATA)>
+            <!ELEMENT LPrefabName (#PCDATA)>
+            <!ELEMENT LModified (#PCDATA)>
+        <!ELEMENT LTransformC (LTransform, LRotation)>
+          <!ELEMENT LTransform (LTransformX, LTransformY)>
+            <!ELEMENT LTransformX (#PCDATA)>
+            <!ELEMENT LTransformY (#PCDATA)>
+          <!ELEMENT LRotation (#PCDATA)>
+    <!ELEMENT LRigidbodyC (LVelocity, LAcceleration, LRadialVelocity)>
+      <!ELEMENT LVelocity (LVelocityX, LVelocityY)>
+        <!ELEMENT LVelocityX (#PCDATA)>
+        <!ELEMENT LVelocityY (#PCDATA)>
+      <!ELEMENT LAcceleration (LAccelerationX, LAccelerationY)>
+        <!ELEMENT LAccelerationX (#PCDATA)>
+        <!ELEMENT LAccelerationY (#PCDATA)>
+      <!ELEMENT LRadialVelocity (#PCDATA)>
+    <!ELEMENT LBoxColliderC (LWidth, LHeight, LXOffset, LYOffset, LLayers, LSettings)>
+      <!ELEMENT LWidth (#PCDATA)>
+      <!ELEMENT LHeight (#PCDATA)>
+      <!ELEMENT LXOffset (#PCDATA)>
+      <!ELEMENT LYOffset (#PCDATA)>
+      <!ELEMENT LLayers (LLayer*)>
+        <!ELEMENT LLayer (#PCDATA)>
+      <!ELEMENT LSettings (LSolid, LFixed)>
+        <!ELEMENT LSolid (#PCDATA)>
+        <!ELEMENT LFixed (#PCDATA)>
+    <!ELEMENT LSoundMakerC (LSoundMakerSoundFilePath*)>
+      <!ELEMENT LSoundMakerSoundFilePath (#PCDATA)>
+    <!ELEMENT LMusicMakerC (LMusicMakerMusicFilePath*)>
+      <!ELEMENT LMusicMakerMusicFilePath (#PCDATA)>
+    <!ELEMENT LRendererC (LTexts, LRectangles, LCircles, LSprites)>
+      <!ELEMENT LTexts (LTextName*)>
+        <!ELEMENT LTextName (#PCDATA)>
+      <!ELEMENT LRectangles (LRectangleName*)>
+        <!ELEMENT LRectangleName (#PCDATA)>
+      <!ELEMENT LCircles (LCircleName*)>
+        <!ELEMENT LCircleName (#PCDATA)>
+      <!ELEMENT LSprites (LSpriteName*)>
+        <!ELEMENT LSpriteName (#PCDATA)>
+    <!ELEMENT LPawnC (LPlayerID)>
+      <!ELEMENT LPlayerID (#PCDATA)>
+    <!ELEMENT LVillainC EMPTY>
+    <!ELEMENT LTrackerC (LTarget)>
+      <!ELEMENT LTarget (#PCDATA)>
+    <!ELEMENT LPacerC (LPacerDirection, LPacerVelocity, LPacerOrigin)>
+      <!ELEMENT LPacerDirection (#PCDATA)>
+      <!ELEMENT LPacerVelocity (LPacerVelocityX, LPacerVelocityY)>
+        <!ELEMENT LPacerVelocityX (#PCDATA)>
+        <!ELEMENT LPacerVelocityY (#PCDATA)>
+      <!ELEMENT LPacerOrigin (LPacerOriginX, LPacerOriginY)>
+        <!ELEMENT LPacerOriginX (#PCDATA)>
+        <!ELEMENT LPacerOriginY (#PCDATA)>

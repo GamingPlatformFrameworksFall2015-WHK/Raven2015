@@ -4,7 +4,7 @@ namespace Raven {
 
 #pragma region Data
 
-    std::string Data::serialize(std::string tab) {
+    std::string Data::serialize(std::string tab, bool forPrefab) {
         return
             tab + "<Data>\r\n" +
             tab + "  <Name>" + this->name + "</Name>\r\n" +
@@ -14,7 +14,7 @@ namespace Raven {
 
     }
 
-    void Data::deserialize(XMLNode* node) {
+    void Data::deserialize(XMLNode* node, bool forPrefab) {
         name = node->FirstChildElement("Name")->GetText();
         prefabName = node->FirstChildElement("PrefabName")->GetText();
         node->FirstChildElement("Modified")->QueryBoolText(&this->modified);
@@ -24,7 +24,7 @@ namespace Raven {
 
 #pragma region Physics
 
-    std::string Transform::serialize(std::string tab) {
+    std::string Transform::serialize(std::string tab, bool forPrefab) {
         return
             tab + "<Transform>\r\n" +
             tab + "  <Transform>\r\n" +
@@ -35,14 +35,14 @@ namespace Raven {
             tab + "</Transform>\r\n";
     }
 
-    void Transform::deserialize(XMLNode* node) {
+    void Transform::deserialize(XMLNode* node, bool forPrefab) {
         XMLNode* t = node->FirstChild();
         t->FirstChildElement("X")->QueryFloatText(&(this->transform.x));
         t->FirstChildElement("Y")->QueryFloatText(&this->transform.y);
         node->FirstChildElement("Rotation")->QueryFloatText(&this->rotation);
     }
 
-    std::string Rigidbody::serialize(std::string tab) {
+    std::string Rigidbody::serialize(std::string tab, bool forPrefab) {
         return
             tab + "<Rigidbody>\r\n" +
             tab + "  <Velocity>\r\n" +
@@ -57,7 +57,7 @@ namespace Raven {
             tab + "</Rigidbody>\r\n";
     }
 
-    void Rigidbody::deserialize(XMLNode* node) {
+    void Rigidbody::deserialize(XMLNode* node, bool forPrefab) {
         XMLNode* t = node->FirstChildElement("Velocity");
         t->FirstChildElement("X")->QueryFloatText(&(this->velocity.x));
         t->FirstChildElement("Y")->QueryFloatText(&this->velocity.y);
@@ -67,7 +67,7 @@ namespace Raven {
         node->FirstChildElement("RadialVelocity")->QueryFloatText(&this->radialVelocity);
     }
 
-    std::string BoxCollider::serialize(std::string tab) {
+    std::string BoxCollider::serialize(std::string tab, bool forPrefab) {
         std::string layersContent = "";
         for (std::pair<std::string, std::pair<bool, bool>> layer : layers) {
             layersContent +=
@@ -95,7 +95,7 @@ namespace Raven {
             tab + "</BoxCollider>\r\n";
     }
 
-    void BoxCollider::deserialize(XMLNode* node) {
+    void BoxCollider::deserialize(XMLNode* node, bool forPrefab) {
         node->FirstChildElement("Width")->QueryFloatText(&this->width);
         node->FirstChildElement("Height")->QueryFloatText(&this->height);
         node->FirstChildElement("XOffset")->QueryFloatText(&this->originOffset.x);
@@ -124,7 +124,7 @@ namespace Raven {
 
 #pragma region Audio
 
-    std::string SoundMaker::serialize(std::string tab) {
+    std::string SoundMaker::serialize(std::string tab, bool forPrefab) {
         std::string soundContent = "";
         for (auto soundFilePath_soundBuffer : soundMap) {
             soundContent +=
@@ -136,11 +136,11 @@ namespace Raven {
             tab + "</SoundMaker>\r\n";
     }
 
-    void SoundMaker::deserialize(XMLNode* node) {
+    void SoundMaker::deserialize(XMLNode* node, bool forPrefab) {
 
     }
 
-    std::string MusicMaker::serialize(std::string tab) {
+    std::string MusicMaker::serialize(std::string tab, bool forPrefab) {
         std::string musicContent = "";
         for (auto musicFilePath_musicBuffer : musicMap) {
             musicContent +=
@@ -152,7 +152,7 @@ namespace Raven {
             tab + "</MusicMaker>\r\n";
     }
 
-    void MusicMaker::deserialize(XMLNode* node) {
+    void MusicMaker::deserialize(XMLNode* node, bool forPrefab) {
 
     }
 
@@ -160,7 +160,7 @@ namespace Raven {
 
 #pragma region Rendering
 
-    std::string Renderer::serialize(std::string tab) {
+    std::string Renderer::serialize(std::string tab, bool forPrefab) {
         std::string textContent = "";
         std::string rectangleContent = "";
         std::string circleContent = "";
@@ -194,19 +194,9 @@ namespace Raven {
             tab + "</Renderables>\r\n";
     }
 
-    void Renderer::deserialize(XMLNode* node) {
+    void Renderer::deserialize(XMLNode* node, bool forPrefab) {
 
     }
-
-#pragma endregion
-
-#pragma region Timers
-
-    std::string TimeTable::serialize(std::string tab) {
-        return ""; //object never serialized
-    }
-
-    void TimeTable::deserialize(XMLNode* node) {}
 
 #pragma endregion
 
@@ -214,14 +204,14 @@ namespace Raven {
 
     std::bitset<4> Pawn::ids;
 
-    std::string Pawn::serialize(std::string tab) {
+    std::string Pawn::serialize(std::string tab, bool forPrefab) {
         return 
             tab + "<Pawn>\r\n" +
             tab + "  <PlayerID>" + std::to_string(playerId) + "</PlayerID>\r\n" +
             tab + "</Pawn>\r\n";
     }
 
-    void Pawn::deserialize(XMLNode* node) {
+    void Pawn::deserialize(XMLNode* node, bool forPrefab) {
         XMLElement* e = node->FirstChildElement("PlayerID");
         ids.reset(playerId);
         e->QueryIntText(&playerId);
@@ -231,30 +221,30 @@ namespace Raven {
         ids.set(playerId);
     }
 
-    std::string Villain::serialize(std::string tab) {
+    std::string Villain::serialize(std::string tab, bool forPrefab) {
         return 
             tab + "<Villain>\r\n" + 
             tab + "</Villain>\r\n";
     }
 
-    void Villain::deserialize(XMLNode* node) {
+    void Villain::deserialize(XMLNode* node, bool forPrefab) {
 
     }
 
-    std::string Tracker::serialize(std::string tab) {
+    std::string Tracker::serialize(std::string tab, bool forPrefab) {
         return
             tab + "<Tracker>\r\n" +
             tab + "  <Target>" + std::to_string(target) + "</Target>\r\n" +
             tab + "</Tracker>\r\n";
     }
 
-    void Tracker::deserialize(XMLNode* node) {
+    void Tracker::deserialize(XMLNode* node, bool forPrefab) {
         int i;
         node->FirstChildElement("Target")->QueryIntText(&i);
         target = (ComponentType) i;
     }
 
-    std::string Pacer::serialize(std::string tab) {
+    std::string Pacer::serialize(std::string tab, bool forPrefab) {
         return
             tab + "<Pacer>\r\n" +
             tab + "  <Direction>" + std::to_string(direction) + "</Direction>\r\n" +
@@ -270,7 +260,7 @@ namespace Raven {
             tab + "</Pacer>\r\n";
     }
 
-    void Pacer::deserialize(XMLNode* node) {
+    void Pacer::deserialize(XMLNode* node, bool forPrefab) {
         int i;
         node->FirstChildElement("Direction")->QueryIntText(&i);
         direction = (Direction) i;

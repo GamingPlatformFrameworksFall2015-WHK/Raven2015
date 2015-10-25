@@ -129,15 +129,14 @@ namespace Raven {
 
     struct TimerEvent : public ex::Event<TimerEvent> {
 
-        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr,
+        TimerEvent(
             std::string timerName = "", cmn::ETimerOperation op =
             cmn::ETimerOperation::NO_TIMER_OPERATION, ex::TimeDelta = 0.0)
-            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime) {}
+            : timerName(timerName), timerOperation(op), scanTime(scanTime) {}
 
         ex::TimeDelta scanTime;
         cmn::ETimerOperation timerOperation;
         std::string timerName;
-        std::shared_ptr<TimeTable> timeTable;
     };
 
 #pragma endregion

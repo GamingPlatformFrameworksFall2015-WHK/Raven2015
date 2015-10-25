@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE RAVEN SYSTEM "raven.dtd">
+<RAVEN>
+    <Assets>
+        <Textures/>
+        <Music/>
+        <Sounds/>
+        <Fonts/>
+        <Animations/>
+        <Renderables>
+            <RenderableTexts/>
+            <RenderableRectangles/>
+            <RenderableCircles/>
+            <RenderableSprites/>
+        </Renderables>
+    </Assets>
+    <Prefabs/>
+  <Levels>
+    <Level Name="Default Level">
+    </Level>
+  </Levels>
+</RAVEN>

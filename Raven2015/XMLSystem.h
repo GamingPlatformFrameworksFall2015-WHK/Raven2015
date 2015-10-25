@@ -19,6 +19,14 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override {}
 
+        void configure(ex::EventManager& event_manager) {
+            event_manager.subscribe<XMLSaveEvent>(*this);
+            event_manager.subscribe<XMLLoadEvent>(*this);
+            event_manager.subscribe<XMLUpdateEntityNameEvent>(*this);
+            event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>>(*this);
+            event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>>(*this);
+        }
+
         // Upon reception of an XMLLoadEvent, the system will de-serialize the XMLDocument and reinstate the previous game state
         void receive(const XMLLoadEvent& e);
         // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state

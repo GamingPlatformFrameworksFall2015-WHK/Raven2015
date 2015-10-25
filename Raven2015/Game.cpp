@@ -84,4 +84,14 @@ namespace Raven {
         }
     }
 
+    // Serializes game content into the Raven XML document
+    void Game::save() {
+        events.emit<XMLSaveEvent>();
+    }
+
+    // Deserializes game content from the Raven XML document
+    void Game::load() {
+        events.emit<XMLLoadEvent>();
+    }
+
 }
