@@ -5,6 +5,7 @@
 #include "ComponentLibrary.h"
 #include "EntityLibrary.h"
 #include "EventLibrary.h"
+#include "WidgetLibrary.h"
 #include <map>
 
 namespace Raven {
@@ -68,6 +69,11 @@ namespace Raven {
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
         void receive(const XMLUpdateEntityNameEvent& event);
+        void receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
+        void receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
+        template <typename PanelType>
+        void receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
+            std::map<std::string, std::shared_ptr<ex::Entity>>& map);
 
     private:
         std::string serializeTextureFilePathSet(std::string tab);

@@ -27,8 +27,7 @@ namespace Raven {
 
     // A system class that manages the creation of windows, the display of windows (excluding "draw" calls handled
     // by the RenderingSystem), and the updating of GUI widgets within "Desktop" elements linked to RenderWindows
-    class GUISystem : public ex::System<GUISystem>,
-        public ex::Receiver<GUISystem> {
+    class GUISystem : public ex::System<GUISystem>, public ex::Receiver<GUISystem> {
     public:
 
         // Perform initializations
@@ -152,37 +151,58 @@ namespace Raven {
 
         //-------------Top level widget panels and their sub-widget-containers------------------
 
-        // The window upon which the game is drawn
+        //----The window upon which the game is drawn----
         Canvas::Ptr canvas;
-        // The panel displaying entities currently in the level
+
+        //----The panel displaying entities currently in the level----
         ScrolledWindow::Ptr sceneHierarchy;
         // The procedurally generated box managed by the Scene Hierarchy. Contains a list of the entities in the level
-        Box::Ptr sceneHierarchyBox; 
-        // The tabbed list of assets available to the user
-        Notebook::Ptr content;
-        // The list of commands available to the user when interacting with the Canvas
-        Box::Ptr toolbar;
-        // The window allowing for the user to modify which components are on an entity and modify their member values
-        ScrolledWindow::Ptr entityDesigner;
-        // The panel displaying entities are currently stored as prefabs
-        ScrolledWindow::Ptr prefabList;
-        // The procedurally generated box managed by the PrefabList. Contains a list of the prefabs that can be instantiated
-        Box::Ptr prefabListBox; 
+        Box::Ptr sceneHierarchyBox;
+        // The button used to add a default entity at (0, 0)
+        Button::Ptr addNewEntityButton;
 
-        //Notebook'd SubPanels in Content
+        //----The tabbed list of assets available to the user----
+        Notebook::Ptr content;
+
+        //  //  // Component List //  //  //
         ScrolledWindow::Ptr componentList;
         Box::Ptr componentListBox;
+
+        //  //  // Texture List //  //  //
         ScrolledWindow::Ptr textureList;
         Box::Ptr textureListBox;
+
+        //  //  // Music List //  //  //
         ScrolledWindow::Ptr musicList;
         Box::Ptr musicListBox;
+
+        //  //  // Sound List //  //  //
         ScrolledWindow::Ptr soundList;
         Box::Ptr soundListBox;
+
+        //  //  // Font List //  //  //
         ScrolledWindow::Ptr fontList;
         Box::Ptr fontListBox;
 
+        //----The list of commands available to the user when interacting with the Canvas----
+        Box::Ptr toolbar;
+        
+        //----The window allowing for the user to modify which components are on an entity and modify their member values----
+        ScrolledWindow::Ptr entityDesigner;
+
+        //----The panel displaying entities are currently stored as prefabs----
+        ScrolledWindow::Ptr prefabList;
+        // The procedurally generated box managed by the PrefabList. Contains a list of the prefabs that can be instantiated
+        Box::Ptr prefabListBox; 
+        // The button used for adding new prefabs
+        Button::Ptr addNewPrefabButton;
+
+        //-----------------------Toolbar Member Variables----------------------------------
+
         // The label for the specific brush currently in use
         Label::Ptr currentBrush = Label::Create("Create");
+
+        //---------------------------Constants---------------------------------------------
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;

@@ -1,9 +1,22 @@
 #include "XMLSystem.h"
 #include "EntityLibrary.h"
+#include "WidgetLibrary.h"
 
 namespace Raven {
 
-    XMLSystem::XMLSystem() {}
+    XMLSystem::XMLSystem() {
+        // Create the base entity for the user to use
+        //deserializeRavenGame();
+
+        /*
+        std::shared_ptr<ex::Entity> eptr(new ex::Entity(EntityLibrary::Create::Entity("Base Entity")));
+        prefabMap.insert(std::make_pair("Base Entity", eptr));
+        ex::ComponentHandle<Data> data = prefabMap["Base Entity"]->component<Data>();
+        data->name = "Base Entity";
+        data->prefabName = "Base Entity";
+        data->modified = false;
+        */
+    }
 
     XMLSystem::~XMLSystem() {}
 
@@ -92,27 +105,66 @@ namespace Raven {
     void XMLSystem::receive(const XMLUpdateEntityNameEvent& event) {
         ex::Entity e = event.entity;
         std::string newName = event.newName;
+        std::map<std::string, std::shared_ptr<ex::Entity>>* map;
         // Acquire the map
-        auto map = levelMap[cmn::game->currentLevelName];
+        if (event.isPrefab) {
+            map = &prefabMap;
+        }
+        else {
+            map = &levelMap[cmn::game->currentLevelName];
+        }
         // Double check whether we can even find a record of the entity's name
-        if (map.find(e.component<Data>()->name) != map.end()) {
+        if (map->find(e.component<Data>()->name) != map->end()) {
             // Acquire the entity pointer
-            std::shared_ptr<ex::Entity> ptr = map[e.component<Data>()->name];
+            std::shared_ptr<ex::Entity> ptr = (*map)[e.component<Data>()->name];
             // Destroy the record of the previous name
-            map.erase(e.component<Data>()->name);
+            map->erase(e.component<Data>()->name);
             // Create a new record using the new name
-            map.insert(std::make_pair(newName, ptr));
+            map->insert(std::make_pair(newName, ptr));
             // Assign the new name to the entity itself
             ptr->component<Data>()->name = newName;
         }
         // Else, simply add the new record
         else {
             e.component<Data>()->name = newName;
-            map.insert(std::make_pair(newName, std::shared_ptr<ex::Entity>(new ex::Entity(e))));
+            map->insert(std::make_pair(newName, std::shared_ptr<ex::Entity>(new ex::Entity(e))));
         }
     }
 
 #pragma endregion
+
+#pragma region Population Initialization
+
+    template <typename PanelType>
+    void XMLSystem::receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
+            std::map<std::string, std::shared_ptr<ex::Entity>>& map) {
+
+        // A switch statement wouldn't work for some reason. e.POPULATE not recognized as a constant...
+        // Address later if desired since switch statements are more efficient.
+        if (e.op == e.POPULATE) { 
+            e.box->RemoveAll();
+            for (auto name_entity : map) {
+                WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
+                    e.box, name_entity.first, e.formatter);
+            }
+        }
+        else if (e.op == e.ADD) {
+            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
+                e.box, e.itemName, e.formatter);
+        }
+        else if (e.op == e.REMOVE) {
+            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::removeWidget(
+                e.box, e.itemName);
+        }
+    }
+
+    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
+        receiveEntityMap<WidgetLibrary::SceneHierarchyPanel>(e, levelMap[cmn::game->currentLevelName]);
+    }
+
+    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
+        receiveEntityMap<WidgetLibrary::PrefabListPanel>(e, prefabMap);
+    }
 
 #pragma endregion
 

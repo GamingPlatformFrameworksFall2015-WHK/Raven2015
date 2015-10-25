@@ -17,6 +17,9 @@
 #include "entityx\Entity.h" // For entityx::Entity
 #include "SFML/System.hpp"
 #include "ComponentLibrary.h"
+#include "SFGUI/Widgets.hpp"
+
+using namespace sfg;
 
 namespace Raven {
 
@@ -139,6 +142,32 @@ namespace Raven {
 
 #pragma endregion
 
+#pragma region GUIEvents
+
+    // The PanelType is not explicitly used, but because it is there, a unique version of the function can be made for
+    // A given typename of panel. All panel typenames are detailed at the top of WidgetLibrary.h
+    template <typename PanelType, typename... Widgets>
+    struct GUIWidgetListEvent : public ex::Event<GUIWidgetListEvent<PanelType, Widgets...>> {
+
+        enum Operation {
+            POPULATE,
+            ADD,
+            REMOVE
+        };
+
+        GUIWidgetListEvent(Box::Ptr box = nullptr, void (*listItemFormatter)(Box::Ptr) = nullptr, 
+            Operation op = Operation::ADD, std::string itemName = "") : 
+            box(box), formatter(listItemFormatter), itemName(itemName), op(op) {}
+
+        Box::Ptr box;
+        std::string itemName;
+        void(*formatter)(Box::Ptr);
+        Operation op;
+        
+    };
+
+#pragma endregion
+
 #pragma region XMLEvents
 
     struct XMLLoadEvent : public ex::Event<XMLLoadEvent> {
@@ -151,11 +180,14 @@ namespace Raven {
 
     struct XMLUpdateEntityNameEvent : public ex::Event<XMLUpdateEntityNameEvent> {
 
-        XMLUpdateEntityNameEvent(ex::Entity e, std::string s) : entity(e), newName(s) {}
+        XMLUpdateEntityNameEvent(ex::Entity entity, std::string newName, bool isPrefab) : 
+            entity(entity), newName(newName), isPrefab(isPrefab) {}
 
         ex::Entity entity;
 
         std::string newName;
+
+        bool isPrefab;
     };
 
 #pragma endregion
