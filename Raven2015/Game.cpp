@@ -19,14 +19,14 @@ namespace Raven {
 
     }
 
-    Game::Game() : editMode(true) {
+    Game::Game() : EntityX(), editMode(true) {
+        systems.add<XMLSystem>();
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
         systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
         systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
-        systems.add<XMLSystem>();
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
@@ -34,6 +34,13 @@ namespace Raven {
         cmn::entities = &entities;
         cmn::events = &events;
         cmn::game = this;
+    }
+
+    void Game::initialize() {
+        load();
+        auto xml = systems.system<XMLSystem>();
+        auto gui = systems.system<GUISystem>();
+        gui->populatePrefabList(xml->prefabMap);
     }
 
     void Game::updateGameMode(ex::TimeDelta dt) {
@@ -49,6 +56,7 @@ namespace Raven {
         systems.update<GUISystem>(dt);       // update and draw GUI widgets
     }
 
+    // THESE FUNCTIONS NEED TO BE PORTED INTO ENTITYLIBRARY AND THEN IGNORED FROM HERE
     ex::Entity Game::makeEntity() {
         std::shared_ptr<ex::Entity> e(&entities.create());
         std::string s = (e->assign<Data>()->name = "Default Entity");
@@ -82,6 +90,16 @@ namespace Raven {
             systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(name, e));
             return e;
         }
+    }
+
+    // Serializes game content into the Raven XML document
+    void Game::save() {
+        events.emit<XMLSaveEvent>();
+    }
+
+    // Deserializes game content from the Raven XML document
+    void Game::load() {
+        events.emit<XMLLoadEvent>();
     }
 
 }

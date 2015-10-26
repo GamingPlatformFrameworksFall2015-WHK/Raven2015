@@ -10,6 +10,8 @@ namespace Raven {
         explicit Game(sf::RenderTarget &target);
         explicit Game();
 
+        void initialize();
+
         void updateGameMode(ex::TimeDelta dt);
         void updateEditMode(ex::TimeDelta dt);
 
@@ -19,6 +21,10 @@ namespace Raven {
         ex::Entity makeEntity(std::string name);
         // Creates an instance of the prefab and assigns it the given name
         std::shared_ptr<ex::Entity> instantiatePrefab(std::string name, std::string prefabName);
+        // Serializes game content into the Raven XML document
+        void save();
+        // Deserializes game content from the Raven XML document
+        void load();
 
         // The name of the level to which newly made entities are currently assigned
         std::string currentLevelName;

@@ -214,6 +214,9 @@
     <None Include="Resources\Audio\Sounds\choose.ogg">
       <Filter>Resource Files\Audio</Filter>
     </None>
+    <None Include="raven.dtd">
+      <Filter>Resource Files\XML</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\black_jack.ttf">
@@ -230,5 +233,10 @@
     <Image Include="Resources\Textures\YellowGreenBorderBox.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="raven.xml">
+      <Filter>Resource Files\XML</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

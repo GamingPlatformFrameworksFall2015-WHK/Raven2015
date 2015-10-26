@@ -28,6 +28,7 @@
 #include "InputSystem.h"
 #include "RenderingSystem.h"
 #include "GUISystem.h"
+#include "XMLSystem.h"
 #include "entityx/deps/Dependencies.h"
 #include "EntityLibrary.h"
 #include "Game.h"
@@ -45,6 +46,7 @@ int main() {
     Game game(requiredWindow);
     std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
 
+    /*
     // This should all eventually get converted into XML, that way no "registration" is required
     game.systems.system<RenderingSystem>()->initialize(game.entities);
     game.systems.system<RenderingSystem>()->registerAnimation("BlueDotIdle",
@@ -122,6 +124,18 @@ int main() {
 
     //std::shared_ptr<ex::EntityManager> entities(game.systems.system<GUISystem>()->entities);
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
+    */
+
+    game.initialize();
+    auto aLevelMap = game.systems.system<XMLSystem>()->levelMap;
+    if (aLevelMap.find("Default Level") == aLevelMap.end()) {
+        cerr << "WARNING: Could not find initial level." << endl;
+    }
+    else {
+        cout << "Found the Default Level!" << endl;
+    }
+    game.save();
+    cout << "Saved game" << endl;
 
     cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
@@ -134,7 +148,7 @@ int main() {
 
         // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
-            efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
+            //efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
             fpsTimer.restart();
             fps = 0;
         }
