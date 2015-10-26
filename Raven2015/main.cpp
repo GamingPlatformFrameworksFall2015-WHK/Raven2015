@@ -126,8 +126,7 @@ int main() {
     std::shared_ptr<InputSystem> input = game.systems.system<InputSystem>();
     */
 
-    game.load();
-    cout << "Loaded game" << endl;
+    game.initialize();
     auto aLevelMap = game.systems.system<XMLSystem>()->levelMap;
     if (aLevelMap.find("Default Level") == aLevelMap.end()) {
         cerr << "WARNING: Could not find initial level." << endl;

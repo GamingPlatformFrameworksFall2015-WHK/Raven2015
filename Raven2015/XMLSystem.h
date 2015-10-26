@@ -23,8 +23,6 @@ namespace Raven {
             event_manager.subscribe<XMLSaveEvent>(*this);
             event_manager.subscribe<XMLLoadEvent>(*this);
             event_manager.subscribe<XMLUpdateEntityNameEvent>(*this);
-            event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>>(*this);
-            event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>>(*this);
         }
 
         // Upon reception of an XMLLoadEvent, the system will de-serialize the XMLDocument and reinstate the previous game state
@@ -83,11 +81,6 @@ namespace Raven {
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
         void receive(const XMLUpdateEntityNameEvent& event);
-        void receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
-        void receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
-        template <typename PanelType>
-        void receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
-            std::map<std::string, std::shared_ptr<ex::Entity>>& map);
 
     private:
         std::string serializeTextureFilePathSet(std::string tab);

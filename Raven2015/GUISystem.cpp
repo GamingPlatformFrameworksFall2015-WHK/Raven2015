@@ -13,6 +13,7 @@
 #include "GUISystem.h"
 #include "WidgetLibrary.h"
 #include "EntityLibrary.h"
+#include "XMLSystem.h"
 
 using namespace sfg;
 
@@ -109,32 +110,17 @@ namespace Raven {
         Label::Ptr l = Label::Create("Scene Hierarchy\n");
         top->Pack(l, true, true);
 
-        sceneHierarchyBox = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::Create();
-
-        auto formatListItem = [](Box::Ptr aBox) {
-            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
-            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
-            Entry* e = (Entry*) aBox->GetChildren()[0].get();
-            e->SetRequisition(sf::Vector2f(160.f, 20.f));
-            Button* b1 = (Button*)aBox->GetChildren()[1].get();
-            b1->SetLabel("Select"); // For selecting the Entity
-            Button* b2 = (Button*)aBox->GetChildren()[2].get();
-            b2->SetLabel("X");      // For deleting the Entity
-            Button* b3 = (Button*)aBox->GetChildren()[3].get();
-            b3->SetLabel("+");      // For moving the Entity up in the list
-            Button* b4 = (Button*)aBox->GetChildren()[4].get();
-            b4->SetLabel("-");      // For moving the Entity down in the list
-        };
+        sceneHierarchyBox = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
 
         // For testing purposes
         // These should be added by "creating" entities with the create brush
         // They will be removed by clicking on the X button next to the entity name
-        Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-            sceneHierarchyBox, "Entity", formatListItem);
-        Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-            sceneHierarchyBox, "Entity", formatListItem);
-        Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-            sceneHierarchyBox, "Entity", formatListItem);
+        //Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+        //    sceneHierarchyBox, "Entity", formatAssetListItem);
+        //Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+        //    sceneHierarchyBox, "Entity", formatAssetListItem);
+        //Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+        //    sceneHierarchyBox, "Entity", formatAssetListItem);
         top->Pack(sceneHierarchyBox, true, true);
 
         addNewEntityButton = Button::Create("Add New...");
@@ -245,31 +231,16 @@ namespace Raven {
         Label::Ptr l = Label::Create("Prefab List\n");
         top->Pack(l, true, true);
 
-        prefabListBox = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::Create();
+        prefabListBox = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
 
-        auto formatListItem = [](Box::Ptr aBox) {
-            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
-            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
-            Entry* e = (Entry*) aBox->GetChildren()[0].get();
-            e->SetRequisition(sf::Vector2f(160.f, 20.f));
-            Button* b1 = (Button*)aBox->GetChildren()[1].get();
-            b1->SetLabel("Select"); // For selecting the Entity
-            Button* b2 = (Button*)aBox->GetChildren()[2].get();
-            b2->SetLabel("X");      // For deleting the Entity
-            Button* b3 = (Button*)aBox->GetChildren()[3].get();
-            b3->SetLabel("+");      // For moving the Entity up in the list
-            Button* b4 = (Button*)aBox->GetChildren()[4].get();
-            b4->SetLabel("-");      // For moving the Entity down in the list
-        };
-
-        //cmn::game->events.emit<GUIPopulatePrefabList>(prefabListBox);
+        //cmn::game->systems.system<XMLSystem>()->populatePrefabList(prefabListBox, formatAssetListItem);
 
         // For testing purposes
         // These should be added by "creating" entities with the create brush
         // They will be removed by clicking on the X button next to the entity name
-        Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(prefabListBox, "Entity", formatListItem);
-        Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(prefabListBox, "Entity", formatListItem);
-        Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(prefabListBox, "Entity", formatListItem);
+        //Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
+        //Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
+        //Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
         top->Pack(prefabListBox, true, true);
 
         addNewPrefabButton = Button::Create("Add New...");
@@ -306,6 +277,42 @@ namespace Raven {
         t->Pack(brushList);
         
         return t;
+    }
+
+#pragma endregion
+
+#pragma region Dynamic Panel Manipulation
+
+    void GUISystem::populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList) {
+        prefabListBox->RemoveAll();
+        for (auto name_entity : prefabList) {
+            WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+                prefabListBox, name_entity.first, formatAssetListItem);
+        }
+    }
+
+    void GUISystem::addItemToPrefabList(std::string itemName) {
+        WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, itemName, formatAssetListItem);
+    }
+
+    void GUISystem::removeItemFromPrefabList(std::string itemName) {
+        WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(prefabListBox, itemName);
+    }
+
+    void GUISystem::populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& levelMap) {
+        sceneHierarchyBox->RemoveAll();
+        for (auto name_entity : levelMap) {
+            WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+                sceneHierarchyBox, name_entity.first, formatAssetListItem);
+        }
+    }
+
+    void GUISystem::addItemToSceneHierarchy(std::string itemName) {
+        WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(sceneHierarchyBox, itemName, formatAssetListItem);
+    }
+
+    void GUISystem::removeItemFromSceneHierarchy(std::string itemName) {
+        WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(sceneHierarchyBox, itemName);
     }
 
 #pragma endregion

@@ -6,7 +6,7 @@ namespace Raven {
 
     XMLSystem::XMLSystem() {
         // Create the base entity for the user to use
-        //deserializeRavenGame();
+        doc.LoadFile(xmlFileName.c_str());
 
         /*
         std::shared_ptr<ex::Entity> eptr(new ex::Entity(EntityLibrary::Create::Entity("Base Entity")));
@@ -135,9 +135,9 @@ namespace Raven {
             cerr << "WARNING: Game XML Document Failed To Load!" << endl;
         }
         else {
-            cout << "Game XML Document successfully loaded." << endl;
+            cout << "Game XML Document successfully loaded. Deserializing..." << endl;
+            deserializeRavenGame();
         }
-        deserializeRavenGame();
     }
 
     void XMLSystem::receive(const XMLSaveEvent& e) {
@@ -184,41 +184,6 @@ namespace Raven {
     }
 
 #pragma endregion
-
-#pragma endregion
-
-#pragma region Population Initialization
-
-    template <typename PanelType>
-    void XMLSystem::receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
-            std::map<std::string, std::shared_ptr<ex::Entity>>& map) {
-
-        // A switch statement wouldn't work for some reason. e.POPULATE not recognized as a constant...
-        // Address later if desired since switch statements are more efficient.
-        if (e.op == e.POPULATE) { 
-            e.box->RemoveAll();
-            for (auto name_entity : map) {
-                WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-                    e.box, name_entity.first, e.formatter);
-            }
-        }
-        else if (e.op == e.ADD) {
-            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-                e.box, e.itemName, e.formatter);
-        }
-        else if (e.op == e.REMOVE) {
-            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::removeWidget(
-                e.box, e.itemName);
-        }
-    }
-
-    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
-        receiveEntityMap<WidgetLibrary::SceneHierarchyPanel>(e, levelMap[cmn::game->currentLevelName]);
-    }
-
-    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
-        receiveEntityMap<WidgetLibrary::PrefabListPanel>(e, prefabMap);
-    }
 
 #pragma endregion
 
@@ -525,7 +490,8 @@ namespace Raven {
         prefabMap.clear();
         XMLElement* elem = node->FirstChildElement("PEntity");
         while (elem) {
-            std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::entities->create()));
+            ex::Entity e = cmn::entities->create();
+            std::shared_ptr<ex::Entity> entity(new ex::Entity(e));
             deserializeEntity(*entity, elem, true);
             if (entity->has_component<Data>()) cout << "Prefab Entity has a Data!" << endl;
             if (entity->has_component<Transform>()) cout << "Prefab Entity has a Transform!" << endl;

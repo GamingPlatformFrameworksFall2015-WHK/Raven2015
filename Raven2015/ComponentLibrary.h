@@ -26,21 +26,9 @@
 
 namespace Raven {
 
-    // Helper macros /*************************************************************************************************/
-#define SERIALIZE_COMPONENT(type_name, e, str, forPrefab) \
-    ex::ComponentHandle<type_name> a##type_name; \
-    if (e.has_component<type_name>()) { \
-        a##type_name = e.component<type_name>(); \
-    }\
-    str += (a##type_name ? a##type_name->serialize(tab, forPrefab) : "");
-
-#define DESERIALIZE_COMPONENT(type_name, e, node, forPrefab) \
-    std::string word##type_name = (forPrefab ? "P" : "L"); \
-    auto a##type_name = node->FirstChildElement((word##type_name + #type_name).c_str()); \
-    if (a##type_name) e.assign<type_name>()->deserialize(node, forPrefab);
 /******************************************************************************************************************/
-
-/**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
+// Update-Necessary Macros : altering the types of components that exist requires that the user update these macros
+// The order of components in these macros MUST match.
 
 // Used to instantiate the ComponentType enum
 #define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t

@@ -10,6 +10,8 @@ namespace Raven {
         explicit Game(sf::RenderTarget &target);
         explicit Game();
 
+        void initialize();
+
         void updateGameMode(ex::TimeDelta dt);
         void updateEditMode(ex::TimeDelta dt);
 
