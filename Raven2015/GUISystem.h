@@ -80,11 +80,11 @@ namespace Raven {
         TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
 
         // Prefab List Manipulation
-        void populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList);
+        void populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabMap);
         void addItemToPrefabList(std::string itemName);
         void removeItemFromPrefabList(std::string itemName);
         // Scene Hierarchy Manipulation
-        void populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList);
+        void populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& levelMap);
         void addItemToSceneHierarchy(std::string itemName);
         void removeItemFromSceneHierarchy(std::string itemName);
 
@@ -94,14 +94,16 @@ namespace Raven {
             // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
             Entry* e = (Entry*) box->GetChildren()[0].get();
             e->SetRequisition(sf::Vector2f(160.f, 20.f));
-            Button* b1 = (Button*)box->GetChildren()[1].get();
-            b1->SetLabel("Select"); // For selecting the Entity
-            Button* b2 = (Button*)box->GetChildren()[2].get();
-            b2->SetLabel("X");      // For deleting the Entity
-            Button* b3 = (Button*)box->GetChildren()[3].get();
-            b3->SetLabel("+");      // For moving the Entity up in the list
-            Button* b4 = (Button*)box->GetChildren()[4].get();
-            b4->SetLabel("-");      // For moving the Entity down in the list
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the Entity
+            Button* bduplicate = (Button*)box->GetChildren()[2].get();
+            bduplicate->SetLabel("Duplicate"); // For selecting the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
         };
 
         // Verifies whether the main game window and editor window are both open

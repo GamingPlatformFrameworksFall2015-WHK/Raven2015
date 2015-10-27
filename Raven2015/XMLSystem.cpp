@@ -7,15 +7,6 @@ namespace Raven {
     XMLSystem::XMLSystem() {
         // Create the base entity for the user to use
         doc.LoadFile(xmlFileName.c_str());
-
-        /*
-        std::shared_ptr<ex::Entity> eptr(new ex::Entity(EntityLibrary::Create::Entity("Base Entity")));
-        prefabMap.insert(std::make_pair("Base Entity", eptr));
-        ex::ComponentHandle<Data> data = prefabMap["Base Entity"]->component<Data>();
-        data->name = "Base Entity";
-        data->prefabName = "Base Entity";
-        data->modified = false;
-        */
     }
 
     XMLSystem::~XMLSystem() {}
@@ -308,7 +299,7 @@ namespace Raven {
     }
 
     std::string XMLSystem::serializeLevelMap(std::string tab) {
-        std::string levelMapContent = tab + "<Levels>\r\n";
+        std::string levelMapContent = tab + "<Levels DefaultLevel=\"" + cmn::game->defaultLevelName + "\">\r\n";
         // For each level
         for (auto levelName_entityMap : levelMap) {
 

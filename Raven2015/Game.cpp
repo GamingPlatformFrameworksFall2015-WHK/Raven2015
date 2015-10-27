@@ -41,6 +41,19 @@ namespace Raven {
         auto xml = systems.system<XMLSystem>();
         auto gui = systems.system<GUISystem>();
         gui->populatePrefabList(xml->prefabMap);
+        gui->populateSceneHierarchy(xml->levelMap[currentLevelName]);
+    }
+
+    void Game::loadLevel(std::string levelName) {
+        
+    }
+
+    void Game::addLevel(std::string levelName) {
+
+    }
+
+    void Game::removeLevel(std::string levelName) {
+
     }
 
     void Game::updateGameMode(ex::TimeDelta dt) {
@@ -102,4 +115,13 @@ namespace Raven {
         events.emit<XMLLoadEvent>();
     }
 
+    void Game::clearEntities(std::string levelName) {
+        std::map<std::string, std::shared_ptr<ex::Entity>> tempMap;
+        auto firstMap = systems.system<XMLSystem>()->levelMap[currentLevelName];
+        for (auto name_entity : firstMap) {
+            if (name_entity.second->component<Data>()->persistent) {
+                tempMap.insert(name_entity);
+            }
+        }
+    }
 }

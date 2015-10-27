@@ -55,8 +55,8 @@ namespace Raven {
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
 
-        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
-            name(entityName), prefabName(prefabName), modified(modified) {}
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false, bool persistent = false) :
+            name(entityName), prefabName(prefabName), modified(modified), persistent(persistent) {}
 
         // Copy Constructor
         Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
@@ -65,7 +65,10 @@ namespace Raven {
         std::string name;
         // The name of the prefab
         std::string prefabName;
+        // Whether the entity has been modified from its prefab'd version
         bool modified;
+        // Whether the entity should be preserved in between levels (do not delete upon loading a different level)
+        bool persistent;
 
         ADD_DEFAULTS(Data);
     };

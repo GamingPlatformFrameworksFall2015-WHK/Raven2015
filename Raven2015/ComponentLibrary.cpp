@@ -12,6 +12,7 @@ namespace Raven {
                 tab + "  <PName>" + this->name + "</PName>\r\n" +
                 tab + "  <PPrefabName>" + this->prefabName + "</PPrefabName>\r\n" +
                 tab + "  <PModified>" + std::to_string(this->modified) + "</PModified>\r\n" +
+                tab + "  <PPersistent>" + std::to_string(this->persistent) + "</PPersistent>\r\n" +
                 tab + "</PData>\r\n";
         }
         else {
@@ -20,6 +21,7 @@ namespace Raven {
                 tab + "  <LName>" + this->name + "</LName>\r\n" +
                 tab + "  <LPrefabName>" + this->prefabName + "</LPrefabName>\r\n" +
                 tab + "  <LModified>" + std::to_string(this->modified) + "</LModified>\r\n" +
+                tab + "  <LPersistent>" + std::to_string(this->persistent) + "</LPersistent>\r\n" +
                 tab + "</LData>\r\n";
         }
 
@@ -28,16 +30,16 @@ namespace Raven {
     void Data::deserialize(XMLNode* node, bool forPrefab) {
         if (forPrefab) {
             XMLElement* nameElem = node->FirstChildElement("PName");
-            if (nameElem) cout << "PData has a PName!" << endl;
-            else cout << "PData has no PName!" << endl;
             name = nameElem->GetText();
             prefabName = node->FirstChildElement("PPrefabName")->GetText();
             node->FirstChildElement("PModified")->QueryBoolText(&this->modified);
+            node->FirstChildElement("PPersistent")->QueryBoolText(&this->persistent);
         }
         else {
             name = node->FirstChildElement("LName")->GetText();
             prefabName = node->FirstChildElement("LPrefabName")->GetText();
             node->FirstChildElement("LModified")->QueryBoolText(&this->modified);
+            node->FirstChildElement("LPersistent")->QueryBoolText(&this->persistent);
         }
     }
 

@@ -112,15 +112,6 @@ namespace Raven {
 
         sceneHierarchyBox = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
 
-        // For testing purposes
-        // These should be added by "creating" entities with the create brush
-        // They will be removed by clicking on the X button next to the entity name
-        //Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-        //    sceneHierarchyBox, "Entity", formatAssetListItem);
-        //Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-        //    sceneHierarchyBox, "Entity", formatAssetListItem);
-        //Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-        //    sceneHierarchyBox, "Entity", formatAssetListItem);
         top->Pack(sceneHierarchyBox, true, true);
 
         addNewEntityButton = Button::Create("Add New...");
@@ -233,14 +224,6 @@ namespace Raven {
 
         prefabListBox = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
 
-        //cmn::game->systems.system<XMLSystem>()->populatePrefabList(prefabListBox, formatAssetListItem);
-
-        // For testing purposes
-        // These should be added by "creating" entities with the create brush
-        // They will be removed by clicking on the X button next to the entity name
-        //Box::Ptr b = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
-        //Box::Ptr c = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
-        //Box::Ptr d = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, "Entity", formatListItem);
         top->Pack(prefabListBox, true, true);
 
         addNewPrefabButton = Button::Create("Add New...");
@@ -283,9 +266,9 @@ namespace Raven {
 
 #pragma region Dynamic Panel Manipulation
 
-    void GUISystem::populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList) {
+    void GUISystem::populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabMap) {
         prefabListBox->RemoveAll();
-        for (auto name_entity : prefabList) {
+        for (auto name_entity : prefabMap) {
             WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 prefabListBox, name_entity.first, formatAssetListItem);
         }

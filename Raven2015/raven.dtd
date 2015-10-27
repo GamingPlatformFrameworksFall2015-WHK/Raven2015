@@ -45,10 +45,11 @@
         <!ELEMENT RenderableSpriteAnimationName (#PCDATA)>
   <!ELEMENT Prefabs (PEntity*)>
     <!ELEMENT PEntity (PData, PTransform, PRigidbody, PBoxCollider?, PSoundMaker?, PMusicMaker?, PRenderer?, PPawn?, PVillain?, PTracker?, PPacer?)>
-    <!ELEMENT PData (PName, PPrefabName, PModified)>
+    <!ELEMENT PData (PName, PPrefabName, PModified, PPersistent)>
       <!ELEMENT PName (#PCDATA)>
       <!ELEMENT PPrefabName (#PCDATA)>
       <!ELEMENT PModified (#PCDATA)>
+      <!ELEMENT PPersistent (#PCDATA)>
     <!ELEMENT PTransform (PSubTransform, PRotation)>
       <!ELEMENT PSubTransform (PTransformX, PTransformY)>
         <!ELEMENT PTransformX (#PCDATA)>
@@ -100,15 +101,17 @@
         <!ELEMENT PPacerOriginY (#PCDATA)>
       <!ELEMENT PPacerRadius (#PCDATA)>
   <!ELEMENT Levels (Level+)>
+    <!ATTLIST Levels DefaultLevel CDATA #REQUIRED>
     <!ELEMENT Level (LevelEntity*)>
     <!ATTLIST Level Name CDATA #REQUIRED>
     <!ELEMENT LevelEntity (PrefabNameCheck, LEntity?)>
       <!ELEMENT PrefabNameCheck (#PCDATA)>
       <!ELEMENT LEntity (LData, LTransform, LRigidbody, LBoxCollider?, LSoundMaker?, LMusicMaker?, LRenderer?, LPawn?, LVillain?, LTracker?, LPacer?)>
-        <!ELEMENT LData (LName, LPrefabName, LModified)>
+        <!ELEMENT LData (LName, LPrefabName, LModified, LPersistent)>
           <!ELEMENT LName (#PCDATA)>
-            <!ELEMENT LPrefabName (#PCDATA)>
-            <!ELEMENT LModified (#PCDATA)>
+          <!ELEMENT LPrefabName (#PCDATA)>
+          <!ELEMENT LModified (#PCDATA)>
+          <!ELEMENT LPersistent (#PCDATA)>
         <!ELEMENT LTransform (LSubTransform, LRotation)>
           <!ELEMENT LSubTransform (LTransformX, LTransformY)>
             <!ELEMENT LTransformX (#PCDATA)>
