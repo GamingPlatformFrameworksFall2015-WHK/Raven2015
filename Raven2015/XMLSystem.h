@@ -30,38 +30,36 @@ namespace Raven {
         // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state
         void receive(const XMLSaveEvent& e);
 
+        // For display purposes in the GUISystem
         std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
 
-        XMLDocument doc;
+        // The serialization document tracking assets
+        XMLDocument assetsDoc;
+        // The serialization document tracking prefabs
+        XMLDocument prefabsDoc;
+        // The serialization document tracking entities in the current level
+        XMLDocument levelDoc;
 
         // The constant file name used to represent the game's xml serialization file
         static const std::string xmlFileName;
 
         // Serializes the internal XMLDocument
-        std::string serializeRavenGame();
+        void serializeRavenGame();
 
         // De-Serializes the internal XMLDocument
         void deserializeRavenGame();
 
-        // Serializes all components on the given entity while taking into account the current tab amount
-        std::string serializeEntity(ex::Entity e, std::string tab, bool forPrefab);
-        void deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab);
-        template <typename C>
-        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c);
-        template <typename C, typename... Components>
-        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components);
-        template <typename C>
-        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c);
-        template <typename C, typename... Components>
-        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components);
+        // LevelMap (De)Serialization
+        std::string serializeLevelMap();
+        void deserializeLevelMap(XMLNode* node);
 
-        // Maintains the set of asset file paths
+        // Maintains the set of texture file paths
         std::set<std::string> textureFilePathSet;
-        // Maps the user-defined asset name to the file path
+        // Maintains the set of music file paths
         std::set<std::string> musicFilePathSet;
-        // Maps the user-defined asset name to the file path
+        // Maintains the set of sound file paths
         std::set<std::string> soundFilePathSet;
-        // Maps the user-defined asset name to the file path
+        // Maintains the set of font file paths
         std::set<std::string> fontFilePathSet;
         // Maps the user-defined asset name to the Animation
         std::map<std::string, std::shared_ptr<Animation>> animationMap;
@@ -74,42 +72,82 @@ namespace Raven {
         // Maps the user-defined asset name to the RenderableSprite
         std::map<std::string, std::shared_ptr<RenderableSprite>> renderableSpriteMap;
         // Maps the user-defined asset name to a given prefab
-        // Essentially maps a name to an entity. All entities in the list are prefabs
-        std::map<std::string, std::shared_ptr<ex::Entity>> prefabMap;
-        // Maps the user-defined level name to a given sequence of named Entities 
-        // Essentially maps a level name to a set of named entities that may or may not be prefabs
-        std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
+        //std::map<std::string, std::shared_ptr<ex::Entity>> prefabMap;
+        // Maintains the set of level file paths
+        std::set<std::string> levelFilePathSet;
+        // Maps the user-defined asset name to a given entity instance
+        std::map<std::string, std::shared_ptr<ex::Entity>> levelMap;
 
         void receive(const XMLUpdateEntityNameEvent& event);
 
     private:
+        // Asset Serialization
+        std::string serializeAssets();
         std::string serializeTextureFilePathSet(std::string tab);
         std::string serializeMusicFilePathSet(std::string tab);
         std::string serializeSoundFilePathSet(std::string tab);
         std::string serializeFontFilePathSet(std::string tab);
         std::string serializeAnimationMap(std::string tab);
+        std::string serializeLevelFilePathSet(std::string tab);
         std::string serializeRenderableTextMap(std::string tab);
         std::string serializeRenderableRectangleMap(std::string tab);
         std::string serializeRenderableCircleMap(std::string tab);
         std::string serializeRenderableSpriteMap(std::string tab);
-        std::string serializePrefabMap(std::string tab);
-        std::string serializeLevelMap(std::string tab);
 
+        // Asset Deserialization
+        void deserializeAssets(XMLNode* node);
         void deserializeTextureFilePathSet(XMLNode* node);
         void deserializeMusicFilePathSet(XMLNode* node);
         void deserializeSoundFilePathSet(XMLNode* node);
         void deserializeFontFilePathSet(XMLNode* node);
         void deserializeAnimationMap(XMLNode* node);
+        void deserializeLevelFilePathSet(XMLNode* node);
         void deserializeRenderableTextMap(XMLNode* node);
         void deserializeRenderableRectangleMap(XMLNode* node);
         void deserializeRenderableCircleMap(XMLNode* node);
         void deserializeRenderableSpriteMap(XMLNode* node);
-        void deserializePrefabMap(XMLNode* node);
-        void deserializeLevelMap(XMLNode* node);
 
+        // PrefabMap (De)Serialization (These should be made to never be necessary)
+        //std::string serializePrefabMap();
+        //void deserializePrefabMap(XMLNode* node);
+        bool prefabExists(std::string prefabName);
+        std::shared_ptr<ex::Entity> instantiate(std::string prefabName);
+        
+        // LevelMap (De)Serialization (up in "public")
+        //std::string serializeLevelMap();
+        //void deserializeLevelMap(XMLNode* node);
+
+        // Entity / Component (De)Serialization
+        std::string serializeEntity(ex::Entity e, std::string tab);
+        void deserializeEntity(ex::Entity e, XMLNode* node);
+        template <typename C>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, C* c);
+        template <typename C, typename... Components>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, C* c, Components*... components);
+        template <typename C>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c);
+        template <typename C, typename... Components>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c, Components*... components);
+
+        // (De)Serialization Utility Methods
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
+        std::string getXMLHeader(std::string topLevelElement, std::string fileName);
 
+        // Constants
+        const std::string newline = "\r\n";
+        const std::string xmlVersion = "1.0";
+        const std::string xmlEncoding = "utf-8";
+        const std::string xmlExt = ".xml";
+        const std::string dtdExt = ".dtd";
+        const std::string assetsFileName = "assets" + xmlExt;
+        const std::string assetsDesignFileName = "assets" + dtdExt;
+        const std::string assetsFirstChildElement = "ASSETS";
+        const std::string prefabsFileName = "prefabs" + xmlExt;
+        const std::string prefabsDesignFileName = "prefabs" + dtdExt;
+        const std::string prefabsFirstChildElement = "PREFABS";
+        const std::string levelDesignFileName = "level" + dtdExt;
+        const std::string levelFirstChildElement = "LEVEL";
     };
 
 }

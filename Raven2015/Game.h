@@ -12,6 +12,7 @@ namespace Raven {
 
         void initialize();
         void loadLevel(std::string levelName);
+        void saveLevel();
         void addLevel(std::string levelName);
         void removeLevel(std::string levelName);
 
@@ -30,10 +31,10 @@ namespace Raven {
         void load();
 
         // The name of the level to which newly made entities are currently assigned
-        std::string currentLevelName;
+        std::string currentLevelPath;
 
         // The name of the level that is loaded upon engine start-up
-        std::string defaultLevelName;
+        std::string defaultLevelPath;
 
         // Used to create unique entity names and track the number of entities that have been created thus far
         unsigned int entityCounter;
@@ -42,7 +43,7 @@ namespace Raven {
         bool editMode;
 
     private:
-        void clearEntities(std::string levelName);
+        void clearEntities();
     };
 
 }

@@ -19,7 +19,7 @@ namespace Raven {
 
     }
 
-    Game::Game() : EntityX(), editMode(true) {
+    Game::Game() : EntityX(), editMode(true), defaultLevelPath("Resources/XML/DefaultLevel.xml"), currentLevelPath(defaultLevelPath) {
         systems.add<XMLSystem>();
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
@@ -31,8 +31,6 @@ namespace Raven {
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
 
-        cmn::entities = &entities;
-        cmn::events = &events;
         cmn::game = this;
     }
 
@@ -41,19 +39,31 @@ namespace Raven {
         auto xml = systems.system<XMLSystem>();
         auto gui = systems.system<GUISystem>();
         gui->populatePrefabList(xml->prefabMap);
-        gui->populateSceneHierarchy(xml->levelMap[currentLevelName]);
+        gui->populateSceneHierarchy(xml->levelMap);
     }
 
-    void Game::loadLevel(std::string levelName) {
-        
+    void Game::loadLevel(std::string levelFilePath) {
+        currentLevelPath = levelFilePath;
+        auto xml = systems.system<XMLSystem>();
+        xml->levelDoc.LoadFile(currentLevelPath.c_str());
+        xml->deserializeLevelMap(xml->levelDoc.FirstChild());
+        systems.system<GUISystem>()->populateSceneHierarchy(xml->levelMap);
     }
 
-    void Game::addLevel(std::string levelName) {
-
+    void Game::saveLevel() {
+        auto xml = systems.system<XMLSystem>();
+        xml->serializeLevelMap(); // Ensures the levelDoc has an updated representation of the levelMap
+        xml->levelDoc.SaveFile(currentLevelPath.c_str()); // Adds the file to the file system
     }
 
-    void Game::removeLevel(std::string levelName) {
+    void Game::addLevel(std::string levelFilePath) {
+        systems.system<XMLSystem>()->levelFilePathSet.insert(levelFilePath);
+        // Doesn't add it to the file system (must first save the level)
+    }
 
+    void Game::removeLevel(std::string levelFilePath) {
+        systems.system<XMLSystem>()->levelFilePathSet.erase(levelFilePath);
+        // Doesn't remove it from the file system
     }
 
     void Game::updateGameMode(ex::TimeDelta dt) {
@@ -70,27 +80,17 @@ namespace Raven {
     }
 
     // THESE FUNCTIONS NEED TO BE PORTED INTO ENTITYLIBRARY AND THEN IGNORED FROM HERE
-    ex::Entity Game::makeEntity() {
-        std::shared_ptr<ex::Entity> e(&entities.create());
-        std::string s = (e->assign<Data>()->name = "Default Entity");
-        e->assign<Transform>();
-        e->assign<Rigidbody>();
-        systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(s, e));
+    ex::Entity Game::makeEntity(std::string name = "") {
+        std::shared_ptr<ex::Entity> e(&EntityLibrary::Create::Entity(name));
+        if (name != "") {
+            systems.system<XMLSystem>()->levelMap.insert(
+                std::make_pair(name, e));
+        }
         return *e;
     }
 
-    ex::Entity Game::makeEntity(std::string name) {
-        if (name == "") {
-            cerr << "Error: Attempted to assign empty string to entity name";
-            throw 1;
-        }
-        ex::Entity e = makeEntity();
-        e.component<Data>()->name = name;
-        return e;
-    }
-
     std::shared_ptr<ex::Entity> Game::instantiatePrefab(std::string name, std::string prefabName) {
-        std::shared_ptr<ex::Entity> e(&entities.create());
+        std::shared_ptr<ex::Entity> e(new ex::Entity(entities.create()));
         auto map = systems.system<XMLSystem>()->prefabMap;
         if (map.find(prefabName) == map.end()) {
             cerr << "Warning: Attempted to instantiate entity \"" + name + "\" from non-existent prefab \"" + prefabName + "\"" << endl;
@@ -100,7 +100,7 @@ namespace Raven {
         else {
             EntityLibrary::copyEntity(*e, *map[prefabName]);
             e->component<Data>()->name = name;
-            systems.system<XMLSystem>()->levelMap[currentLevelName].insert(std::make_pair(name, e));
+            systems.system<XMLSystem>()->levelMap.insert(std::make_pair(name, e));
             return e;
         }
     }
@@ -115,9 +115,9 @@ namespace Raven {
         events.emit<XMLLoadEvent>();
     }
 
-    void Game::clearEntities(std::string levelName) {
+    void Game::clearEntities() {
         std::map<std::string, std::shared_ptr<ex::Entity>> tempMap;
-        auto firstMap = systems.system<XMLSystem>()->levelMap[currentLevelName];
+        auto firstMap = systems.system<XMLSystem>()->levelMap;
         for (auto name_entity : firstMap) {
             if (name_entity.second->component<Data>()->persistent) {
                 tempMap.insert(name_entity);

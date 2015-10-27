@@ -49,7 +49,7 @@ namespace Raven {
         struct Create {
 
             static ex::Entity Entity(std::string entityName = "Default Entity", bool isPrefab = false) {
-                ex::Entity e = cmn::entities->create();
+                ex::Entity e = cmn::game->entities.create();
                 ex::ComponentHandle<Data> data = e.assign<Data>();
                 e.assign<Transform>();
                 e.assign<Rigidbody>();

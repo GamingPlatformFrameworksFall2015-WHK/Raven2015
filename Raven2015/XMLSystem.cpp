@@ -4,10 +4,7 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem() {
-        // Create the base entity for the user to use
-        doc.LoadFile(xmlFileName.c_str());
-    }
+    XMLSystem::XMLSystem() {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -15,104 +12,155 @@ namespace Raven {
 
 #pragma region Raven Game Serialization
 
-    std::string XMLSystem::serializeRavenGame() {
-        std::string s = 
-            "<?xml version=\"1.0\"?>\r\n"
-            "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
-            "<RAVEN>\r\n"
-            "  <Assets>\r\n" +
-            serializeTextureFilePathSet("    ") +
-            serializeMusicFilePathSet("    ") +
-            serializeSoundFilePathSet("    ") +
-            serializeFontFilePathSet("    ") +
-            serializeAnimationMap("    ") +
-            "    <Renderables>\r\n" +
-            serializeRenderableTextMap("      ") +
-            serializeRenderableRectangleMap("      ") +
-            serializeRenderableCircleMap("      ") +
-            serializeRenderableSpriteMap("      ") +
-            "    </Renderables>\r\n"
-            "  </Assets>\r\n" +
-            serializePrefabMap("  ") +
-            serializeLevelMap("  ") +
-            "</RAVEN>\r\n";
-        return s;
+    void XMLSystem::serializeRavenGame() {
+        cout << "Saving game project..." << endl;
+        bool success = true;
+
+        // Assets
+        cout << "Step 1: Assets" << endl;
+        assetsDoc.Parse(serializeAssets().c_str());
+        if (assetsDoc.SaveFile(assetsFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Assets Failed To Save!" << endl;
+            success = false;
+        }
+        else {
+            cout << "Assets successfully saved." << endl;
+        }
+
+        // Prefabs
+        cout << "Step 2: Prefabs" << endl;
+        if (prefabsDoc.SaveFile(prefabsFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Prefabs Failed To Save!" << endl;
+            success = false;
+        }
+        else {
+            cout << "Prefabs successfully saved." << endl;
+        }
+
+        // Level
+        cout << "Step 3: Level" << endl;
+        levelDoc.Parse(serializeLevelMap().c_str());
+        if (levelDoc.SaveFile(cmn::game->currentLevelPath.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Level Failed To Save!" << endl;
+            success = false;
+        }
+        else {
+            cout << "Level successfully saved." << endl;
+        }
+
+        // Report
+        if (success) {
+            cout << "Game successfully saved!" << endl;
+        }
+        else {
+            cout << "A problem occurred during game save." << endl;
+        }
     }
 
     void XMLSystem::deserializeRavenGame() {
-        XMLElement* raven = doc.FirstChildElement("RAVEN");
-        XMLElement* assets = raven->FirstChildElement("Assets");
-        deserializeTextureFilePathSet(assets->FirstChildElement("Textures"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Music"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Sounds"));
-        deserializeTextureFilePathSet(assets->FirstChildElement("Fonts"));
-        deserializeAnimationMap(assets->FirstChildElement("Animations"));
-        XMLElement* renderables = assets->FirstChildElement("Renderables");
-        deserializeRenderableTextMap(renderables->FirstChildElement("RenderableTexts"));
-        deserializeRenderableRectangleMap(renderables->FirstChildElement("RenderableRectangles"));
-        deserializeRenderableCircleMap(renderables->FirstChildElement("RenderableCircles"));
-        deserializeRenderableSpriteMap(renderables->FirstChildElement("RenderableSprites"));
+        cout << "Loading game project..." << endl;
+        bool success = true;
+
+        // Assets
+        if (assetsDoc.LoadFile(assetsFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: " + assetsFileName + " failed to load!" << endl;
+            success = false;
+        }
+        else {
+            cout << assetsFileName + " successfully loaded. Deserializing..." << endl;
+            deserializeAssets(assetsDoc.FirstChildElement(assetsFirstChildElement.c_str()));
+        }
+
+        // Prefabs
+        if (prefabsDoc.LoadFile(prefabsFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: " + prefabsFileName + " failed to load!" << endl;
+            success = false;
+        }
+        else {
+            cout << prefabsFileName + " successfully loaded. Deserializing..." << endl;
+        }
+
+        // Level
+        std::string level = cmn::game->currentLevelPath;
+        if (levelDoc.LoadFile(level.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: " + getAssetNameFromFilePath(level, true) + " failed to load!" << endl;
+            success = false;
+        }
+        else {
+            cout << getAssetNameFromFilePath(level, true) + " successfully loaded. Deserializing..." << endl;
+            deserializeLevelMap(levelDoc.FirstChildElement(levelFirstChildElement.c_str()));
+        }
+
+        // Report
+        if (success) {
+            cout << "Game project was successfully loaded" << endl;
+        }
+        else {
+            cout << "There was a problem with loading the game project" << endl;
+        }
+        /*
         deserializePrefabMap(raven->FirstChildElement("Prefabs"));
         deserializeLevelMap(raven->FirstChildElement("Levels"));
+        */
     }
 
 #pragma endregion
 
 #pragma region Entity Serialization
 
-    std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab, bool forPrefab) {
+    std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab) {
         std::string str =
-            tab + (forPrefab ? "<P" : "<L") + "Entity>\r\n";
+            tab + "<Entity>" + newline;
         std::string tempTab = tab;  // save tab
         tab += "  ";                // increment tab
-        str += serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab, forPrefab, COMPONENT_TYPES(::getNullPtrToType()));// process components
+        str += serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab, COMPONENT_TYPES(::getNullPtrToType()));// process components
         tab = tempTab;              // reinstate tab
         return str +=
-            tab + (forPrefab ? "</P" : "</L") + "Entity>\r\n";
+            tab + "</Entity>" + newline;
     }
 
-    void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab) {
-        deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, forPrefab, true, COMPONENT_TYPES(::getNullPtrToType()));
+    void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node) {
+        deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, true, COMPONENT_TYPES(::getNullPtrToType()));
     }
 
     template <typename C>
-    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c = nullptr) {
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, C* c = nullptr) {
         if (e.has_component<C>()) {
-            return e.component<C>()->serialize(tab, forPrefab);
+            return e.component<C>()->serialize(tab);
         }
         return "";
     }
 
     template <typename C, typename... Components>
-    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components) {
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, C* c, Components*... components) {
         std::string s = "";
         if (e.has_component<C>()) {
-            s = e.component<C>()->serialize(tab, forPrefab);
+            s = e.component<C>()->serialize(tab);
         }
-        return s + serializeEntityComponents<Components...>(e, tab, forPrefab, components...);
+        return s + serializeEntityComponents<Components...>(e, tab, components...);
     }
 
     template <typename C>
-    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c) {
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c) {
         if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
-        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        XMLElement* elem = node->FirstChildElement(C::getElementName().c_str());
         if (elem) {
-            e.assign<C>()->deserialize(elem, forPrefab);
+            e.assign<C>()->deserialize(elem);
         }
     }
 
     template <typename C, typename... Components>
-    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components) {
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c, Components*... components) {
         if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
-        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        XMLElement* elem = node->FirstChildElement(C::getElementName().c_str());
         if (elem) {
-            e.assign<C>()->deserialize(elem, forPrefab);
-            cout << "Found Component. Deserializing... : " + C::getElementName(forPrefab) << endl;
+            e.assign<C>()->deserialize(elem);
+            cout << "Found Component. Deserializing... : " + C::getElementName() << endl;
         }
         else {
-            cout << "Could not find component: " + C::getElementName(forPrefab) << endl;
+            cout << "Could not find component: " + C::getElementName() << endl;
         }
-        deserializeEntityComponents<Components...>(e, node, forPrefab, false, components...);
+        deserializeEntityComponents<Components...>(e, node, false, components...);
     }
 
 #pragma endregion
@@ -122,23 +170,11 @@ namespace Raven {
 #pragma region Serialization Events
 
     void XMLSystem::receive(const XMLLoadEvent& e) {
-        if (doc.LoadFile(xmlFileName.c_str()) != XML_NO_ERROR) {
-            cerr << "WARNING: Game XML Document Failed To Load!" << endl;
-        }
-        else {
-            cout << "Game XML Document successfully loaded. Deserializing..." << endl;
-            deserializeRavenGame();
-        }
+        deserializeRavenGame();
     }
 
     void XMLSystem::receive(const XMLSaveEvent& e) {
-        doc.Parse(serializeRavenGame().c_str());
-        if (doc.SaveFile(xmlFileName.c_str()) != XML_NO_ERROR) {
-            cerr << "WARNING: Game Failed To Save!" << endl;
-        }
-        else {
-            cout << "Game successfully saved." << endl;
-        }
+        serializeRavenGame();
     }
 
 #pragma endregion
@@ -154,7 +190,7 @@ namespace Raven {
             map = &prefabMap;
         }
         else {
-            map = &levelMap[cmn::game->currentLevelName];
+            map = &levelMap;
         }
         // Double check whether we can even find a record of the entity's name
         if (map->find(e.component<Data>()->name) != map->end()) {
@@ -178,7 +214,38 @@ namespace Raven {
 
 #pragma endregion
 
+
+#pragma region Prefab Manipulation
+
+    bool XMLSystem::prefabExists(std::string prefabName) {
+
+    }
+
+    std::shared_ptr<ex::Entity> XMLSystem::instantiate(std::string prefabName) {
+
+    }
+
+#pragma endregion
+
 #pragma region Serialization
+
+    std::string XMLSystem::serializeAssets() {
+        std::string tab = "  ";
+        return
+            getXMLHeader(assetsFirstChildElement, assetsFileName) +
+            "<" + assetsFirstChildElement + ">" + newline +
+            serializeTextureFilePathSet(tab) +
+            serializeMusicFilePathSet(tab) +
+            serializeSoundFilePathSet(tab) +
+            serializeFontFilePathSet(tab) +
+            serializeLevelFilePathSet(tab) +
+            serializeAnimationMap(tab) +
+            serializeRenderableTextMap(tab) +
+            serializeRenderableRectangleMap(tab) +
+            serializeRenderableCircleMap(tab) +
+            serializeRenderableSpriteMap(tab) +
+            "</" + assetsFirstChildElement + ">" + newline;
+    }
 
     std::string XMLSystem::serializeTextureFilePathSet(std::string tab) {
         return serializeFilePathSet(textureFilePathSet, "Textures", tab);
@@ -196,42 +263,46 @@ namespace Raven {
         return serializeFilePathSet(fontFilePathSet, "Fonts", tab);
     }
 
+    std::string XMLSystem::serializeLevelFilePathSet(std::string tab) {
+        return serializeFilePathSet(levelFilePathSet, "Levels", tab);
+    }
+
     std::string XMLSystem::serializeAnimationMap(std::string tab) {
         std::string animationContent = "";
         for (auto animation : animationMap) {
             animationContent +=
-                tab + "  <Animation Name=\"" + animation.first + "\">\r\n" +
-                tab + "    <AnimationTextureFilePath>" + animation.second->textureFileName + "</AnimationTextureFilePath>\r\n" +
-                tab + "    <FrameCount>" + std::to_string(animation.second->size) + "</FrameCount>\r\n" +
-                tab + "    <FrameWidth>" + std::to_string(animation.second->frameWidth) + "</FrameWidth>\r\n" +
-                tab + "    <FrameHeight>" + std::to_string(animation.second->frameHeight) + "</FrameHeight>\r\n" +
-                tab + "    <AnimationSpeed>" + std::to_string(animation.second->animationSpeed) + "</AnimationSpeed>\r\n" +
-                tab + "    <IsLooping>" + std::to_string(animation.second->isLooping) + "</IsLooping>\r\n" +
-                tab + "  </Animation>\r\n";
+                tab + "  <Animation Name=\"" + animation.first + "\">" + newline +
+                tab + "    <AnimationTextureFilePath>" + animation.second->textureFileName + "</AnimationTextureFilePath>" + newline +
+                tab + "    <FrameCount>" + std::to_string(animation.second->size) + "</FrameCount>" + newline +
+                tab + "    <FrameWidth>" + std::to_string(animation.second->frameWidth) + "</FrameWidth>" + newline +
+                tab + "    <FrameHeight>" + std::to_string(animation.second->frameHeight) + "</FrameHeight>" + newline +
+                tab + "    <AnimationSpeed>" + std::to_string(animation.second->animationSpeed) + "</AnimationSpeed>" + newline +
+                tab + "    <IsLooping>" + std::to_string(animation.second->isLooping) + "</IsLooping>" + newline +
+                tab + "  </Animation>" + newline;
         }
 
         return
-            tab + "<Animations>\r\n" +
+            tab + "<Animations>" + newline +
             animationContent +
-            tab + "</Animations>\r\n";
+            tab + "</Animations>" + newline;
     }
 
     std::string XMLSystem::serializeRenderableTextMap(std::string tab) {
         std::string renderableTextContent = "";
         for (auto renderableText : renderableTextMap) {
             renderableTextContent +=
-                tab + "  <RenderableText Name=\"" + renderableText.first + "\">\r\n" +
-                tab + "    <RenderableTextRenderLayer>" + std::to_string(renderableText.second->renderLayer) + "</RenderableTextRenderLayer>\r\n" +
-                tab + "    <RenderableTextRenderPriority>" + std::to_string(renderableText.second->renderPriority) + "</RenderableTextRenderPriority>\r\n" +
-                tab + "    <RenderableTextTextContent>" + renderableText.second->text.getString() + "</RenderableTextTextContent>\r\n" +
-                tab + "    <RenderableTextFontFilePath>" + renderableText.second->fontFilePath + "</RenderableTextFontFilePath>\r\n" +
-                tab + "  </RenderableText>\r\n";
+                tab + "  <RenderableText Name=\"" + renderableText.first + "\">" + newline +
+                tab + "    <RenderableTextRenderLayer>" + std::to_string(renderableText.second->renderLayer) + "</RenderableTextRenderLayer>" + newline +
+                tab + "    <RenderableTextRenderPriority>" + std::to_string(renderableText.second->renderPriority) + "</RenderableTextRenderPriority>" + newline +
+                tab + "    <RenderableTextTextContent>" + renderableText.second->text.getString() + "</RenderableTextTextContent>" + newline +
+                tab + "    <RenderableTextFontFilePath>" + renderableText.second->fontFilePath + "</RenderableTextFontFilePath>" + newline +
+                tab + "  </RenderableText>" + newline;
         }
 
         return
-            tab + "<RenderableTexts>\r\n" +
+            tab + "<RenderableTexts>" + newline +
             renderableTextContent +
-            tab + "</RenderableTexts>\r\n";
+            tab + "</RenderableTexts>" + newline;
 
     }
 
@@ -239,97 +310,108 @@ namespace Raven {
         std::string renderableRectangleContent = "";
         for (auto renderableRectangle : renderableRectangleMap) {
             renderableRectangleContent +=
-                tab + "  <RenderableRectangle Name=\"" + renderableRectangle.first + "\">\r\n" +
-                tab + "    <RenderableRectangleRenderLayer>" + std::to_string(renderableRectangle.second->renderLayer) + "</RenderableRectangleRenderLayer>\r\n" +
-                tab + "    <RenderableRectangleRenderPriority>" + std::to_string(renderableRectangle.second->renderPriority) + "</RenderableRectangleRenderPriority>\r\n" +
-                tab + "  </RenderableRectangle>\r\n";
+                tab + "  <RenderableRectangle Name=\"" + renderableRectangle.first + "\">" + newline +
+                tab + "    <RenderableRectangleRenderLayer>" + std::to_string(renderableRectangle.second->renderLayer) + "</RenderableRectangleRenderLayer>" + newline +
+                tab + "    <RenderableRectangleRenderPriority>" + std::to_string(renderableRectangle.second->renderPriority) + "</RenderableRectangleRenderPriority>" + newline +
+                tab + "  </RenderableRectangle>" + newline;
         }
 
         return
-            tab + "<RenderableRectangles>\r\n" +
+            tab + "<RenderableRectangles>" + newline +
             renderableRectangleContent +
-            tab + "</RenderableRectangles>\r\n";
+            tab + "</RenderableRectangles>" + newline;
     }
 
     std::string XMLSystem::serializeRenderableCircleMap(std::string tab) {
         std::string renderableCircleContent = "";
         for (auto renderableCircle : renderableCircleMap) {
             renderableCircleContent +=
-                tab + "  <RenderableCircle Name=\"" + renderableCircle.first + "\">\r\n" +
-                tab + "    <RenderableCircleRenderLayer>" + std::to_string(renderableCircle.second->renderLayer) + "</RenderableCircleRenderLayer>\r\n" +
-                tab + "    <RenderableCircleRenderPriority>" + std::to_string(renderableCircle.second->renderPriority) + "</RenderableCircleRenderPriority>\r\n" +
-                tab + "  </RenderableCircle>\r\n";
+                tab + "  <RenderableCircle Name=\"" + renderableCircle.first + "\">" + newline +
+                tab + "    <RenderableCircleRenderLayer>" + std::to_string(renderableCircle.second->renderLayer) + "</RenderableCircleRenderLayer>" + newline +
+                tab + "    <RenderableCircleRenderPriority>" + std::to_string(renderableCircle.second->renderPriority) + "</RenderableCircleRenderPriority>" + newline +
+                tab + "  </RenderableCircle>" + newline;
         }
 
         return
-            tab + "<RenderableCircles>\r\n" +
+            tab + "<RenderableCircles>" + newline +
             renderableCircleContent +
-            tab + "</RenderableCircles>\r\n";
+            tab + "</RenderableCircles>" + newline;
     }
 
     std::string XMLSystem::serializeRenderableSpriteMap(std::string tab) {
         std::string renderableSpriteContent = "";
         for (auto renderableSprite : renderableSpriteMap) {
             renderableSpriteContent +=
-                tab + "  <RenderableSprite Name=\"" + renderableSprite.first + "\">\r\n" +
-                tab + "    <RenderableSpriteRenderLayer>" + std::to_string(renderableSprite.second->renderLayer) + "</RenderableSpriteRenderLayer>\r\n" +
-                tab + "    <RenderableSpriteRenderPriority>" + std::to_string(renderableSprite.second->renderPriority) + "</RenderableSpriteRenderPriority>\r\n" +
-                tab + "    <RenderableSpriteTextureFilePath>" + renderableSprite.second->textureFileName + "</RenderableSpriteTextureFilePath>\r\n" +
-                tab + "    <RenderableSpriteAnimationName>" + renderableSprite.second->animName + "</RenderableSpriteAnimationName>\r\n" +
-                tab + "  </RenderableSprite>\r\n";
+                tab + "  <RenderableSprite Name=\"" + renderableSprite.first + "\">" + newline +
+                tab + "    <RenderableSpriteRenderLayer>" + std::to_string(renderableSprite.second->renderLayer) + "</RenderableSpriteRenderLayer>" + newline +
+                tab + "    <RenderableSpriteRenderPriority>" + std::to_string(renderableSprite.second->renderPriority) + "</RenderableSpriteRenderPriority>" + newline +
+                tab + "    <RenderableSpriteTextureFilePath>" + renderableSprite.second->textureFileName + "</RenderableSpriteTextureFilePath>" + newline +
+                tab + "    <RenderableSpriteAnimationName>" + renderableSprite.second->animName + "</RenderableSpriteAnimationName>" + newline +
+                tab + "  </RenderableSprite>" + newline;
         }
 
         return
-            tab + "<RenderableSprites>\r\n" +
+            tab + "<RenderableSprites>" + newline +
             renderableSpriteContent +
-            tab + "</RenderableSprites>\r\n";
+            tab + "</RenderableSprites>" + newline;
     }
 
-    std::string XMLSystem::serializePrefabMap(std::string tab) {
+    /*
+    std::string XMLSystem::serializePrefabMap() {
         std::string prefabMapContent = "";
         for (auto item : prefabMap) {
             prefabMapContent +=
-                serializeEntity(*item.second, tab + "  ", true);
-            cout << "----START----\r\n" << prefabMapContent << "----END----\r\n" << endl;
+                serializeEntity(*item.second, "  ");
         }
         return
-            tab + "<Prefabs>\r\n" +
+            getXMLHeader(prefabsFirstChildElement, prefabsFileName) +
+            "<" + prefabsFirstChildElement + ">" + newline +
             prefabMapContent +
-            tab + "</Prefabs>\r\n";
+            "</" + prefabsFirstChildElement + ">" + newline;
     }
+    */
 
-    std::string XMLSystem::serializeLevelMap(std::string tab) {
-        std::string levelMapContent = tab + "<Levels DefaultLevel=\"" + cmn::game->defaultLevelName + "\">\r\n";
-        // For each level
-        for (auto levelName_entityMap : levelMap) {
+    std::string XMLSystem::serializeLevelMap() {
+        std::string levelMapContent =  
+            getXMLHeader(levelFirstChildElement, cmn::game->currentLevelPath) +
+            "<" + levelFirstChildElement + " Path=\"" + cmn::game->currentLevelPath + "\">" + newline;
+        // For each entity in the level
+        for (auto name_entity : levelMap) {
 
-            // Add the header for the level's XML tag
-            levelMapContent += tab + "  <Level Name=\"" + levelName_entityMap.first + "\">\r\n";
+            // Grab the entity's data
+            auto data = name_entity.second->component<Data>();
 
-            // For each entity in the level
-            for (auto name_entity : levelName_entityMap.second) {
-                // Grab the entity's data
-                auto data = name_entity.second->component<Data>();
-
-                // If the entity is linked to and is a copy of a prefab, then there's no need to store its information
-                if (data->prefabName != "" && !data->modified) {
-                    levelMapContent += tab + "    <PrefabNameCheck>" + data->prefabName + "</PrefabNameCheck>\r\n";
-                }
-                // Else, if we need to store its information, serialize each of its components
-                else {
-                    levelMapContent += serializeEntity(*name_entity.second, tab + "    ", false);
-                }
+            // If the entity is linked to a prefab, the prefab can be identified, and it is an exact copy of that prefab,
+            // then there's no need to store its information
+            if (data->prefabName != data->name && prefabMap.find(data->prefabName) != prefabMap.end() && !data->modified) {
+                levelMapContent += "    <PrefabNameCheck>" + data->prefabName + "</PrefabNameCheck>" + newline;
             }
-
-            // Add the tail of the level's XML tag
-            levelMapContent += tab + "  </Level>\r\n";
+            // Else, if we need to store its information, serialize each of its components
+            else {
+                levelMapContent += serializeEntity(*name_entity.second, "    ");
+            }
         }
-        return levelMapContent += tab += "</Levels>\r\n";
+
+        // Add the tail of the level's XML tag
+        levelMapContent += "</" + levelFirstChildElement + ">" + newline;
     }
 
 #pragma endregion
 
 #pragma region Deserialization
+
+    void XMLSystem::deserializeAssets(XMLNode* node) {
+        deserializeTextureFilePathSet(node->FirstChildElement("Textures"));
+        deserializeTextureFilePathSet(node->FirstChildElement("Music"));
+        deserializeTextureFilePathSet(node->FirstChildElement("Sounds"));
+        deserializeTextureFilePathSet(node->FirstChildElement("Fonts"));
+        deserializeAnimationMap(node->FirstChildElement("Animations"));
+        XMLElement* renderables = node->FirstChildElement("Renderables");
+        deserializeRenderableTextMap(renderables->FirstChildElement("RenderableTexts"));
+        deserializeRenderableRectangleMap(renderables->FirstChildElement("RenderableRectangles"));
+        deserializeRenderableCircleMap(renderables->FirstChildElement("RenderableCircles"));
+        deserializeRenderableSpriteMap(renderables->FirstChildElement("RenderableSprites"));
+    }
 
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
         deserializeFilePathSet(textureFilePathSet, "Textures", node);
@@ -477,47 +559,51 @@ namespace Raven {
         }
     }
 
+    /*
+
+    The prefabMap must be removed as an asset all together. Instead, we should parse through
+    the serialization information in the prefabsDoc to acquire 1) all of the prefabs' information or
+    2) a particular prefab's information. The "copyEntity" portion of the deserializeLevelMap function
+    would be an example of where we need to acquire a particualr prefab's information. 
+
+    Need to write a function that, given the name of a prefab, will generate a shared pointer to an
+    entity instance that is an exact representation of that prefab (which can then be handed off to the
+    levelMap upon request).
+
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
         prefabMap.clear();
-        XMLElement* elem = node->FirstChildElement("PEntity");
+        XMLElement* elem = node->FirstChildElement("Entity");
         while (elem) {
-            ex::Entity e = cmn::entities->create();
-            std::shared_ptr<ex::Entity> entity(new ex::Entity(e));
-            deserializeEntity(*entity, elem, true);
-            if (entity->has_component<Data>()) cout << "Prefab Entity has a Data!" << endl;
-            if (entity->has_component<Transform>()) cout << "Prefab Entity has a Transform!" << endl;
-            if (entity->has_component<Rigidbody>()) cout << "Prefab Entity has a Rigidbody!" << endl;
+            std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::game->entities.create()));
+            deserializeEntity(*entity, elem);
             prefabMap.insert(std::make_pair(entity->component<Data>()->name, entity));
-            elem = elem->NextSiblingElement("PEntity");
+            elem = elem->NextSiblingElement("Entity");
         }
     }
+    */
     
     void XMLSystem::deserializeLevelMap(XMLNode* node) {
         levelMap.clear();
-        XMLElement* lnode = node->FirstChildElement("Level");
-        while (lnode) {
-            std::string levelName = lnode->Attribute("Name");
-            XMLElement* item = lnode->FirstChildElement("LevelEntity");
-            levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
-            while (item) {
-                std::string prefabName = item->FirstChildElement("PrefabNameCheck")->GetText();
-                std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::entities->create()));
-                if (prefabName == "") {
-                    XMLSystem::deserializeEntity(*entity, item->FirstChildElement("LEntity"), false);
-                }
-                else {
-                    EntityLibrary::copyEntity(*entity, *prefabMap[prefabName]);
-                }
-                levelMap[levelName].insert(std::make_pair(entity->component<Data>()->name, entity));
-                item = item->NextSiblingElement("LevelEntity");
+        XMLElement* item = node->FirstChildElement("LevelEntity");
+        while (item) {
+            std::string prefabName = item->FirstChildElement("PrefabNameCheck")->GetText();
+            std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::game->entities.create()));
+            // If the entity is not linked to a prefab, then deserialize the expected entity description to follow
+            if (prefabName == "") {
+                XMLSystem::deserializeEntity(*entity, item->FirstChildElement("Entity"));
             }
-            lnode = lnode->NextSiblingElement("Level");
+            // If it IS linked to an entity, then simply copy that entities information
+            else {
+                EntityLibrary::copyEntity(*entity, *prefabMap[prefabName]);
+            }
+            levelMap.insert(std::make_pair(entity->component<Data>()->name, entity));
+            item = item->NextSiblingElement("LevelEntity");
         }
     }
 
 #pragma endregion
 
-#pragma region FileNameMappings
+#pragma region (De)Serialization Utility Methods
 
     std::string XMLSystem::getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension) {
         auto nameStart = assetFilePath.find_last_of('/')+1;
@@ -529,18 +615,17 @@ namespace Raven {
         }
     }
 
-
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";
         std::string prefix = (wrapperElement == "Music" ? wrapperElement : wrapperElement.substr(wrapperElement.size() - 1));
         for (auto path : filePathSet) {
-            content += tab + "  <" + prefix + "FilePath>" + path + "</" + prefix + "FilePath>\r\n";
+            content += tab + "  <" + prefix + "FilePath>" + path + "</" + prefix + "FilePath>" + newline;
         }
 
         return
-            tab + "<" + wrapperElement + ">\r\n" +
+            tab + "<" + wrapperElement + ">" + newline +
             content +
-            tab + "</" + wrapperElement + ">\r\n";
+            tab + "</" + wrapperElement + ">" + newline;
     }
 
     void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node) {
@@ -551,6 +636,12 @@ namespace Raven {
             filePathSet.insert(path->GetText());
             path = node->NextSiblingElement((wrapperElement + "FilePath").c_str());
         }
+    }
+
+    std::string XMLSystem::getXMLHeader(std::string topLevelElement, std::string fileName) {
+        return
+            "<?xml version=\"" + xmlVersion + "\" encoding=\"" + xmlEncoding + "\"?>" + newline +
+            "<!DOCTYPE " + topLevelElement + " SYSTEM \"" + fileName + "\">" + newline;
     }
 
 #pragma endregion

@@ -45,9 +45,9 @@ namespace Raven {
 // getType:          for acquiring a switchable indicator of the component's type (currently unused)
 // getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
 #define ADD_DEFAULTS(type_name) \
-        virtual std::string serialize(std::string tab, bool forPrefab) override; \
-        virtual void deserialize(XMLNode* node, bool forPrefab) override; \
-        static std::string getElementName(bool forPrefab) { return std::string((forPrefab ? "P" : "L")) + #type_name; } \
+        virtual std::string serialize(std::string tab) override; \
+        virtual void deserialize(XMLNode* node) override; \
+        static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; } \
         static type_name##* getNullPtrToType() { return nullptr; } 
 

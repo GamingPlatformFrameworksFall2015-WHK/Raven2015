@@ -216,8 +216,10 @@
     <ClInclude Include="XMLSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="raven.dtd" />
     <None Include="Resources\Audio\Sounds\choose.ogg" />
+    <None Include="Resources\XML\assets.dtd" />
+    <None Include="Resources\XML\level.dtd" />
+    <None Include="Resources\XML\prefabs.dtd" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\black_jack.ttf" />
@@ -228,7 +230,9 @@
     <Image Include="Resources\Textures\YellowGreenBorderBox.png" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="raven.xml" />
+    <Xml Include="Resources\XML\assets.xml" />
+    <Xml Include="Resources\XML\DefaultLevel.xml" />
+    <Xml Include="Resources\XML\prefabs.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
