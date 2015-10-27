@@ -18,7 +18,7 @@ namespace Raven {
     public:
         // Perform initializations
         explicit RenderingSystem(std::shared_ptr<GUISystem> system)
-            : renderWindow(system->mainWindow), canvas(system->getCanvas()) {}
+            : renderWindow(system->mainWindow), canvas(system->canvas) {}
 
         // Subscribe to events
         void configure(entityx::EventManager &event_manager) {

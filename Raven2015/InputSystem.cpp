@@ -42,22 +42,28 @@ int InputSystem::handleEvent(sf::Event event) {
 
             key = getAction(event.key.code);
         
-            if (key == "move_right" && movementThresX < 1.0) {
-                movementThresX += (FPS_100_TICK_TIME * 100);
-            }
+			if (key == "switch_mode"){
+				cout << "Edit Mode = " << editMode << endl;
+				if (editMode == true) editMode = false;
+				else editMode = true;
+			}
+			if (!editMode) {
+				if (key == "move_right" && movementThresX < 1.0) {
+					movementThresX += (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_down" && movementThresY < 1.0) {
-                movementThresY += (FPS_100_TICK_TIME * 100);
-            }
+				if (key == "move_down" && movementThresY < 1.0) {
+					movementThresY += (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_left" && movementThresX > -1.0) {
-                movementThresX -= (FPS_100_TICK_TIME * 100);
-            }
+				if (key == "move_left" && movementThresX > -1.0) {
+					movementThresX -= (FPS_100_TICK_TIME * 100);
+				}
 
-            if (key == "move_up" && movementThresY > -1.0) {
-                movementThresY -= (FPS_100_TICK_TIME * 100);
-            }
-
+				if (key == "move_up" && movementThresY > -1.0) {
+					movementThresY -= (FPS_100_TICK_TIME * 100);
+				}
+			}
             break;
         }
         case sf::Event::KeyReleased: {			
@@ -152,6 +158,7 @@ void InputSystem::read_file(std::string filename) {
         else if ("LControl" == key) { insert_input(sf::Keyboard::LControl, action); }
         else if ("LShift" == key) { insert_input(sf::Keyboard::LShift, action); }
         else if ("LAlt" == key) { insert_input(sf::Keyboard::LAlt, action); }
+		else if ("Tilde" == key) { insert_input(sf::Keyboard::Tilde, action); }
         else if ("Left" == key) { insert_input(sf::Keyboard::Left, action); }
         else if ("Right" == key) { insert_input(sf::Keyboard::Right, action); }
         else if ("Up" == key) { insert_input(sf::Keyboard::Up, action); }

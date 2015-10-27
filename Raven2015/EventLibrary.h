@@ -17,6 +17,9 @@
 #include "entityx\Entity.h" // For entityx::Entity
 #include "SFML/System.hpp"
 #include "ComponentLibrary.h"
+#include "SFGUI/Widgets.hpp"
+
+using namespace sfg;
 
 namespace Raven {
 
@@ -126,15 +129,40 @@ namespace Raven {
 
     struct TimerEvent : public ex::Event<TimerEvent> {
 
-        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr,
+        TimerEvent(
             std::string timerName = "", cmn::ETimerOperation op =
             cmn::ETimerOperation::NO_TIMER_OPERATION, ex::TimeDelta = 0.0)
-            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime) {}
+            : timerName(timerName), timerOperation(op), scanTime(scanTime) {}
 
         ex::TimeDelta scanTime;
         cmn::ETimerOperation timerOperation;
         std::string timerName;
-        std::shared_ptr<TimeTable> timeTable;
+    };
+
+#pragma endregion
+
+#pragma region GUIEvents
+
+    // The PanelType is not explicitly used, but because it is there, a unique version of the function can be made for
+    // A given typename of panel. All panel typenames are detailed at the top of WidgetLibrary.h
+    template <typename PanelType, typename... Widgets>
+    struct GUIWidgetListEvent : public ex::Event<GUIWidgetListEvent<PanelType, Widgets...>> {
+
+        enum Operation {
+            POPULATE,
+            ADD,
+            REMOVE
+        };
+
+        GUIWidgetListEvent(Box::Ptr box = nullptr, void (*listItemFormatter)(Box::Ptr) = nullptr, 
+            Operation op = Operation::ADD, std::string itemName = "") : 
+            box(box), formatter(listItemFormatter), itemName(itemName), op(op) {}
+
+        Box::Ptr box;
+        std::string itemName;
+        void(*formatter)(Box::Ptr);
+        Operation op;
+        
     };
 
 #pragma endregion
@@ -147,6 +175,29 @@ namespace Raven {
 
     struct XMLSaveEvent : public ex::Event<XMLSaveEvent> {
         XMLSaveEvent() {}
+    };
+
+    struct XMLUpdateEntityNameEvent : public ex::Event<XMLUpdateEntityNameEvent> {
+
+        XMLUpdateEntityNameEvent(ex::Entity entity, std::string newName, bool isPrefab) : 
+            entity(entity), newName(newName), isPrefab(isPrefab) {}
+
+        ex::Entity entity;
+
+        std::string newName;
+
+        bool isPrefab;
+    };
+
+    template <typename RenderableAsset>
+    struct XMLDeserializeRendererAsset : public ex::Event<XMLDeserializeRendererAsset<RenderableAsset>> {
+
+        XMLDeserializeRendererAsset(std::string assetName, std::map<std::string, std::shared_ptr<RenderableAsset>>& assets, bool forPrefabs) :
+            assetName(assetName), assets(&assets), forPrefabs(forPrefabs) {}
+
+        std::string assetName;
+        std::map<std::string, std::shared_ptr<RenderableAsset>>* assets;
+        bool forPrefabs;
     };
 
 #pragma endregion

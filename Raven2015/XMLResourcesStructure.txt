@@ -83,7 +83,7 @@
 					CircleName //string
 				*Sprites
 					SpriteName //string
-			*TimeTable //Will not be allowed to have preset values associated with it.
+			//*TimeTable //OMITTED: Will not be allowed to have preset values associated with it. Therefore, it will not be stated explicitly
 		*Entity
 			...
 		*Entity
