@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!ELEMENT PREFABS (Entity*)>
+<!ELEMENT LEVEL (Entity*)>
   <!ELEMENT Entity (Data, Transform, Rigidbody, BoxCollider?, SoundMaker?, MusicMaker?, Renderer?, Pawn?, Villain?, Tracker?, Pacer?)>
     <!ELEMENT Data (Name, PrefabName, Modified, Persistent)>
       <!ELEMENT Name (#PCDATA)>
@@ -47,7 +47,7 @@
     <!ELEMENT Villain EMPTY>
     <!ELEMENT Tracker (Target)>
       <!ELEMENT Target (#PCDATA)>
-    <!ELEMENT Pacer (PacerDirection, PacerVelocity, PacerOrigin, PacerRadius)>
+    <!ELEMENT Pacer (PacerDirection, PacerVelocity, PacerOrigin)>
       <!ELEMENT PacerDirection (#PCDATA)>
       <!ELEMENT PacerVelocity (PacerVelocityX, PacerVelocityY)>
         <!ELEMENT PacerVelocityX (#PCDATA)>
@@ -55,4 +55,3 @@
       <!ELEMENT PacerOrigin (PacerOriginX, PacerOriginY)>
         <!ELEMENT PacerOriginX (#PCDATA)>
         <!ELEMENT PacerOriginY (#PCDATA)>
-      <!ELEMENT PacerRadius (#PCDATA)>

@@ -33,25 +33,33 @@ namespace Raven {
         // For display purposes in the GUISystem
         std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
 
-        // The serialization document tracking assets
-        XMLDocument assetsDoc;
-        // The serialization document tracking prefabs
-        XMLDocument prefabsDoc;
-        // The serialization document tracking entities in the current level
-        XMLDocument levelDoc;
-
-        // The constant file name used to represent the game's xml serialization file
-        static const std::string xmlFileName;
-
-        // Serializes the internal XMLDocument
+        // Game (De)Serialization
         void serializeRavenGame();
-
-        // De-Serializes the internal XMLDocument
         void deserializeRavenGame();
 
         // LevelMap (De)Serialization
         std::string serializeLevelMap();
-        void deserializeLevelMap(XMLNode* node);
+        void deserializeLevel(XMLNode* node);
+
+        // Entity / Component (De)Serialization
+        std::string serializeEntity(ex::Entity e, std::string tab);
+        void deserializeEntity(ex::Entity e, XMLNode* node);
+        // Confirms whether the named prefab can be found in prefabs.xml
+        bool prefabExists(std::string prefabName);
+        // Instantiates the named prefab. Returns nullptr if the prefab is not found in prefabs.xml
+        // Same as prefabExists, but proceeds to deserialize the found prefab.
+        std::shared_ptr<ex::Entity> instantiate(std::string prefabName);
+
+        // Responds to a request to update a given entity's name in either the levelMap/levelDoc or prefabsDoc
+        void receive(const XMLUpdateEntityNameEvent& event);
+
+        // The serialization document tracking assets
+        XMLDocument assetsDoc;
+        // The serialization document tracking prefabs
+        XMLDocument prefabsDoc;
+        // The serialization document tracking entities currently in existence
+        // Leaving the definition open for possible level-streaming later on
+        XMLDocument levelDoc;
 
         // Maintains the set of texture file paths
         std::set<std::string> textureFilePathSet;
@@ -78,8 +86,6 @@ namespace Raven {
         // Maps the user-defined asset name to a given entity instance
         std::map<std::string, std::shared_ptr<ex::Entity>> levelMap;
 
-        void receive(const XMLUpdateEntityNameEvent& event);
-
     private:
         // Asset Serialization
         std::string serializeAssets();
@@ -87,8 +93,8 @@ namespace Raven {
         std::string serializeMusicFilePathSet(std::string tab);
         std::string serializeSoundFilePathSet(std::string tab);
         std::string serializeFontFilePathSet(std::string tab);
-        std::string serializeAnimationMap(std::string tab);
         std::string serializeLevelFilePathSet(std::string tab);
+        std::string serializeAnimationMap(std::string tab);
         std::string serializeRenderableTextMap(std::string tab);
         std::string serializeRenderableRectangleMap(std::string tab);
         std::string serializeRenderableCircleMap(std::string tab);
@@ -100,26 +106,25 @@ namespace Raven {
         void deserializeMusicFilePathSet(XMLNode* node);
         void deserializeSoundFilePathSet(XMLNode* node);
         void deserializeFontFilePathSet(XMLNode* node);
-        void deserializeAnimationMap(XMLNode* node);
         void deserializeLevelFilePathSet(XMLNode* node);
+        void deserializeAnimationMap(XMLNode* node);
         void deserializeRenderableTextMap(XMLNode* node);
         void deserializeRenderableRectangleMap(XMLNode* node);
         void deserializeRenderableCircleMap(XMLNode* node);
         void deserializeRenderableSpriteMap(XMLNode* node);
 
-        // PrefabMap (De)Serialization (These should be made to never be necessary)
-        //std::string serializePrefabMap();
-        //void deserializePrefabMap(XMLNode* node);
-        bool prefabExists(std::string prefabName);
-        std::shared_ptr<ex::Entity> instantiate(std::string prefabName);
-        
-        // LevelMap (De)Serialization (up in "public")
-        //std::string serializeLevelMap();
-        //void deserializeLevelMap(XMLNode* node);
+        // Saving / Loading 
+        bool saveAssets();
+        bool savePrefabs();
+        bool saveLevel(std::string levelPathName);
+        bool loadLevel(std::string levelPathName, sf::Vector2f levelOffset); // designed for possible dynamic level-streaming
+        void clearEntities();
 
-        // Entity / Component (De)Serialization
-        std::string serializeEntity(ex::Entity e, std::string tab);
-        void deserializeEntity(ex::Entity e, XMLNode* node);
+        // (De)Serialization Utility Methods
+        std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
+        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
+        std::string getXMLHeader(std::string topLevelElement, std::string fileName);
+        XMLElement* findXMLEntity(XMLNode* top, std::string entityName);
         template <typename C>
         std::string serializeEntityComponents(ex::Entity e, std::string tab, C* c);
         template <typename C, typename... Components>
@@ -128,11 +133,6 @@ namespace Raven {
         void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c);
         template <typename C, typename... Components>
         void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c, Components*... components);
-
-        // (De)Serialization Utility Methods
-        std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
-        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
-        std::string getXMLHeader(std::string topLevelElement, std::string fileName);
 
         // Constants
         const std::string newline = "\r\n";

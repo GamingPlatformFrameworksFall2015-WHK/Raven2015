@@ -80,7 +80,7 @@ namespace Raven {
         TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
 
         // Prefab List Manipulation
-        void populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabMap);
+        void populatePrefabList(XMLDocument& prefabsDoc);
         void addItemToPrefabList(std::string itemName);
         void removeItemFromPrefabList(std::string itemName);
         // Scene Hierarchy Manipulation

@@ -266,11 +266,15 @@ namespace Raven {
 
 #pragma region Dynamic Panel Manipulation
 
-    void GUISystem::populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabMap) {
+    void GUISystem::populatePrefabList(XMLDocument& prefabsDoc) {
         prefabListBox->RemoveAll();
-        for (auto name_entity : prefabMap) {
+        XMLNode* top = prefabsDoc.FirstChild();
+        XMLElement* entityNode = top->FirstChildElement("Entity");
+        while (entityNode) {
             WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-                prefabListBox, name_entity.first, formatAssetListItem);
+                prefabListBox, entityNode->FirstChildElement("Data")->FirstChildElement("Name")->GetText(), formatAssetListItem);
+
+            entityNode = entityNode->NextSiblingElement("Entity");
         }
     }
 

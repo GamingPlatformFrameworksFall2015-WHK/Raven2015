@@ -38,15 +38,14 @@ namespace Raven {
         load();
         auto xml = systems.system<XMLSystem>();
         auto gui = systems.system<GUISystem>();
-        gui->populatePrefabList(xml->prefabMap);
+        gui->populatePrefabList(xml->prefabsDoc);
         gui->populateSceneHierarchy(xml->levelMap);
     }
 
     void Game::loadLevel(std::string levelFilePath) {
-        currentLevelPath = levelFilePath;
         auto xml = systems.system<XMLSystem>();
-        xml->levelDoc.LoadFile(currentLevelPath.c_str());
-        xml->deserializeLevelMap(xml->levelDoc.FirstChild());
+        xml->levelDoc.LoadFile(levelFilePath.c_str());
+        xml->deserializeLevel(xml->levelDoc.FirstChild());
         systems.system<GUISystem>()->populateSceneHierarchy(xml->levelMap);
     }
 

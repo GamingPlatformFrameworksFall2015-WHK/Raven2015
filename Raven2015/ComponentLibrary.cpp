@@ -202,28 +202,28 @@ namespace Raven {
         XMLElement* t = e->FirstChildElement("TextName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts, forPrefab);
+                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
             } while (t = t->NextSiblingElement("TextName"));
         }
         e = node->FirstChildElement("Rectangles");
         t = e->FirstChildElement("RectangleName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts, forPrefab);
+                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
             } while (t = t->NextSiblingElement("RectangleName"));
         }
         e = node->FirstChildElement("Circles");
         t = e->FirstChildElement("CircleName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts, forPrefab);
+                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
             } while (t = t->NextSiblingElement("CircleName"));
         }
         e = node->FirstChildElement("Sprites");
         t = e->FirstChildElement("SpriteName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts, forPrefab);
+                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
             } while (t = t->NextSiblingElement("SpriteName"));
         }
     }
