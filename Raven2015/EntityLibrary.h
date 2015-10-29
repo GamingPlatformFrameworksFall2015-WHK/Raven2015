@@ -14,20 +14,20 @@ namespace Raven {
         static ex::Entity copyEntity(ex::Entity toReturn, ex::Entity toCopy);
 
         // Clears the last component from an entity. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static void clearEntity(ex::Entity e, T last);
+        template <typename C>
+        static void clearEntity(ex::Entity e, C* c);
 
         // Clears all components from the given entity
         // Usage:
         // /* Entity e1 with Data, Transform, and Rigidbody */
         // clearEntity<Data, Transform, Rigibody>(e1); // OR
         // clearEntity<Data, Transform, Rigibody, BoxCollider, etc.>(e1);
-        template <typename T, typename... Args>
-        static void clearEntity(ex::Entity e, T first, Args... args);
+        template <typename C, typename... Components>
+        static void clearEntity(ex::Entity e, C* c, Components*... components);
 
         // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, T last);
+        template <typename C>
+        static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c);
 
         // Copies all possible components from the given toCopy entity into the toReturn entity
         // By the end, the following 4 conditions will be true:
@@ -39,8 +39,8 @@ namespace Raven {
         // /* Entity e1 with some set of components, Entity e2 with some different set of components */
         // copyComponents<Data, Transform, etc.>(e1, e2, *e2.component<Data>().get(), *e2.component<Transform>().get(), etc.); // OR
         // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
-        template <typename T, typename... Args>
-        static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
+        template <typename C, typename... Components>
+        static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c, Components*... components);
 
         static void updateEntityRecord(ex::Entity e, std::string newName, bool isPrefab) {
             cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName, isPrefab);

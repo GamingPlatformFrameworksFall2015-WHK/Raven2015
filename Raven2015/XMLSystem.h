@@ -19,6 +19,12 @@ namespace Raven {
         void update(ex::EntityManager &es, ex::EventManager &events,
             ex::TimeDelta dt) override {}
 
+        void configure(ex::EventManager& event_manager) {
+            event_manager.subscribe<XMLSaveEvent>(*this);
+            event_manager.subscribe<XMLLoadEvent>(*this);
+            event_manager.subscribe<XMLUpdateEntityNameEvent>(*this);
+        }
+
         // Upon reception of an XMLLoadEvent, the system will de-serialize the XMLDocument and reinstate the previous game state
         void receive(const XMLLoadEvent& e);
         // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state
@@ -38,10 +44,16 @@ namespace Raven {
         void deserializeRavenGame();
 
         // Serializes all components on the given entity while taking into account the current tab amount
-        std::string serializeEntity(ex::Entity e, std::string tab);
-
-        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
-        void deserializeEntity(ex::Entity e, XMLNode* node);
+        std::string serializeEntity(ex::Entity e, std::string tab, bool forPrefab);
+        void deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab);
+        template <typename C>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c);
+        template <typename C, typename... Components>
+        std::string serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components);
+        template <typename C>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c);
+        template <typename C, typename... Components>
+        void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components);
 
         // Maintains the set of asset file paths
         std::set<std::string> textureFilePathSet;
@@ -69,11 +81,6 @@ namespace Raven {
         std::map<std::string, std::map<std::string, std::shared_ptr<ex::Entity>>> levelMap;
 
         void receive(const XMLUpdateEntityNameEvent& event);
-        void receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
-        void receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& event);
-        template <typename PanelType>
-        void receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
-            std::map<std::string, std::shared_ptr<ex::Entity>>& map);
 
     private:
         std::string serializeTextureFilePathSet(std::string tab);
@@ -101,7 +108,7 @@ namespace Raven {
         void deserializeLevelMap(XMLNode* node);
 
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
-        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node);
+        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
 
     };
 

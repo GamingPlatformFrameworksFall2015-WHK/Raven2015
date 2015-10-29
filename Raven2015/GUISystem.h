@@ -79,6 +79,31 @@ namespace Raven {
         // Format the Toolbar widget
         TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
 
+        // Prefab List Manipulation
+        void populatePrefabList(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList);
+        void addItemToPrefabList(std::string itemName);
+        void removeItemFromPrefabList(std::string itemName);
+        // Scene Hierarchy Manipulation
+        void populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& prefabList);
+        void addItemToSceneHierarchy(std::string itemName);
+        void removeItemFromSceneHierarchy(std::string itemName);
+
+        // Format a given asset list item
+        void(*formatAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            e->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Button* b1 = (Button*)box->GetChildren()[1].get();
+            b1->SetLabel("Select"); // For selecting the Entity
+            Button* b2 = (Button*)box->GetChildren()[2].get();
+            b2->SetLabel("X");      // For deleting the Entity
+            Button* b3 = (Button*)box->GetChildren()[3].get();
+            b3->SetLabel("+");      // For moving the Entity up in the list
+            Button* b4 = (Button*)box->GetChildren()[4].get();
+            b4->SetLabel("-");      // For moving the Entity down in the list
+        };
+
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {
             return mainWindow->isOpen();

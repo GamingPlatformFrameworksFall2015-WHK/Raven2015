@@ -19,6 +19,7 @@ namespace Raven {
 
     void TimerSystem::receive(const TimerEvent &timerEvent) {
         
+        /*
         std::map<std::string, Timer>::iterator it = timerEvent.timeTable->timerMap.find(timerEvent.timerName);
 
         if (it != timerEvent.timeTable->timerMap.end()) {
@@ -33,6 +34,8 @@ namespace Raven {
         }
         
         Timer timer = timerEvent.timeTable->timerMap[timerEvent.timerName];
+        */
+        Timer timer;
 
         switch (timerEvent.timerOperation) {
         case cmn::ETimerOperation::NO_TIMER_OPERATION:
@@ -51,10 +54,10 @@ namespace Raven {
             timer.restart();
             break;
         case cmn::ETimerOperation::TIMER_ADD:
-            timerEvent.timeTable->timerMap[timerEvent.timerName] = timer;
+            //timerEvent.timeTable->timerMap[timerEvent.timerName] = timer;
             break;
         case cmn::ETimerOperation::TIMER_REMOVE:
-            timerEvent.timeTable->timerMap.erase(timerEvent.timerName);
+            //timerEvent.timeTable->timerMap.erase(timerEvent.timerName);
             break;
         }
     }

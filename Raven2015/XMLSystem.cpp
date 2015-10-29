@@ -6,7 +6,7 @@ namespace Raven {
 
     XMLSystem::XMLSystem() {
         // Create the base entity for the user to use
-        //deserializeRavenGame();
+        doc.LoadFile(xmlFileName.c_str());
 
         /*
         std::shared_ptr<ex::Entity> eptr(new ex::Entity(EntityLibrary::Create::Entity("Base Entity")));
@@ -25,7 +25,8 @@ namespace Raven {
 #pragma region Raven Game Serialization
 
     std::string XMLSystem::serializeRavenGame() {
-        return "<?xml version=\"1.0\"?>\r\n"
+        std::string s = 
+            "<?xml version=\"1.0\"?>\r\n"
             "<!DOCTYPE RAVEN SYSTEM \"raven.dtd\">\r\n"
             "<RAVEN>\r\n"
             "  <Assets>\r\n" +
@@ -44,6 +45,7 @@ namespace Raven {
             serializePrefabMap("  ") +
             serializeLevelMap("  ") +
             "</RAVEN>\r\n";
+        return s;
     }
 
     void XMLSystem::deserializeRavenGame() {
@@ -67,19 +69,59 @@ namespace Raven {
 
 #pragma region Entity Serialization
 
-    std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab) {
+    std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab, bool forPrefab) {
         std::string str =
-            tab + "<Entity>\r\n";
+            tab + (forPrefab ? "<P" : "<L") + "Entity>\r\n";
         std::string tempTab = tab;  // save tab
         tab += "  ";                // increment tab
-        SERIALIZE_COMPONENTS(e, str)// process components
+        str += serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab, forPrefab, COMPONENT_TYPES(::getNullPtrToType()));// process components
         tab = tempTab;              // reinstate tab
         return str +=
-            tab + "</Entity>\r\n";
+            tab + (forPrefab ? "</P" : "</L") + "Entity>\r\n";
     }
 
-    void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node) {
-        DESERIALIZE_COMPONENTS(e, node)
+    void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node, bool forPrefab) {
+        deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, forPrefab, true, COMPONENT_TYPES(::getNullPtrToType()));
+    }
+
+    template <typename C>
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c = nullptr) {
+        if (e.has_component<C>()) {
+            return e.component<C>()->serialize(tab, forPrefab);
+        }
+        return "";
+    }
+
+    template <typename C, typename... Components>
+    std::string XMLSystem::serializeEntityComponents(ex::Entity e, std::string tab, bool forPrefab, C* c, Components*... components) {
+        std::string s = "";
+        if (e.has_component<C>()) {
+            s = e.component<C>()->serialize(tab, forPrefab);
+        }
+        return s + serializeEntityComponents<Components...>(e, tab, forPrefab, components...);
+    }
+
+    template <typename C>
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c) {
+        if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
+        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        if (elem) {
+            e.assign<C>()->deserialize(elem, forPrefab);
+        }
+    }
+
+    template <typename C, typename... Components>
+    void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool forPrefab, bool firstCall, C* c, Components*... components) {
+        if (firstCall) EntityLibrary::clearEntity<COMPONENT_TYPE_LIST>(e, COMPONENT_TYPES(::getNullPtrToType()));
+        XMLElement* elem = node->FirstChildElement(C::getElementName(forPrefab).c_str());
+        if (elem) {
+            e.assign<C>()->deserialize(elem, forPrefab);
+            cout << "Found Component. Deserializing... : " + C::getElementName(forPrefab) << endl;
+        }
+        else {
+            cout << "Could not find component: " + C::getElementName(forPrefab) << endl;
+        }
+        deserializeEntityComponents<Components...>(e, node, forPrefab, false, components...);
     }
 
 #pragma endregion
@@ -89,13 +131,23 @@ namespace Raven {
 #pragma region Serialization Events
 
     void XMLSystem::receive(const XMLLoadEvent& e) {
-        doc.LoadFile(xmlFileName.c_str());
-        deserializeRavenGame();
+        if (doc.LoadFile(xmlFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Game XML Document Failed To Load!" << endl;
+        }
+        else {
+            cout << "Game XML Document successfully loaded. Deserializing..." << endl;
+            deserializeRavenGame();
+        }
     }
 
     void XMLSystem::receive(const XMLSaveEvent& e) {
         doc.Parse(serializeRavenGame().c_str());
-        doc.SaveFile(xmlFileName.c_str());
+        if (doc.SaveFile(xmlFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: Game Failed To Save!" << endl;
+        }
+        else {
+            cout << "Game successfully saved." << endl;
+        }
     }
 
 #pragma endregion
@@ -133,39 +185,6 @@ namespace Raven {
 
 #pragma endregion
 
-#pragma region Population Initialization
-
-    template <typename PanelType>
-    void XMLSystem::receiveEntityMap(const GUIWidgetListEvent<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e,
-            std::map<std::string, std::shared_ptr<ex::Entity>>& map) {
-
-        // A switch statement wouldn't work for some reason. e.POPULATE not recognized as a constant...
-        // Address later if desired since switch statements are more efficient.
-        if (e.op == e.POPULATE) { 
-            e.box->RemoveAll();
-            for (auto name_entity : map) {
-                WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-                    e.box, name_entity.first, e.formatter);
-            }
-        }
-        else if (e.op == e.ADD) {
-            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::appendWidget(
-                e.box, e.itemName, e.formatter);
-        }
-        else if (e.op == e.REMOVE) {
-            WidgetLibrary::WidgetList<PanelType, ENTITY_LIST_LIST_ITEM_TEMPLATE>::removeWidget(
-                e.box, e.itemName);
-        }
-    }
-
-    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
-        receiveEntityMap<WidgetLibrary::SceneHierarchyPanel>(e, levelMap[cmn::game->currentLevelName]);
-    }
-
-    void XMLSystem::receive(const GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ENTITY_LIST_LIST_ITEM_TEMPLATE>& e) {
-        receiveEntityMap<WidgetLibrary::PrefabListPanel>(e, prefabMap);
-    }
-
 #pragma endregion
 
 #pragma region Serialization
@@ -190,14 +209,14 @@ namespace Raven {
         std::string animationContent = "";
         for (auto animation : animationMap) {
             animationContent +=
-                tab + "  <Item Name=\"" + animation.first + "\">\r\n" +
-                tab + "    <TextureFilePath>" + animation.second->textureFileName + "</TextureFilePath>\r\n" +
+                tab + "  <Animation Name=\"" + animation.first + "\">\r\n" +
+                tab + "    <AnimationTextureFilePath>" + animation.second->textureFileName + "</AnimationTextureFilePath>\r\n" +
                 tab + "    <FrameCount>" + std::to_string(animation.second->size) + "</FrameCount>\r\n" +
                 tab + "    <FrameWidth>" + std::to_string(animation.second->frameWidth) + "</FrameWidth>\r\n" +
                 tab + "    <FrameHeight>" + std::to_string(animation.second->frameHeight) + "</FrameHeight>\r\n" +
                 tab + "    <AnimationSpeed>" + std::to_string(animation.second->animationSpeed) + "</AnimationSpeed>\r\n" +
                 tab + "    <IsLooping>" + std::to_string(animation.second->isLooping) + "</IsLooping>\r\n" +
-                tab + "  </Item>\r\n";
+                tab + "  </Animation>\r\n";
         }
 
         return
@@ -210,12 +229,12 @@ namespace Raven {
         std::string renderableTextContent = "";
         for (auto renderableText : renderableTextMap) {
             renderableTextContent +=
-                tab + "  <Item Name=\"" + renderableText.first + "\">\r\n" +
-                tab + "    <RenderLayer>" + std::to_string(renderableText.second->renderLayer) + "</RenderLayer>\r\n" +
-                tab + "    <RenderPriority>" + std::to_string(renderableText.second->renderPriority) + "</RenderPriority>\r\n" +
-                tab + "    <TextContent>" + renderableText.second->text.getString() + "</TextContent>\r\n" +
-                tab + "    <FontFilePath>" + renderableText.second->fontFilePath + "</FontFilePath>\r\n" +
-                tab + "  </Item>\r\n";
+                tab + "  <RenderableText Name=\"" + renderableText.first + "\">\r\n" +
+                tab + "    <RenderableTextRenderLayer>" + std::to_string(renderableText.second->renderLayer) + "</RenderableTextRenderLayer>\r\n" +
+                tab + "    <RenderableTextRenderPriority>" + std::to_string(renderableText.second->renderPriority) + "</RenderableTextRenderPriority>\r\n" +
+                tab + "    <RenderableTextTextContent>" + renderableText.second->text.getString() + "</RenderableTextTextContent>\r\n" +
+                tab + "    <RenderableTextFontFilePath>" + renderableText.second->fontFilePath + "</RenderableTextFontFilePath>\r\n" +
+                tab + "  </RenderableText>\r\n";
         }
 
         return
@@ -229,10 +248,10 @@ namespace Raven {
         std::string renderableRectangleContent = "";
         for (auto renderableRectangle : renderableRectangleMap) {
             renderableRectangleContent +=
-                tab + "  <Item Name=\"" + renderableRectangle.first + "\">\r\n" +
-                tab + "    <RenderLayer>" + std::to_string(renderableRectangle.second->renderLayer) + "</RenderLayer>\r\n" +
-                tab + "    <RenderPriority>" + std::to_string(renderableRectangle.second->renderPriority) + "</RenderPriority>\r\n" +
-                tab + "  </Item>\r\n";
+                tab + "  <RenderableRectangle Name=\"" + renderableRectangle.first + "\">\r\n" +
+                tab + "    <RenderableRectangleRenderLayer>" + std::to_string(renderableRectangle.second->renderLayer) + "</RenderableRectangleRenderLayer>\r\n" +
+                tab + "    <RenderableRectangleRenderPriority>" + std::to_string(renderableRectangle.second->renderPriority) + "</RenderableRectangleRenderPriority>\r\n" +
+                tab + "  </RenderableRectangle>\r\n";
         }
 
         return
@@ -245,10 +264,10 @@ namespace Raven {
         std::string renderableCircleContent = "";
         for (auto renderableCircle : renderableCircleMap) {
             renderableCircleContent +=
-                tab + "  <Item Name=\"" + renderableCircle.first + "\">\r\n" +
-                tab + "    <RenderLayer>" + std::to_string(renderableCircle.second->renderLayer) + "</RenderLayer>\r\n" +
-                tab + "    <RenderPriority>" + std::to_string(renderableCircle.second->renderPriority) + "</RenderPriority>\r\n" +
-                tab + "  </Item>\r\n";
+                tab + "  <RenderableCircle Name=\"" + renderableCircle.first + "\">\r\n" +
+                tab + "    <RenderableCircleRenderLayer>" + std::to_string(renderableCircle.second->renderLayer) + "</RenderableCircleRenderLayer>\r\n" +
+                tab + "    <RenderableCircleRenderPriority>" + std::to_string(renderableCircle.second->renderPriority) + "</RenderableCircleRenderPriority>\r\n" +
+                tab + "  </RenderableCircle>\r\n";
         }
 
         return
@@ -261,12 +280,12 @@ namespace Raven {
         std::string renderableSpriteContent = "";
         for (auto renderableSprite : renderableSpriteMap) {
             renderableSpriteContent +=
-                tab + "  <Item Name=\"" + renderableSprite.first + "\">\r\n" +
-                tab + "    <RenderLayer>" + std::to_string(renderableSprite.second->renderLayer) + "</RenderLayer>\r\n" +
-                tab + "    <RenderPriority>" + std::to_string(renderableSprite.second->renderPriority) + "</RenderPriority>\r\n" +
-                tab + "    <TextureFilePath>" + renderableSprite.second->textureFileName + "</TextureFilePath>\r\n" +
-                tab + "    <AnimationName>" + renderableSprite.second->animName + "</AnimationName>\r\n" +
-                tab + "  </Item>\r\n";
+                tab + "  <RenderableSprite Name=\"" + renderableSprite.first + "\">\r\n" +
+                tab + "    <RenderableSpriteRenderLayer>" + std::to_string(renderableSprite.second->renderLayer) + "</RenderableSpriteRenderLayer>\r\n" +
+                tab + "    <RenderableSpriteRenderPriority>" + std::to_string(renderableSprite.second->renderPriority) + "</RenderableSpriteRenderPriority>\r\n" +
+                tab + "    <RenderableSpriteTextureFilePath>" + renderableSprite.second->textureFileName + "</RenderableSpriteTextureFilePath>\r\n" +
+                tab + "    <RenderableSpriteAnimationName>" + renderableSprite.second->animName + "</RenderableSpriteAnimationName>\r\n" +
+                tab + "  </RenderableSprite>\r\n";
         }
 
         return
@@ -279,7 +298,8 @@ namespace Raven {
         std::string prefabMapContent = "";
         for (auto item : prefabMap) {
             prefabMapContent +=
-                serializeEntity(*item.second, tab + "  ");
+                serializeEntity(*item.second, tab + "  ", true);
+            cout << "----START----\r\n" << prefabMapContent << "----END----\r\n" << endl;
         }
         return
             tab + "<Prefabs>\r\n" +
@@ -302,11 +322,11 @@ namespace Raven {
 
                 // If the entity is linked to and is a copy of a prefab, then there's no need to store its information
                 if (data->prefabName != "" && !data->modified) {
-                    levelMapContent += tab + "    <PrefabName>" + data->prefabName + "</PrefabName>\r\n";
+                    levelMapContent += tab + "    <PrefabNameCheck>" + data->prefabName + "</PrefabNameCheck>\r\n";
                 }
                 // Else, if we need to store its information, serialize each of its components
                 else {
-                    levelMapContent += serializeEntity(*name_entity.second, tab + "    ");
+                    levelMapContent += serializeEntity(*name_entity.second, tab + "    ", false);
                 }
             }
 
@@ -321,24 +341,24 @@ namespace Raven {
 #pragma region Deserialization
 
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
-        deserializeFilePathSet(textureFilePathSet, node);
+        deserializeFilePathSet(textureFilePathSet, "Textures", node);
     }
 
     void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {
-        deserializeFilePathSet(musicFilePathSet, node);
+        deserializeFilePathSet(musicFilePathSet, "Music", node);
     }
 
     void XMLSystem::deserializeSoundFilePathSet(XMLNode* node) {
-        deserializeFilePathSet(soundFilePathSet, node);
+        deserializeFilePathSet(soundFilePathSet, "Sounds", node);
     }
 
     void XMLSystem::deserializeFontFilePathSet(XMLNode* node) {
-        deserializeFilePathSet(fontFilePathSet, node);
+        deserializeFilePathSet(fontFilePathSet, "Fonts", node);
     }
 
     void XMLSystem::deserializeAnimationMap(XMLNode* node) {
         animationMap.clear();
-        XMLElement* item = node->FirstChildElement("Item");
+        XMLElement* item = node->FirstChildElement("Animation");
         while (item) {
 
             // Get the name of the Item
@@ -348,7 +368,7 @@ namespace Raven {
             animationMap.insert(std::make_pair(name, std::shared_ptr<Animation>(new Animation())));
             std::shared_ptr<Animation> ptr = animationMap[name];
             
-            XMLElement* e = item->FirstChildElement("TextureFilePath");
+            XMLElement* e = item->FirstChildElement("AnimationTextureFilePath");
             ptr->textureFileName = e->Value();
             e = item->FirstChildElement("FrameCount");
             e->QueryIntText(&ptr->size);
@@ -361,13 +381,13 @@ namespace Raven {
             e = item->FirstChildElement("IsLooping");
             e->QueryBoolText(&ptr->isLooping);
 
-            item = item->NextSiblingElement("Item");
+            item = item->NextSiblingElement("Animation");
         }
     }
 
     void XMLSystem::deserializeRenderableTextMap(XMLNode* node) {
         renderableTextMap.clear();
-        XMLElement* item = node->FirstChildElement("Item");
+        XMLElement* item = node->FirstChildElement("RenderableText");
         while (item) {
 
             // Get the name of the Item
@@ -377,24 +397,25 @@ namespace Raven {
             renderableTextMap.insert(std::make_pair(name, std::shared_ptr<RenderableText>(new RenderableText())));
             std::shared_ptr<RenderableText> ptr = renderableTextMap[name];
             
-            XMLElement* e = item->FirstChildElement("RenderLayer");
+            XMLElement* e = item->FirstChildElement("RenderableTextRenderLayer");
             int i;
             e->QueryIntText(&i);
             ptr->renderLayer = (cmn::ERenderingLayer) i;
-            e = item->FirstChildElement("RenderPriority");
+            e = item->FirstChildElement("RenderableTextRenderPriority");
             e->QueryIntText(&ptr->renderPriority);
-            e = item->FirstChildElement("TextContent");
+            e = item->FirstChildElement("RenderableTextTextContent");
             ptr->text.setString(e->GetText());
-            e = item->FirstChildElement("FontFilePath");
+            e = item->FirstChildElement("RenderableTextFontFilePath");
             ptr->fontFilePath = e->GetText();
 
-            item = item->NextSiblingElement("Item");
+            item = item->NextSiblingElement("RenderableText");
         }
 
     }
+
     void XMLSystem::deserializeRenderableRectangleMap(XMLNode* node) {
         renderableRectangleMap.clear();
-        XMLElement* item = node->FirstChildElement("Item");
+        XMLElement* item = node->FirstChildElement("RenderableRectangle");
         while (item) {
 
             // Get the name of the Item
@@ -404,19 +425,20 @@ namespace Raven {
             renderableRectangleMap.insert(std::make_pair(name, std::shared_ptr<RenderableRectangle>(new RenderableRectangle())));
             std::shared_ptr<RenderableRectangle> ptr = renderableRectangleMap[name];
             
-            XMLElement* e = item->FirstChildElement("RenderLayer");
+            XMLElement* e = item->FirstChildElement("RenderableRectangleRenderLayer");
             int i;
             e->QueryIntText(&i);
             ptr->renderLayer = (cmn::ERenderingLayer) i;
-            e = item->FirstChildElement("RenderPriority");
+            e = item->FirstChildElement("RenderableRectangleRenderPriority");
             e->QueryIntText(&ptr->renderPriority);
 
-            item = item->NextSiblingElement("Item");
+            item = item->NextSiblingElement("RenderableRectangle");
         }
     }
+
     void XMLSystem::deserializeRenderableCircleMap(XMLNode* node) {
         renderableCircleMap.clear();
-        XMLElement* item = node->FirstChildElement("Item");
+        XMLElement* item = node->FirstChildElement("RenderableCircle");
         while (item) {
 
             // Get the name of the Item
@@ -426,19 +448,20 @@ namespace Raven {
             renderableCircleMap.insert(std::make_pair(name, std::shared_ptr<RenderableCircle>(new RenderableCircle())));
             std::shared_ptr<RenderableCircle> ptr = renderableCircleMap[name];
             
-            XMLElement* e = item->FirstChildElement("RenderLayer");
+            XMLElement* e = item->FirstChildElement("RenderableCircleRenderLayer");
             int i;
             e->QueryIntText(&i);
             ptr->renderLayer = (cmn::ERenderingLayer) i;
-            e = item->FirstChildElement("RenderPriority");
+            e = item->FirstChildElement("RenderableCircleRenderPriority");
             e->QueryIntText(&ptr->renderPriority);
 
-            item = item->NextSiblingElement("Item");
+            item = item->NextSiblingElement("RenderableCircle");
         }
     }
+
     void XMLSystem::deserializeRenderableSpriteMap(XMLNode* node) {
         renderableSpriteMap.clear();
-        XMLElement* item = node->FirstChildElement("Item");
+        XMLElement* item = node->FirstChildElement("RenderableSprite");
         while (item) {
 
             // Get the name of the Item
@@ -448,47 +471,54 @@ namespace Raven {
             renderableSpriteMap.insert(std::make_pair(name, std::shared_ptr<RenderableSprite>(new RenderableSprite())));
             std::shared_ptr<RenderableSprite> ptr = renderableSpriteMap[name];
             
-            XMLElement* e = item->FirstChildElement("RenderLayer");
+            XMLElement* e = item->FirstChildElement("RenderableSpriteRenderLayer");
             int i;
             e->QueryIntText(&i);
             ptr->renderLayer = (cmn::ERenderingLayer) i;
-            e = item->FirstChildElement("RenderPriority");
+            e = item->FirstChildElement("RenderableSpriteRenderPriority");
             e->QueryIntText(&ptr->renderPriority);
-            e = item->FirstChildElement("TextureFilePath");
+            e = item->FirstChildElement("RenderableSpriteTextureFilePath");
             ptr->textureFileName = e->GetText();
-            e = item->FirstChildElement("AnimationName");
+            e = item->FirstChildElement("RenderableSpriteAnimationName");
             ptr->animName = e->GetText();
 
-            item = item->NextSiblingElement("Item");
+            item = item->NextSiblingElement("RenderableSprite");
         }
     }
+
     void XMLSystem::deserializePrefabMap(XMLNode* node) {
-        XMLElement* elem = node->FirstChildElement("Entity");
+        prefabMap.clear();
+        XMLElement* elem = node->FirstChildElement("PEntity");
         while (elem) {
-            std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
-            XMLSystem::deserializeEntity(*entity, elem);
+            ex::Entity e = cmn::entities->create();
+            std::shared_ptr<ex::Entity> entity(new ex::Entity(e));
+            deserializeEntity(*entity, elem, true);
+            if (entity->has_component<Data>()) cout << "Prefab Entity has a Data!" << endl;
+            if (entity->has_component<Transform>()) cout << "Prefab Entity has a Transform!" << endl;
+            if (entity->has_component<Rigidbody>()) cout << "Prefab Entity has a Rigidbody!" << endl;
             prefabMap.insert(std::make_pair(entity->component<Data>()->name, entity));
-            elem = elem->NextSiblingElement("Entity");
+            elem = elem->NextSiblingElement("PEntity");
         }
     }
+    
     void XMLSystem::deserializeLevelMap(XMLNode* node) {
         levelMap.clear();
         XMLElement* lnode = node->FirstChildElement("Level");
         while (lnode) {
             std::string levelName = lnode->Attribute("Name");
-            XMLElement* item = lnode->FirstChildElement("Item");
+            XMLElement* item = lnode->FirstChildElement("LevelEntity");
+            levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
             while (item) {
-                std::string prefabName = item->FirstChildElement("PrefabName")->GetText();
-                std::shared_ptr<ex::Entity> entity(&cmn::entities->create());
+                std::string prefabName = item->FirstChildElement("PrefabNameCheck")->GetText();
+                std::shared_ptr<ex::Entity> entity(new ex::Entity(cmn::entities->create()));
                 if (prefabName == "") {
-                    XMLSystem::deserializeEntity(*entity, item->FirstChildElement("Entity"));
+                    XMLSystem::deserializeEntity(*entity, item->FirstChildElement("LEntity"), false);
                 }
                 else {
                     EntityLibrary::copyEntity(*entity, *prefabMap[prefabName]);
                 }
-                levelMap.insert(std::make_pair(levelName, std::map<std::string, std::shared_ptr<ex::Entity>>()));
                 levelMap[levelName].insert(std::make_pair(entity->component<Data>()->name, entity));
-                item = item->NextSiblingElement("Item");
+                item = item->NextSiblingElement("LevelEntity");
             }
             lnode = lnode->NextSiblingElement("Level");
         }
@@ -511,8 +541,9 @@ namespace Raven {
 
     std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab) {
         std::string content = "";
+        std::string prefix = (wrapperElement == "Music" ? wrapperElement : wrapperElement.substr(wrapperElement.size() - 1));
         for (auto path : filePathSet) {
-            content += tab + "  <FilePath>" + path + "</FilePath>\r\n";
+            content += tab + "  <" + prefix + "FilePath>" + path + "</" + prefix + "FilePath>\r\n";
         }
 
         return
@@ -521,12 +552,13 @@ namespace Raven {
             tab + "</" + wrapperElement + ">\r\n";
     }
 
-    void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, XMLNode* node) {
+    void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node) {
         filePathSet.clear();
-        XMLElement* path = node->FirstChildElement("FilePath");
+        std::string prefix = (wrapperElement == "Music" ? wrapperElement : wrapperElement.substr(wrapperElement.size() - 1));
+        XMLElement* path = node->FirstChildElement((wrapperElement + "FilePath").c_str());
         while (path) {
             filePathSet.insert(path->GetText());
-            path = path->NextSiblingElement("FilePath");
+            path = node->NextSiblingElement((wrapperElement + "FilePath").c_str());
         }
     }
 

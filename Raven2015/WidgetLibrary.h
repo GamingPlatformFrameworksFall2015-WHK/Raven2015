@@ -98,7 +98,7 @@ class ToolbarPanel {};
 
         ///// Low-Level Widgets
 
-#define ENTITY_LIST_LIST_ITEM_TEMPLATE Entry, Button, Button, Button, Button
+#define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button
 
 
 /////////////////////
