@@ -40,14 +40,6 @@ namespace Raven {
         bool success = true;
 
         // Assets
-        if (assetsDoc.LoadFile(assetsFileName.c_str()) != XML_NO_ERROR) {
-            cerr << "WARNING: " + assetsFileName + " failed to load!" << endl;
-            success = false;
-        }
-        else {
-            cout << assetsFileName + " successfully loaded. Deserializing..." << endl;
-            deserializeAssets(assetsDoc.FirstChildElement(assetsFirstChildElement.c_str()));
-        }
 
         // Prefabs
         if (prefabsDoc.LoadFile(prefabsFileName.c_str()) != XML_NO_ERROR) {
@@ -159,37 +151,64 @@ namespace Raven {
 
 #pragma region Data Management Events
 
+    // Updates the name of entity instances and within XML documents. Still must
+    // update GUI display with updated names before they will be shown to the user.
     void XMLSystem::receive(const XMLUpdateEntityNameEvent& event) {
         ex::Entity e = event.entity;
         std::string newName = event.newName;
+        XMLDocument* doc = nullptr;
 
         XMLNode* top = nullptr;
         if (event.isPrefab) {
             top = prefabsDoc.FirstChild();
+            doc = &prefabsDoc;
+        }
+        else {
+            top = levelDoc.FirstChild();
+            doc = &levelDoc;
+        }
+        XMLElement* entityNode = top->FirstChildElement("Entity");
+        while (entityNode) {
+
+            // Acquire the Entity's Data Node
+            XMLElement* dataNode = entityNode->FirstChildElement("Data");
+            // Acquire the Entity's Data
+            auto data = e.component<Data>();
+            // Acquire the Entity's Data's Name Node
+            XMLElement* nameNode = dataNode->FirstChildElement("Name");
+            // If we have found the entity we were looking for...
+            if (nameNode->GetText() == data->name) {
+                // Assign the new name
+                nameNode->SetText(newName.c_str());
+                entityNode = nullptr; // stop the searching loop
+            }
+            else {
+                entityNode = entityNode->NextSiblingElement("Entity");
+            }
         }
 
-        // Double check whether we can even find a record of the entity's name
-        if (levelMap.find(e.component<Data>()->name) != levelMap.end()) {
-            // Acquire the entity pointer
-            std::shared_ptr<ex::Entity> ptr = levelMap[e.component<Data>()->name];
-            // Destroy the record of the previous name
-            levelMap.erase(e.component<Data>()->name);
-            // Create a new record using the new name
-            levelMap.insert(std::make_pair(newName, ptr));
-            // Assign the new name to the entity itself
-            ptr->component<Data>()->name = newName;
-        }
-        // Else, simply add the new record
-        else {
-            e.component<Data>()->name = newName;
-            levelMap.insert(std::make_pair(newName, std::shared_ptr<ex::Entity>(new ex::Entity(e))));
+        // If the item is not a prefab, change the name of the current instance as well.
+        if (!event.isPrefab) {
+            // Double check whether we can even find a record of the entity's name
+            if (levelMap.find(e.component<Data>()->name) != levelMap.end()) {
+                // Acquire the entity pointer
+                std::shared_ptr<ex::Entity> ptr = levelMap[e.component<Data>()->name];
+                // Destroy the record of the previous name
+                levelMap.erase(e.component<Data>()->name);
+                // Create a new record using the new name
+                levelMap.insert(std::make_pair(newName, ptr));
+                // Assign the new name to the entity itself
+                ptr->component<Data>()->name = newName;
+            }
+            else {
+                cerr << "WARNING: Could not find entity in Scene Hierarchy during name-change." << endl;
+            }
         }
     }
 
 #pragma endregion
 
 #pragma endregion
-
 
 #pragma region Prefab Manipulation
 
@@ -371,12 +390,13 @@ namespace Raven {
             // Check whether it has a prefab and is identical to it
             if (data->prefabName != "" && !data->modified) {
 
-                // If so, only serialize the core components
+                // If so, only serialize the core components to overwrite values from
+                // the prefab that will be instantiated later on from XML
                 levelMapContent += serializeEntityComponents<Data, Transform, Rigidbody>(
                     *name_entity.second, "  ", nullptr, nullptr, nullptr);
             }
             else {
-                // Otherwise, serialize the entire entity
+                // Otherwise, serialize the entire entity to build from scratch later on
                 levelMapContent += serializeEntity(*name_entity.second, "  ");
             }
         }
@@ -553,7 +573,10 @@ namespace Raven {
         }
     }
 
-    void XMLSystem::deserializeLevel(XMLNode* node) {
+    void XMLSystem::deserializeLevel(XMLNode* node, sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {
+        if (clearEntitiesBeforehand) {
+            levelMap.clear();
+        }
         XMLElement* item = node->FirstChildElement("Entity");
         while (item) {
             std::shared_ptr<ex::Entity> entity;
@@ -569,6 +592,7 @@ namespace Raven {
                 entity.reset(new ex::Entity(cmn::game->entities.create()));
             }
             XMLSystem::deserializeEntity(*entity, item); //This will overwrite Data / Transform / Rigidbody information
+            entity->component<Transform>()->transform += levelOffset; // Place the entities at locations relative to the level origin
             levelMap.insert(std::make_pair(entity->component<Data>()->name, entity));
             item = item->NextSiblingElement("Entity");
         }
@@ -592,6 +616,8 @@ namespace Raven {
     }
 
     bool XMLSystem::savePrefabs() {
+        cout << "Attempting to save prefabs..." << endl;
+        // (Nothing to serialize since it is serialized in real-time)
         if (prefabsDoc.SaveFile(prefabsFileName.c_str()) != XML_NO_ERROR) {
             cerr << "WARNING: Prefabs Failed To Save!" << endl;
             return false;
@@ -614,9 +640,21 @@ namespace Raven {
         }
     }
 
-    bool XMLSystem::loadLevel(std::string levelPathName, sf::Vector2f levelOffset = sf::Vector2f()) {
+    bool XMLSystem::loadAssets() {
+        if (assetsDoc.LoadFile(assetsFileName.c_str()) != XML_NO_ERROR) {
+            cerr << "WARNING: " + assetsFileName + " failed to load!" << endl;
+            return false;
+        }
+        else {
+            cout << assetsFileName + " successfully loaded. Deserializing..." << endl;
+            deserializeAssets(assetsDoc.FirstChildElement(assetsFirstChildElement.c_str()));
+            return true;
+        }
+    }
+
+    bool XMLSystem::loadLevel(std::string levelFilePath, sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {
         cout << "Loading level..." << endl;
-        if (levelDoc.LoadFile(levelPathName.c_str()) != XML_NO_ERROR) {
+        if (levelDoc.LoadFile(levelFilePath.c_str()) != XML_NO_ERROR) {
             cerr << "WARNING: Level entities failed to load!" << endl;
             return false;
         }
@@ -624,11 +662,7 @@ namespace Raven {
             cout << "Level entities successfully loaded." << endl;
             return true;
         }
-        deserializeLevel(levelDoc.FirstChild());
-    }
-
-    void XMLSystem::clearEntities() {
-        levelMap.clear();
+        deserializeLevel(levelDoc.FirstChild(), levelOffset, clearEntitiesBeforehand);
     }
 
 #pragma endregion

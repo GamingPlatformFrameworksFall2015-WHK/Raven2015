@@ -37,9 +37,15 @@ namespace Raven {
         void serializeRavenGame();
         void deserializeRavenGame();
 
-        // LevelMap (De)Serialization
-        std::string serializeLevelMap();
-        void deserializeLevel(XMLNode* node);
+        /////////////// Saving & Loading  //////////////
+        bool saveAssets();
+        // currently inefficient. Will re-write the entire prefabs xml document
+        // Do not have a method for inserting / removing / re-arranging a single prefab
+        bool savePrefabs(); 
+        bool saveLevel(std::string levelFilePath);
+        bool loadAssets();
+        // (designed for possible dynamic level-streaming)
+        bool loadLevel(std::string levelFilePath, sf::Vector2f levelOffset, bool clearEntitiesBeforehand);
 
         // Entity / Component (De)Serialization
         std::string serializeEntity(ex::Entity e, std::string tab);
@@ -87,7 +93,7 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<ex::Entity>> levelMap;
 
     private:
-        // Asset Serialization
+        ///////////////// Asset Serialization ///////////////
         std::string serializeAssets();
         std::string serializeTextureFilePathSet(std::string tab);
         std::string serializeMusicFilePathSet(std::string tab);
@@ -100,7 +106,7 @@ namespace Raven {
         std::string serializeRenderableCircleMap(std::string tab);
         std::string serializeRenderableSpriteMap(std::string tab);
 
-        // Asset Deserialization
+        //////////////// Asset Deserialization //////////////
         void deserializeAssets(XMLNode* node);
         void deserializeTextureFilePathSet(XMLNode* node);
         void deserializeMusicFilePathSet(XMLNode* node);
@@ -113,14 +119,11 @@ namespace Raven {
         void deserializeRenderableCircleMap(XMLNode* node);
         void deserializeRenderableSpriteMap(XMLNode* node);
 
-        // Saving / Loading 
-        bool saveAssets();
-        bool savePrefabs();
-        bool saveLevel(std::string levelPathName);
-        bool loadLevel(std::string levelPathName, sf::Vector2f levelOffset); // designed for possible dynamic level-streaming
-        void clearEntities();
+        // LevelMap (De)Serialization
+        std::string serializeLevelMap();
+        void deserializeLevel(XMLNode* node, sf::Vector2f levelOffset, bool clearEntitiesBeforehand);
 
-        // (De)Serialization Utility Methods
+        /////////////// (De)Serialization Utility Methods //////////////////
         std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
         void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
         std::string getXMLHeader(std::string topLevelElement, std::string fileName);
@@ -134,7 +137,7 @@ namespace Raven {
         template <typename C, typename... Components>
         void deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c, Components*... components);
 
-        // Constants
+        //////////////// Constants //////////////////////////
         const std::string newline = "\r\n";
         const std::string xmlVersion = "1.0";
         const std::string xmlEncoding = "utf-8";

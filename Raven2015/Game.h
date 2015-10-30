@@ -11,10 +11,10 @@ namespace Raven {
         explicit Game();
 
         void initialize();
-        void loadLevel(std::string levelName);
+        void loadLevel(std::string levelFilePath, sf::Vector2f levelOffset, bool clearEntitiesBeforehand);
         void saveLevel();
-        void addLevel(std::string levelName);
-        void removeLevel(std::string levelName);
+        void addLevel(std::string levelFilePath);
+        void removeLevel(std::string levelFilePath);
 
         void updateGameMode(ex::TimeDelta dt);
         void updateEditMode(ex::TimeDelta dt);
