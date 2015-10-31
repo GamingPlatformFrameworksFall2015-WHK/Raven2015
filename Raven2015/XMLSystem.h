@@ -2,7 +2,7 @@
 
 #include "Common.h"
 #include "entityx/System.h"
-#include "ComponentLibrary.h"
+//#include "ComponentLibrary.h"
 #include "EntityLibrary.h"
 #include "EventLibrary.h"
 #include "WidgetLibrary.h"
@@ -23,12 +23,26 @@ namespace Raven {
             event_manager.subscribe<XMLSaveEvent>(*this);
             event_manager.subscribe<XMLLoadEvent>(*this);
             event_manager.subscribe<XMLUpdateEntityNameEvent>(*this);
+            //event_manager.subscribe<XMLDeserializeRendererAsset<RenderableText>>(*this);
+            //event_manager.subscribe<XMLDeserializeRendererAsset<RenderableRectangle>>(*this);
+            //event_manager.subscribe<XMLDeserializeRendererAsset<RenderableCircle>>(*this);
+            //event_manager.subscribe<XMLDeserializeRendererAsset<RenderableSprite>>(*this);
         }
 
         // Upon reception of an XMLLoadEvent, the system will de-serialize the XMLDocument and reinstate the previous game state
         void receive(const XMLLoadEvent& e);
         // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state
         void receive(const XMLSaveEvent& e);
+        // Responds to a request to update a given entity's name in either the levelMap/levelDoc or prefabsDoc
+        void receive(const XMLUpdateEntityNameEvent& e);
+        // Adds an instance of the asset to the appropriate asset map
+        //void receive(XMLDeserializeRendererAsset<RenderableText>& e);
+        // Adds an instance of the asset to the appropriate asset map
+        //void receive(const XMLDeserializeRendererAsset<RenderableRectangle>& e);
+        // Adds an instance of the asset to the appropriate asset map
+        //void receive(const XMLDeserializeRendererAsset<RenderableCircle>& e);
+        // Adds an instance of the asset to the appropriate asset map
+        //void receive(const XMLDeserializeRendererAsset<RenderableSprite>& e);
 
         // For display purposes in the GUISystem
         std::string getAssetNameFromFilePath(std::string assetFilePath, bool includeExtension);
@@ -55,9 +69,6 @@ namespace Raven {
         // Instantiates the named prefab. Returns nullptr if the prefab is not found in prefabs.xml
         // Same as prefabExists, but proceeds to deserialize the found prefab.
         std::shared_ptr<ex::Entity> instantiate(std::string prefabName);
-
-        // Responds to a request to update a given entity's name in either the levelMap/levelDoc or prefabsDoc
-        void receive(const XMLUpdateEntityNameEvent& event);
 
         // The serialization document tracking assets
         XMLDocument assetsDoc;
@@ -123,9 +134,10 @@ namespace Raven {
         std::string serializeLevelMap();
         void deserializeLevel(XMLNode* node, sf::Vector2f levelOffset, bool clearEntitiesBeforehand);
 
+        
         /////////////// (De)Serialization Utility Methods //////////////////
-        std::string XMLSystem::serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
-        void XMLSystem::deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
+        std::string serializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, std::string tab);
+        void deserializeFilePathSet(std::set<std::string> filePathSet, std::string wrapperElement, XMLNode* node);
         std::string getXMLHeader(std::string topLevelElement, std::string fileName);
         XMLElement* findXMLEntity(XMLNode* top, std::string entityName);
         template <typename C>
@@ -151,6 +163,11 @@ namespace Raven {
         const std::string prefabsFirstChildElement = "PREFABS";
         const std::string levelDesignFileName = "level" + dtdExt;
         const std::string levelFirstChildElement = "LEVEL";
+
+        Data* func2();
+
+        template <typename C>
+        C* func(ex::Entity e);
     };
 
 }

@@ -23,7 +23,6 @@
 #include "Common.h"                     // For etc.
 #include "DataAssetLibrary.h"           // For Renderable, Timer
 
-
 namespace Raven {
 
 /******************************************************************************************************************/

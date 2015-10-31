@@ -58,7 +58,7 @@ namespace Raven {
         }
         else {
             cout << getAssetNameFromFilePath(level, true) + " successfully loaded. Deserializing..." << endl;
-            deserializeLevel(levelDoc.FirstChildElement(levelFirstChildElement.c_str()));
+            deserializeLevel(levelDoc.FirstChildElement(levelFirstChildElement.c_str()), sf::Vector2f(), false);
         }
 
         // Report
@@ -75,18 +75,14 @@ namespace Raven {
 #pragma region Entity Serialization
 
     std::string XMLSystem::serializeEntity(ex::Entity e, std::string tab) {
-        std::string str =
-            tab + "<Entity>" + newline;
-        std::string tempTab = tab;  // save tab
-        tab += "  ";                // increment tab
-        str += serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab, COMPONENT_TYPES(::getNullPtrToType()));// process components
-        tab = tempTab;              // reinstate tab
-        return str +=
+        return
+            tab + "<Entity>" + newline +
+            serializeEntityComponents<COMPONENT_TYPE_LIST>(e, tab + "  ", COMPONENT_TYPES(::getNullPtrToType())) +
             tab + "</Entity>" + newline;
     }
 
     void XMLSystem::deserializeEntity(ex::Entity e, XMLNode* node) {
-        deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, true, COMPONENT_TYPES(::getNullPtrToType()));
+        //deserializeEntityComponents<COMPONENT_TYPE_LIST>(e, node, true, COMPONENT_TYPES(::getNullPtrToType()));
     }
 
     template <typename C>
@@ -105,7 +101,8 @@ namespace Raven {
         }
         return s + serializeEntityComponents<Components...>(e, tab, components...);
     }
-
+    
+    /*
     template <typename C>
     void XMLSystem::deserializeEntityComponents(ex::Entity e, XMLNode* node, bool firstCall, C* c) {
         if (firstCall) {
@@ -122,7 +119,7 @@ namespace Raven {
         if (firstCall) {
             EntityLibrary::clearEntity<Components...>(e, Components::getNullPtrToType()...));
         }
-        XMLElement* elem = node->FirstChildElement(C::getElementName().c_str());
+        XMLElement* elem = node->FirstChildElement((C::getElementName()).c_str());
         if (elem) {
             e.assign<C>()->deserialize(elem);
             cout << "Found Component. Deserializing... : " + C::getElementName() << endl;
@@ -131,13 +128,13 @@ namespace Raven {
             cout << "Could not find component: " + C::getElementName() << endl;
         }
         deserializeEntityComponents<Components...>(e, node, false, components...);
-    }
+    }*/
 
 #pragma endregion
 
 #pragma region Events
 
-#pragma region Serialization Events
+#pragma region (De)Serialization Events
 
     void XMLSystem::receive(const XMLLoadEvent& e) {
         deserializeRavenGame();
@@ -146,6 +143,28 @@ namespace Raven {
     void XMLSystem::receive(const XMLSaveEvent& e) {
         serializeRavenGame();
     }
+
+    /*
+    void XMLSystem::receive(XMLDeserializeRendererAsset<RenderableText>& e) {
+        Renderer* renderer = e.renderer.get();
+        renderer->texts.insert(std::make_pair(e.assetName, renderableTextMap[e.assetName]));
+    }
+
+    void XMLSystem::receive(const XMLDeserializeRendererAsset<RenderableRectangle>& e) {
+        ex::ComponentHandle<Renderer> renderer = e.renderer;
+        renderer->rectangles.insert(std::make_pair(e.assetName, renderableRectangleMap[e.assetName]));
+    }
+
+    void XMLSystem::receive(const XMLDeserializeRendererAsset<RenderableCircle>& e) {
+        ex::ComponentHandle<Renderer> renderer = e.renderer;
+        renderer->circles.insert(std::make_pair(e.assetName, renderableCircleMap[e.assetName]));
+    }
+
+    void XMLSystem::receive(const XMLDeserializeRendererAsset<RenderableSprite>& e) {
+        ex::ComponentHandle<Renderer> renderer = e.renderer;
+        renderer->sprites.insert(std::make_pair(e.assetName, renderableSpriteMap[e.assetName]));
+    }
+    */
 
 #pragma endregion
 
@@ -252,7 +271,7 @@ namespace Raven {
     std::string XMLSystem::serializeAssets() {
         std::string tab = "  ";
         return
-            getXMLHeader(assetsFirstChildElement, assetsFileName) +
+            getXMLHeader(XMLSystem::assetsFirstChildElement, assetsFileName) +
             "<" + assetsFirstChildElement + ">" + newline +
             serializeTextureFilePathSet(tab) +
             serializeMusicFilePathSet(tab) +
@@ -403,6 +422,7 @@ namespace Raven {
 
         // Add the tail of the level's XML tag
         levelMapContent += "</" + levelFirstChildElement + ">" + newline;
+        return levelMapContent;
     }
 
 #pragma endregion
@@ -591,7 +611,7 @@ namespace Raven {
             if (!entity) {
                 entity.reset(new ex::Entity(cmn::game->entities.create()));
             }
-            XMLSystem::deserializeEntity(*entity, item); //This will overwrite Data / Transform / Rigidbody information
+            deserializeEntity(*entity, item); //This will overwrite Data / Transform / Rigidbody information
             entity->component<Transform>()->transform += levelOffset; // Place the entities at locations relative to the level origin
             levelMap.insert(std::make_pair(entity->component<Data>()->name, entity));
             item = item->NextSiblingElement("Entity");
@@ -721,4 +741,14 @@ namespace Raven {
 
 #pragma endregion
 
+    Data* XMLSystem::func2() {
+        ex::Entity e = EntityLibrary::Create::Entity();
+        return func<Data>(e);
+    }
+
+    template <typename C>
+    C* XMLSystem::func(ex::Entity e) {
+        auto c = e.component<C>();
+        return (*c.get()).getNullPtrToType();
+    }
 }

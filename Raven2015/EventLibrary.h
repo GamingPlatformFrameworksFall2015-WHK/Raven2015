@@ -165,6 +165,18 @@ namespace Raven {
         
     };
 
+    struct GUIDisplayParticularComponent : public ex::Event<GUIDisplayParticularComponent> {
+
+        // Required for compilation
+        GUIDisplayParticularComponent() {}
+
+        GUIDisplayParticularComponent(ex::Entity entity, ComponentType type) :
+            entity(entity), type(type) {}
+
+        ex::Entity entity;
+        ComponentType type;
+    };
+
 #pragma endregion
 
 #pragma region XMLEvents
@@ -189,14 +201,38 @@ namespace Raven {
         bool isPrefab;
     };
 
+    /*
     template <typename RenderableAsset>
     struct XMLDeserializeRendererAsset : public ex::Event<XMLDeserializeRendererAsset<RenderableAsset>> {
 
-        XMLDeserializeRendererAsset(std::string assetName, std::map<std::string, std::shared_ptr<RenderableAsset>>& assets) :
-            assetName(assetName), assets(&assets) {}
+        XMLDeserializeRendererAsset(std::string& assetName, Renderer* renderer) :
+            assetName(assetName), renderer(renderer) {}
 
+        ex::ComponentHandle<Renderer> renderer;
         std::string assetName;
-        std::map<std::string, std::shared_ptr<RenderableAsset>>* assets;
+    };
+    */
+
+    struct XMLSerializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
+
+        XMLSerializeParticularComponent(ex::Entity entity, ComponentType type) :
+            entity(entity), type(type) {}
+
+        ex::Entity entity;
+        ComponentType type;
+    };
+
+    struct XMLDeserializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
+
+        // Required for compilation
+        XMLDeserializeParticularComponent() {}
+
+        XMLDeserializeParticularComponent(ex::Entity entity, ComponentType type, bool forDisplay) :
+            entity(entity), type(type), forDisplay(forDisplay) {}
+
+        ex::Entity entity;
+        ComponentType type;
+        bool forDisplay;
     };
 
 #pragma endregion

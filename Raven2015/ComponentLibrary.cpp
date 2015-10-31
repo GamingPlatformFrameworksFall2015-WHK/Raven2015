@@ -1,6 +1,7 @@
 #include "ComponentLibrary.h"
 #include "EventLibrary.h"
 #include "Game.h"
+#include "XMLSystem.h"
 
 namespace Raven {
 
@@ -137,6 +138,8 @@ namespace Raven {
         XMLElement* e = node->FirstChildElement("SoundMakerSoundFilePath");
         do {
             soundMap.insert(std::make_pair(e->GetText(), std::shared_ptr<sf::SoundBuffer>(new sf::SoundBuffer())));
+            cmn::game->events.emit<AudioEvent>(e->GetText(), this, 
+                cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
         } while (e = e->NextSiblingElement("SoundMakerSoundFilePath"));
     }
 
@@ -156,6 +159,8 @@ namespace Raven {
         XMLElement* e = node->FirstChildElement("MusicMakerMusicFilePath");
         do {
             musicMap.insert(std::make_pair(e->GetText(), std::shared_ptr<sf::Music>(new sf::Music())));
+            cmn::game->events.emit<AudioEvent>(e->GetText(), this, 
+                cmn::EAudioType::MUSIC, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
         } while (e = e->NextSiblingElement("MusicMakerMusicFilePath"));
     }
 
@@ -202,28 +207,32 @@ namespace Raven {
         XMLElement* t = e->FirstChildElement("TextName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
+                texts.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableTextMap[t->GetText()]));
+                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("TextName"));
         }
         e = node->FirstChildElement("Rectangles");
         t = e->FirstChildElement("RectangleName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
+                rectangles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableRectangleMap[t->GetText()]));
+                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableRectangle>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("RectangleName"));
         }
         e = node->FirstChildElement("Circles");
         t = e->FirstChildElement("CircleName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
+                circles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableCircleMap[t->GetText()]));
+                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableCircle>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("CircleName"));
         }
         e = node->FirstChildElement("Sprites");
         t = e->FirstChildElement("SpriteName");
         if (t) {
             do {
-                cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), texts);
+                sprites.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableSpriteMap[t->GetText()]));
+                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableSprite>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("SpriteName"));
         }
     }
@@ -292,6 +301,7 @@ namespace Raven {
     }
 
     void Pacer::deserialize(XMLNode* node) {
+        int i;
         node->FirstChildElement("PacerDirection")->QueryIntText(&i);
         direction = (Direction)i;
         XMLElement* vector = node->FirstChildElement("PacerVelocity");

@@ -35,7 +35,6 @@ namespace ex = entityx;
 namespace Raven {
 
     class Game;
-    
 
     namespace Common {
 

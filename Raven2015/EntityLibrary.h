@@ -1,8 +1,7 @@
 #pragma once
 #include "Common.h"
-#include "ComponentLibrary.h"
 #include "Game.h"
-#include "entityx/System.h"
+#include "ComponentLibrary.h"
 #include "EventLibrary.h"
 
 namespace Raven {
@@ -44,6 +43,30 @@ namespace Raven {
 
         static void updateEntityRecord(ex::Entity e, std::string newName, bool isPrefab) {
             cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName, isPrefab);
+        }
+
+        // Given a particular enumerated component type, the corresponding component handle will be acquired. Base case.
+        template <typename C>
+        static ex::ComponentHandle<C> getComponentByType(ex::Entity entity, ComponentType type, C* c) {
+            return (C::getType() == type) ? entity.component<C>() : return nullptr;
+        }
+
+        // Given a particular enumerated component type, the corresponding component handle will be acquired. Recursive case.
+        template <typename C, typename... Components>
+        static ex::ComponentHandle<C> getComponentByType(ex::Entity entity, ComponentType type, C* c, Components*... components) {
+            return (C::getType() == type) ? entity.component<C>() : getComponentByType<Components...>(components);
+        }
+
+        // Given a particular component name, the corresponding component handle will be acquired. Base case.
+        template <typename C>
+        static ex::ComponentHandle<C> getComponentByName(ex::Entity entity, std::string name, C* c) {
+            return (C::getElementName() == name) ? entity.component<C>() : return nullptr;
+        }
+
+        // Given a particular component name, the corresponding component handle will be acquired. Recursive case.
+        template <typename C, typename... Components>
+        static ex::ComponentHandle<C> getComponentByName(ex::Entity entity, std::string name, C* c, Components*... components) {
+            return (C::getElementName() == name) ? entity.component<C>() : getComponentByType<Components...>(components);
         }
 
         struct Create {

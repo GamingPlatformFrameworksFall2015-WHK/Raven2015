@@ -16,6 +16,13 @@ namespace Raven {
         void addLevel(std::string levelFilePath);
         void removeLevel(std::string levelFilePath);
 
+        std::map<std::string, std::shared_ptr<ex::Entity>> getLevelMap();
+        std::shared_ptr<sf::RenderWindow> getWindow();
+        void pollEvents();
+        bool isMainWindowOpen();
+        void clearWindow();
+        void displayWindow();
+
         void updateGameMode(ex::TimeDelta dt);
         void updateEditMode(ex::TimeDelta dt);
 
@@ -41,6 +48,7 @@ namespace Raven {
 
         // Whether we are currently in edit mode
         bool editMode;
+
 
     private:
         void clearEntities();

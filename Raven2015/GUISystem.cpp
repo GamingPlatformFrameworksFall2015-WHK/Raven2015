@@ -13,7 +13,7 @@
 #include "GUISystem.h"
 #include "WidgetLibrary.h"
 #include "EntityLibrary.h"
-#include "XMLSystem.h"
+//#include "XMLSystem.h"
 
 using namespace sfg;
 
@@ -47,7 +47,7 @@ namespace Raven {
 
         // Create the various windows that will go inside the table and allocate regions of space for them
         // Implement a 6x5 table with the following structure
-        // Scene Hierarchy(SH), Content(C), Entity Designer (ED), Prefab List(PL), Canvas(V), Toolbar(T)
+        // Scene Hierarchy(SH), Content(C), ComponentList (CL), Entity Designer (ED), Prefab List(PL), Canvas(V), Toolbar(T)
         //    0  1  2  3  4  5  6  7  8
         // 0|SH|SH| V| V| V| V| V|PL|PL|
         // 1|SH|SH| V| V| V| V| V|PL|PL|
@@ -55,14 +55,15 @@ namespace Raven {
         // 3|SH|SH| V| V| V| V| V|PL|PL|
         // 4|SH|SH| V| V| V| V| V|PL|PL|
         // 5|SH|SH| T| T| T| T| T|PL|PL|
-        // 6| C| C| C| C|ED|ED|ED|ED|ED|
-        // 7| C| C| C| C|ED|ED|ED|ED|ED|
-        // 8| C| C| C| C|ED|ED|ED|ED|ED|
+        // 6| C| C| C| C|CL|ED|ED|ED|ED|
+        // 7| C| C| C| C|CL|ED|ED|ED|ED|
+        // 8| C| C| C| C|CL|ED|ED|ED|ED|
         canvas = formatCanvas(Canvas::Create("Canvas"));
         sceneHierarchy = formatSceneHierarchy(ScrolledWindow::Create());
         content = formatContent(Notebook::Create());
         toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
         entityDesigner = formatEntityDesigner(ScrolledWindow::Create());
+        componentList = formatComponentList(ScrolledWindow::Create());
         prefabList = formatPrefabList(ScrolledWindow::Create());
         
         // Add all of the various windows to the table, assigning dimensions and settings to the table
@@ -71,8 +72,9 @@ namespace Raven {
         table->Attach(canvas,           sf::Rect<sf::Uint32>(2, 0, 4, 5));
         table->Attach(prefabList,       sf::Rect<sf::Uint32>(6, 0, 3, 6));
         table->Attach(toolbar,          sf::Rect<sf::Uint32>(2, 5, 4, 1));
-        table->Attach(content,          sf::Rect<sf::Uint32>(0, 6, 4, 3));
-        table->Attach(entityDesigner,   sf::Rect<sf::Uint32>(4, 6, 5, 3));
+        table->Attach(content,          sf::Rect<sf::Uint32>(0, 6, 3, 3));
+        table->Attach(componentList,    sf::Rect<sf::Uint32>(4, 6, 1, 3));
+        table->Attach(entityDesigner,   sf::Rect<sf::Uint32>(5, 6, 4, 3));
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);

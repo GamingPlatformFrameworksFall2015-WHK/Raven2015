@@ -45,21 +45,17 @@ namespace Raven {
 
         // Subscribe to events, if any
         void configure(ex::EventManager &event_manager) {
-
+            //event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>>(*this);
+            //event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>>(*this);
         }
-
-        //process CollisionEvents
-        //void receive(const CollisionEvent &event);
 
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
-        // Format the Master Table widget
-        //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
         SCENE_HIERARCHY_WTYPE_SPTR formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR);
-        // Format the Component List widget
-        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
+        // Format the Content widget
+        CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
         // Format the Texture List widget
         TEXTURE_LIST_WTYPE_SPTR formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
         // Format the Music List widget
@@ -68,8 +64,8 @@ namespace Raven {
         SOUND_LIST_WTYPE_SPTR formatSoundList(SOUND_LIST_WTYPE_SPTR);
         // Format the Font List widget
         FONT_LIST_WTYPE_SPTR formatFontList(FONT_LIST_WTYPE_SPTR);
-        // Format the Content widget
-        CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
+        // Format the Component List widget
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
         // Format the Entity Designer widget
         ENTITY_DESIGNER_WTYPE_SPTR formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR);
         // Format the Prefab List widget
@@ -191,10 +187,6 @@ namespace Raven {
         //----The tabbed list of assets available to the user----
         Notebook::Ptr content;
 
-        //  //  // Component List //  //  //
-        ScrolledWindow::Ptr componentList;
-        Box::Ptr componentListBox;
-
         //  //  // Texture List //  //  //
         ScrolledWindow::Ptr textureList;
         Box::Ptr textureListBox;
@@ -213,9 +205,22 @@ namespace Raven {
 
         //----The list of commands available to the user when interacting with the Canvas----
         Box::Ptr toolbar;
+
+        //----The window containing a list of components present in the currently exposed Entity-------
+        ScrolledWindow::Ptr componentList;
+        Box::Ptr componentListBox;
         
         //----The window allowing for the user to modify which components are on an entity and modify their member values----
         ScrolledWindow::Ptr entityDesigner;
+        Box::Ptr entityDesignerBox;
+
+        //  //  // Component Editor //  //  //
+        ScrolledWindow::Ptr componentEditor;
+        Box::Ptr componentEditorBox;
+
+        //  //  // Prefab Operations Menu //  //  //
+        ScrolledWindow::Ptr prefabOperationsMenu;
+        Box::Ptr prefabOperationsMenuBox;
 
         //----The panel displaying entities are currently stored as prefabs----
         ScrolledWindow::Ptr prefabList;

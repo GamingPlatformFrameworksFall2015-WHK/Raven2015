@@ -34,24 +34,33 @@ namespace Raven {
         cmn::game = this;
     }
 
+    std::map<std::string, std::shared_ptr<ex::Entity>> Game::getLevelMap() { return systems.system<XMLSystem>()->levelMap; }
+    std::shared_ptr<sf::RenderWindow> Game::getWindow() { return systems.system<GUISystem>()->mainWindow; }
+    void Game::pollEvents() { systems.system<GUISystem>()->pollEvents(); }
+    bool Game::isMainWindowOpen() { return systems.system<GUISystem>()->isMainWindowOpen(); }
+    void Game::clearWindow() { systems.system<GUISystem>()->clear(); }
+    void Game::displayWindow() { systems.system<GUISystem>()->display(); }
+    
     void Game::initialize() {
         load();
+        /*
         auto xml = systems.system<XMLSystem>();
         auto gui = systems.system<GUISystem>();
         gui->populatePrefabList(xml->prefabsDoc);
         gui->populateSceneHierarchy(xml->levelMap);
+        */
     }
 
     void Game::loadLevel(std::string levelFilePath = "", sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {
         if (levelFilePath == "") {
             levelFilePath = currentLevelPath;
         }
-        systems.system<XMLSystem>()->loadLevel(levelFilePath, levelOffset, clearEntitiesBeforehand);
-        systems.system<GUISystem>()->populateSceneHierarchy(systems.system<XMLSystem>()->levelMap);
+        //systems.system<XMLSystem>()->loadLevel(levelFilePath, levelOffset, clearEntitiesBeforehand);
+        systems.system<GUISystem>()->populateSceneHierarchy(getLevelMap());
     }
 
     void Game::saveLevel() {
-        systems.system<XMLSystem>()->saveLevel(currentLevelPath);
+        //systems.system<XMLSystem>()->saveLevel(currentLevelPath);
     }
 
     void Game::addLevel(std::string levelFilePath) {
@@ -105,9 +114,10 @@ namespace Raven {
         events.emit<XMLLoadEvent>();
     }
 
+    
     void Game::clearEntities() {
         std::map<std::string, std::shared_ptr<ex::Entity>> tempMap;
-        auto firstMap = systems.system<XMLSystem>()->levelMap;
+        auto firstMap = getLevelMap();
         for (auto name_entity : firstMap) {
             if (name_entity.second->component<Data>()->persistent) {
                 tempMap.insert(name_entity);
