@@ -19,7 +19,8 @@ namespace Raven {
 
     }
 
-    Game::Game() : EntityX(), editMode(true), defaultLevelPath("Resources/XML/DefaultLevel.xml"), currentLevelPath(defaultLevelPath) {
+    Game::Game() : EntityX(), editMode(true), defaultLevelPath("Resources/XML/DefaultLevel.xml") {
+        currentLevelPath = defaultLevelPath;
         systems.add<XMLSystem>();
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
@@ -34,7 +35,8 @@ namespace Raven {
         cmn::game = this;
     }
 
-    std::map<std::string, std::shared_ptr<ex::Entity>> Game::getLevelMap() { return systems.system<XMLSystem>()->levelMap; }
+    std::set<ex::Entity> Game::getEntitySet() { return systems.system<XMLSystem>()->entitySet; }
+    std::set<std::string> Game::getLevelList() { return systems.system<XMLSystem>()->levelFilePathSet; }
     std::shared_ptr<sf::RenderWindow> Game::getWindow() { return systems.system<GUISystem>()->mainWindow; }
     void Game::pollEvents() { systems.system<GUISystem>()->pollEvents(); }
     bool Game::isMainWindowOpen() { return systems.system<GUISystem>()->isMainWindowOpen(); }
@@ -43,24 +45,28 @@ namespace Raven {
     
     void Game::initialize() {
         load();
-        /*
         auto xml = systems.system<XMLSystem>();
         auto gui = systems.system<GUISystem>();
         gui->populatePrefabList(xml->prefabsDoc);
-        gui->populateSceneHierarchy(xml->levelMap);
-        */
+        gui->populateSceneHierarchy(xml->entitySet);
+        gui->populateTextureList(xml->textureFilePathSet);
+        gui->populateMusicList(xml->musicFilePathSet);
+        gui->populateSoundList(xml->soundFilePathSet);
+        gui->populateFontList(xml->fontFilePathSet);
+        gui->populateLevelList(xml->levelFilePathSet);
+        gui->populateAnimationList(xml->animationMap);
     }
 
     void Game::loadLevel(std::string levelFilePath = "", sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {
         if (levelFilePath == "") {
             levelFilePath = currentLevelPath;
         }
-        //systems.system<XMLSystem>()->loadLevel(levelFilePath, levelOffset, clearEntitiesBeforehand);
-        systems.system<GUISystem>()->populateSceneHierarchy(getLevelMap());
+        systems.system<XMLSystem>()->loadLevel(levelFilePath, levelOffset, clearEntitiesBeforehand);
+        systems.system<GUISystem>()->populateSceneHierarchy(getEntitySet());
     }
 
     void Game::saveLevel() {
-        //systems.system<XMLSystem>()->saveLevel(currentLevelPath);
+        systems.system<XMLSystem>()->saveLevel(currentLevelPath);
     }
 
     void Game::addLevel(std::string levelFilePath) {
@@ -87,19 +93,21 @@ namespace Raven {
     }
 
     ex::Entity Game::makeEntity(std::string name = "") {
-        std::shared_ptr<ex::Entity> e(&EntityLibrary::Create::Entity(name));
+        ex::Entity e(EntityLibrary::Create::Entity(name));
         if (name != "") {
-            systems.system<XMLSystem>()->levelMap.insert(
-                std::make_pair(name, e));
+            systems.system<XMLSystem>()->entitySet.insert(e);
         }
-        return *e;
+        return e;
     }
 
-    std::shared_ptr<ex::Entity> Game::instantiatePrefab(std::string name, std::string prefabName) {
+    ex::Entity Game::instantiatePrefab(std::string name, std::string prefabName) {
         auto entity = systems.system<XMLSystem>()->instantiate(prefabName);
-        if (entity == nullptr) {
+        if (!entity.valid()) {
             cerr << "Warning: Attempted to instantiate entity \"" + name + "\" from non-existent prefab \"" + prefabName + "\"." << endl;
             cerr << "         Entity will not be instantiated." << endl;
+        }
+        else {
+            entity.component<Data>()->name = name;
         }
         return entity;
     }
@@ -114,14 +122,7 @@ namespace Raven {
         events.emit<XMLLoadEvent>();
     }
 
-    
     void Game::clearEntities() {
-        std::map<std::string, std::shared_ptr<ex::Entity>> tempMap;
-        auto firstMap = getLevelMap();
-        for (auto name_entity : firstMap) {
-            if (name_entity.second->component<Data>()->persistent) {
-                tempMap.insert(name_entity);
-            }
-        }
+        systems.system<XMLSystem>()->clearNonPersistentEntities();
     }
 }

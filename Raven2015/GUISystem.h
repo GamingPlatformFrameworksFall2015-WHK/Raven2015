@@ -57,17 +57,31 @@ namespace Raven {
         // Format the Content widget
         CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
         // Format the Texture List widget
-        TEXTURE_LIST_WTYPE_SPTR formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
+        void formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
         // Format the Music List widget
-        MUSIC_LIST_WTYPE_SPTR formatMusicList(MUSIC_LIST_WTYPE_SPTR);
+        void formatMusicList(MUSIC_LIST_WTYPE_SPTR);
         // Format the Sound List widget
-        SOUND_LIST_WTYPE_SPTR formatSoundList(SOUND_LIST_WTYPE_SPTR);
+        void formatSoundList(SOUND_LIST_WTYPE_SPTR);
         // Format the Font List widget
-        FONT_LIST_WTYPE_SPTR formatFontList(FONT_LIST_WTYPE_SPTR);
-        // Format the Component List widget
-        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
+        void formatFontList(FONT_LIST_WTYPE_SPTR);
+        // Format the Level List widget
+        void formatLevelList(LEVEL_LIST_WTYPE_SPTR);
+        // Format the Animation List widget
+        void formatAnimationList(ANIMATION_LIST_WTYPE_SPTR);
+        // Helper function to consolidate operations for Asset List formatting
+        template <typename T>
+        Box::Ptr formatAssetListHelper(ScrolledWindow::Ptr list, Box::Ptr listBox, Button::Ptr addNewButton);
         // Format the Entity Designer widget
         ENTITY_DESIGNER_WTYPE_SPTR formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR);
+        // Format the Component List widget, Base Case
+        template <typename C>
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR, C* c);
+        // Format the Component List widget, Recursive Case
+        template <typename C, typename... Components>
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR, C* c, Components*... components);
+        // Helper function to consolidate operations for Component List formatting
+        template <typename C>
+        void formatComponentListHelper(C* c);
         // Format the Prefab List widget
         PREFAB_LIST_WTYPE_SPTR formatPrefabList(PREFAB_LIST_WTYPE_SPTR);
         // Format the Canvas widget
@@ -80,12 +94,46 @@ namespace Raven {
         void addItemToPrefabList(std::string itemName);
         void removeItemFromPrefabList(std::string itemName);
         // Scene Hierarchy Manipulation
-        void populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& levelMap);
+        void populateSceneHierarchy(std::set<ex::Entity>& entitySet);
         void addItemToSceneHierarchy(std::string itemName);
         void removeItemFromSceneHierarchy(std::string itemName);
+        // Asset List Manipulation
+        void populateTextureList(std::set<std::string> assetList);
+        void populateMusicList(std::set<std::string> assetList);
+        void populateSoundList(std::set<std::string> assetList);
+        void populateFontList(std::set<std::string> assetList);
+        void populateLevelList(std::set<std::string> assetList);
+        void populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map);
+        template <typename T>
+        void populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList);
+        template <typename T>
+        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName);
+        template <typename T>
+        void removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName);
 
         // Format a given asset list item
-        void(*formatAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+        void(*formatPrefabListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the Entity
+            Button* bduplicate = (Button*)box->GetChildren()[2].get();
+            bduplicate->SetLabel("Duplicate"); // For selecting the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+        };
+
+        // Format a given asset list item
+        void(*formatSceneHierarchyListItem)(Box::Ptr box) = [](Box::Ptr box) {
             // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
             // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
             Entry* e = (Entry*) box->GetChildren()[0].get();
@@ -94,6 +142,28 @@ namespace Raven {
             bselect->SetLabel("Select"); // For selecting the Entity
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
             bduplicate->SetLabel("Duplicate"); // For selecting the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+        };
+
+        // Format a given asset list item
+        void(*formatAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(350.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the Entity
+            Button* bhide = (Button*)box->GetChildren()[2].get();
+            bhide->SetLabel(""); // For selecting the Entity
+            bhide->Show(false);
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
@@ -118,7 +188,7 @@ namespace Raven {
         // Displays the selected Entity's component list in the EntityDesigner panel
         void sceneHierachySelectButtonHandler(Button::Ptr clickedButton);
 
-        // Destroys the Entity instance and removes its record from the LevelMap
+        // Destroys the Entity instance and removes its record from the entitySet
         void sceneHierachyDeleteButtonHandler(Button::Ptr clickedButton);
 
         // Reorders the children of the sceneHierarchyBox so that the clicked entity moves up one
@@ -133,7 +203,7 @@ namespace Raven {
         // Displays the selected Entity's component list in the EntityDesigner panel
         void prefabListSelectButtonHandler(Button::Ptr clickedButton);
 
-        // Destroys the Entity instance and removes its record from the LevelMap
+        // Destroys the Entity instance and removes its record from the entitySet
         void prefabListDeleteButtonHandler(Button::Ptr clickedButton);
 
         // Reorders the children of the prefabListBox so that the clicked prefab moves up one
@@ -190,18 +260,32 @@ namespace Raven {
         //  //  // Texture List //  //  //
         ScrolledWindow::Ptr textureList;
         Box::Ptr textureListBox;
+        Button::Ptr addNewTextureButton;
 
         //  //  // Music List //  //  //
         ScrolledWindow::Ptr musicList;
         Box::Ptr musicListBox;
+        Button::Ptr addNewMusicButton;
 
         //  //  // Sound List //  //  //
         ScrolledWindow::Ptr soundList;
         Box::Ptr soundListBox;
+        Button::Ptr addNewSoundButton;
 
         //  //  // Font List //  //  //
         ScrolledWindow::Ptr fontList;
         Box::Ptr fontListBox;
+        Button::Ptr addNewFontButton;
+
+        //  //  // Level List //  //  //
+        ScrolledWindow::Ptr levelList;
+        Box::Ptr levelListBox;
+        Button::Ptr addNewLevelButton;
+
+        //  //  // Animation List //  //  //
+        ScrolledWindow::Ptr animationList;
+        Box::Ptr animationListBox;
+        Button::Ptr addNewAnimationButton;
 
         //----The list of commands available to the user when interacting with the Canvas----
         Box::Ptr toolbar;
@@ -209,6 +293,8 @@ namespace Raven {
         //----The window containing a list of components present in the currently exposed Entity-------
         ScrolledWindow::Ptr componentList;
         Box::Ptr componentListBox;
+        std::map<ComponentType, Button::Ptr> openComponentButtons;           // For quickly adding callback methods
+        std::map<ComponentType, CheckButton::Ptr> toggleComponentCheckButtons; // For quickly adding callback methods
         
         //----The window allowing for the user to modify which components are on an entity and modify their member values----
         ScrolledWindow::Ptr entityDesigner;

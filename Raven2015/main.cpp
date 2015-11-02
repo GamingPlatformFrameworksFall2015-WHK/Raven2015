@@ -13,17 +13,11 @@
 
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <vector>
-#include <string>
-#include <exception>
-#include "SFML/Graphics.hpp"
-#include "SFML/System.hpp"
-#include "entityx/entityx.h"
-#include "ComponentLibrary.h"
-#include "EntityLibrary.h"
-#include "Game.h"
+#include <iostream>             // For std::cout, std::cerr, std::endl
+#include "SFML/System.hpp"      // For sf::RenderWindow
+#include "Common.h"             // For FPS constants
+#include "DataAssetLibrary.h"   // For rvn::Timer
+#include "Game.h"               // For rvn::Game
 
 using namespace Raven;
 
@@ -119,12 +113,6 @@ int main() {
     */
 
     game.initialize();
-    if (game.getLevelMap().find("Default Level") == game.getLevelMap().end()) {
-        cerr << "WARNING: Could not find initial level." << endl;
-    }
-    else {
-        cout << "Found the Default Level!" << endl;
-    }
     game.save();
     cout << "Saved game" << endl;
 

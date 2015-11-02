@@ -66,6 +66,18 @@ class FontListPanel {};
 #define FONT_LIST_WTYPE_SPTR SPTR(FONT_LIST_WTYPE)
 #define FONT_LIST_NAME "Fonts"
 
+// LevelList
+#define LEVEL_LIST_WTYPE ScrolledWindow
+class LevelListPanel {};
+#define LEVEL_LIST_WTYPE_SPTR SPTR(LEVEL_LIST_WTYPE)
+#define LEVEL_LIST_NAME "Levels"
+
+// AnimationList
+#define ANIMATION_LIST_WTYPE ScrolledWindow
+class AnimationListPanel {};
+#define ANIMATION_LIST_WTYPE_SPTR SPTR(ANIMATION_LIST_WTYPE)
+#define ANIMATION_LIST_NAME "Animations"
+
 // Content
 #define CONTENT_WTYPE Notebook
 class ContentPanel {};

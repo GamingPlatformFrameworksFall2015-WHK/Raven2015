@@ -1,3 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE LEVEL SYSTEM "level.dtd">
-<LEVEL/>
+<LEVEL>
+    <Entity>
+        <Data>
+            <Name>Full Entity</Name>
+            <PrefabName>Base Entity</PrefabName>
+            <Modified>0</Modified>
+            <Persistent>0</Persistent>
+        </Data>
+        <Transform>
+            <SubTransform>
+                <TransformX>1.000000</TransformX>
+                <TransformY>1.000000</TransformY>
+            </SubTransform>
+            <Rotation>0.000000</Rotation>
+        </Transform>
+        <Rigidbody>
+            <Velocity>
+                <VelocityX>0.000000</VelocityX>
+                <VelocityY>0.000000</VelocityY>
+            </Velocity>
+            <Acceleration>
+                <AccelerationX>0.000000</AccelerationX>
+                <AccelerationY>0.000000</AccelerationY>
+            </Acceleration>
+            <RadialVelocity>0.000000</RadialVelocity>
+        </Rigidbody>
+    </Entity>
+    <Entity>
+        <Data>
+            <Name>Full Entity</Name>
+            <PrefabName>NULL</PrefabName>
+            <Modified>0</Modified>
+            <Persistent>0</Persistent>
+        </Data>
+        <Transform>
+            <SubTransform>
+                <TransformX>0.000000</TransformX>
+                <TransformY>0.000000</TransformY>
+            </SubTransform>
+            <Rotation>0.000000</Rotation>
+        </Transform>
+        <Rigidbody>
+            <Velocity>
+                <VelocityX>0.000000</VelocityX>
+                <VelocityY>0.000000</VelocityY>
+            </Velocity>
+            <Acceleration>
+                <AccelerationX>0.000000</AccelerationX>
+                <AccelerationY>0.000000</AccelerationY>
+            </Acceleration>
+            <RadialVelocity>0.000000</RadialVelocity>
+        </Rigidbody>
+    </Entity>
+</LEVEL>

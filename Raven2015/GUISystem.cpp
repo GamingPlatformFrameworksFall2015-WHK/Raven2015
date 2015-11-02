@@ -13,6 +13,7 @@
 #include "GUISystem.h"
 #include "WidgetLibrary.h"
 #include "EntityLibrary.h"
+#include "ComponentLibrary.h"
 //#include "XMLSystem.h"
 
 using namespace sfg;
@@ -24,8 +25,8 @@ namespace Raven {
     // Perform initializations of what we CAN
     GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem) :
         mainWindow(new sf::RenderWindow(sf::VideoMode::getDesktopMode(), MAIN_WINDOW_NAME)),
-            /*sf::VideoMode((unsigned int)cmn::WINDOW_WIDTH, (unsigned int)cmn::WINDOW_HEIGHT),
-            MAIN_WINDOW_NAME, sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize)),*/
+        /*sf::VideoMode((unsigned int)cmn::WINDOW_WIDTH, (unsigned int)cmn::WINDOW_HEIGHT),
+        MAIN_WINDOW_NAME, sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize)),*/
         sfgui(new SFGUI()),
         desktop(new Desktop()),
         event(new sf::Event()),
@@ -55,26 +56,26 @@ namespace Raven {
         // 3|SH|SH| V| V| V| V| V|PL|PL|
         // 4|SH|SH| V| V| V| V| V|PL|PL|
         // 5|SH|SH| T| T| T| T| T|PL|PL|
-        // 6| C| C| C| C|CL|ED|ED|ED|ED|
-        // 7| C| C| C| C|CL|ED|ED|ED|ED|
-        // 8| C| C| C| C|CL|ED|ED|ED|ED|
+        // 6| C| C|CL|CL|ED|ED|ED|ED|ED|
+        // 7| C| C|CL|CL|ED|ED|ED|ED|ED|
+        // 8| C| C|CL|CL|ED|ED|ED|ED|ED|
         canvas = formatCanvas(Canvas::Create("Canvas"));
         sceneHierarchy = formatSceneHierarchy(ScrolledWindow::Create());
         content = formatContent(Notebook::Create());
         toolbar = formatToolbar(Box::Create(Box::Orientation::VERTICAL));
         entityDesigner = formatEntityDesigner(ScrolledWindow::Create());
-        componentList = formatComponentList(ScrolledWindow::Create());
+        componentList = formatComponentList<COMPONENT_TYPE_LIST>(ScrolledWindow::Create(), COMPONENT_TYPES(::getNullPtrToType()));
         prefabList = formatPrefabList(ScrolledWindow::Create());
-        
+
         // Add all of the various windows to the table, assigning dimensions and settings to the table
         Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
-        table->Attach(sceneHierarchy,   sf::Rect<sf::Uint32>(0, 0, 2, 6), all, all);
-        table->Attach(canvas,           sf::Rect<sf::Uint32>(2, 0, 4, 5));
-        table->Attach(prefabList,       sf::Rect<sf::Uint32>(6, 0, 3, 6));
-        table->Attach(toolbar,          sf::Rect<sf::Uint32>(2, 5, 4, 1));
-        table->Attach(content,          sf::Rect<sf::Uint32>(0, 6, 3, 3));
-        table->Attach(componentList,    sf::Rect<sf::Uint32>(4, 6, 1, 3));
-        table->Attach(entityDesigner,   sf::Rect<sf::Uint32>(5, 6, 4, 3));
+        table->Attach(sceneHierarchy, sf::Rect<sf::Uint32>(0, 0, 2, 6), all, all);
+        table->Attach(canvas, sf::Rect<sf::Uint32>(2, 0, 4, 5));
+        table->Attach(prefabList, sf::Rect<sf::Uint32>(6, 0, 3, 6));
+        table->Attach(toolbar, sf::Rect<sf::Uint32>(2, 5, 4, 1));
+        table->Attach(content, sf::Rect<sf::Uint32>(0, 6, 2, 3));
+        table->Attach(componentList, sf::Rect<sf::Uint32>(2, 6, 2, 3));
+        table->Attach(entityDesigner, sf::Rect<sf::Uint32>(4, 6, 5, 3));
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
@@ -144,65 +145,98 @@ namespace Raven {
         return sh;
     }
 
-    // Format the Component List widget
-    COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl) {
-        cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
-
-        //cl->AddWithViewport(ButtonList::Create());
-
-        return cl;
-    }
-    
     // Format the Texture List widget
-    TEXTURE_LIST_WTYPE_SPTR GUISystem::formatTextureList(TEXTURE_LIST_WTYPE_SPTR tl) {
-        tl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
-
-        //tl->AddWithViewport(ButtonList::Create());
-        
-        return tl;
+    void GUISystem::formatTextureList(TEXTURE_LIST_WTYPE_SPTR tl) {
+        textureListBox = formatAssetListHelper<WidgetLibrary::TextureListPanel>(textureList = tl, textureListBox, addNewTextureButton);
     }
 
     // Format the Music List widget
-    MUSIC_LIST_WTYPE_SPTR GUISystem::formatMusicList(MUSIC_LIST_WTYPE_SPTR ml) {
-        ml->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
-
-        //ml->AddWithViewport(ButtonList::Create());
-        
-        return ml;
+    void GUISystem::formatMusicList(MUSIC_LIST_WTYPE_SPTR ml) {
+        musicListBox = formatAssetListHelper<WidgetLibrary::MusicListPanel>(musicList = ml, musicListBox, addNewMusicButton);
     }
 
     // Format the Sound List widget
-    SOUND_LIST_WTYPE_SPTR GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
-        sl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
-        
-        //sl->AddWithViewport(ButtonList::Create());
-        
-        return sl;
+    void GUISystem::formatSoundList(SOUND_LIST_WTYPE_SPTR sl) {
+        soundListBox = formatAssetListHelper<WidgetLibrary::SoundListPanel>(soundList = sl, soundListBox, addNewSoundButton);
     }
 
     // Format the Font List widget
-    FONT_LIST_WTYPE_SPTR GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
-        fl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+    void GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
+        fontListBox = formatAssetListHelper<WidgetLibrary::FontListPanel>(fontList = fl, fontListBox, addNewFontButton);
+    }
 
-        //fl->AddWithViewport(ButtonList::Create());
-        
-        return fl;
+    // Format the Level List widget
+    void GUISystem::formatLevelList(LEVEL_LIST_WTYPE_SPTR ll) {
+        levelListBox = formatAssetListHelper<WidgetLibrary::LevelListPanel>(levelList = ll, levelListBox, addNewLevelButton);
+    }
+
+    // Format the Animation List widget
+    void GUISystem::formatAnimationList(ANIMATION_LIST_WTYPE_SPTR al) {
+
+        animationList = al;
+
+        // Setup scroll bars
+        al->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+
+        // For some vertical padding at the top
+        Box::Ptr top = Box::Create(Box::Orientation::VERTICAL, 5.f);
+        Label::Ptr l = Label::Create("\n");
+        top->Pack(l, true, true);
+
+        // Create the dynamic widget
+        animationListBox = WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
+
+        top->Pack(animationListBox, true, true);
+
+        // Create a button for adding new items
+        addNewAnimationButton = Button::Create("Add New...");
+
+        top->Pack(addNewAnimationButton);
+
+        animationList->AddWithViewport(top);
+
+    }
+
+    template <typename T>
+    Box::Ptr GUISystem::formatAssetListHelper(ScrolledWindow::Ptr list, Box::Ptr listBox, Button::Ptr addNewButton) {
+
+        // Setup scroll bars
+        list->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+
+        // For some vertical padding at the top
+        Box::Ptr top = Box::Create(Box::Orientation::VERTICAL, 5.f);
+        Label::Ptr l = Label::Create("\n");
+        top->Pack(l, true, true);
+
+        // Create the dynamic widget
+        listBox = WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::Create();
+
+        top->Pack(listBox, true, true);
+
+        // Create a button for adding new items
+        addNewButton = Button::Create("Add New...");
+
+        top->Pack(addNewButton);
+
+        list->AddWithViewport(top);
+
+        return listBox;
     }
 
     // Format the Content widget
     CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
-        componentList = formatComponentList(ScrolledWindow::Create());
-        textureList = formatTextureList(ScrolledWindow::Create());
-        musicList = formatMusicList(ScrolledWindow::Create());
-        soundList = formatSoundList(ScrolledWindow::Create());
-        fontList = formatFontList(ScrolledWindow::Create());
-        //auto ll = formatLevelList(makeWidget<LEVEL_LIST_WTYPE>(TO_STR(LEVEL_LIST_WTYPE), LEVEL_LIST_NAME));
-        c->AppendPage(componentList, Label::Create(COMPONENT_LIST_NAME));
+        formatTextureList(ScrolledWindow::Create());
+        formatMusicList(ScrolledWindow::Create());
+        formatSoundList(ScrolledWindow::Create());
+        formatFontList(ScrolledWindow::Create());
+        formatLevelList(ScrolledWindow::Create());
+        formatAnimationList(ScrolledWindow::Create());
         c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));
         c->AppendPage(musicList, Label::Create(MUSIC_LIST_NAME));
         c->AppendPage(soundList, Label::Create(SOUND_LIST_NAME));
         c->AppendPage(fontList, Label::Create(FONT_LIST_NAME));
-        //c->AppendPage(ll, Label::Create(LEVEL_LIST_NAME));
+        c->AppendPage(levelList, Label::Create(LEVEL_LIST_NAME));
+        c->AppendPage(animationList, Label::Create(ANIMATION_LIST_NAME));
 
         return c;
     }
@@ -214,13 +248,61 @@ namespace Raven {
         return ed;
     }
 
+    // Format the Component List widget, Base Case
+    template <typename C>
+    COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl, C* c) {
+        cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+
+        formatComponentListHelper<C>(c);
+
+        cl->AddWithViewport(componentListBox);
+        return cl;
+    }
+
+    // Format the Component List widget, Recursive Case
+    template <typename C, typename... Components>
+    COMPONENT_LIST_WTYPE_SPTR GUISystem::formatComponentList(COMPONENT_LIST_WTYPE_SPTR cl, C* c, Components*... components) {
+        cl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
+
+        // Initialize the box if necessary
+        if (sizeof...(Components) == (ComponentType::NumComponentTypes - 1)) {
+            componentListBox = Box::Create(Box::Orientation::VERTICAL);
+        }
+
+        formatComponentListHelper<C>(c);
+
+        // recurse
+        return formatComponentList<Components...>(cl, components...);
+    }
+
+    template <typename C>
+    void GUISystem::formatComponentListHelper(C* c) {
+        Box::Ptr box = Box::Create(Box::Orientation::HORIZONTAL);
+        Label::Ptr l = Label::Create(c->getElementName());
+        openComponentButtons.insert(std::make_pair(c->getType(), Button::Create("Open")));
+        l->SetRequisition(sf::Vector2f(150.0f, 10.f));
+        box->Pack(l);
+        box->Pack(openComponentButtons[c->getType()]);
+
+        if (c->getType() < NUM_REQUIRED_COMPONENTS) {
+            box->Pack(Label::Create("    "));
+        }
+        else {
+            toggleComponentCheckButtons.insert(std::make_pair(c->getType(), CheckButton::Create("")));
+            box->Pack(toggleComponentCheckButtons[c->getType()]);
+        }
+
+        componentListBox->Pack(box);
+
+    }
+
     // Format the Prefab List widget
     PREFAB_LIST_WTYPE_SPTR GUISystem::formatPrefabList(PREFAB_LIST_WTYPE_SPTR pl) {
         pl->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
         // For some vertical padding at the top
         Box::Ptr top = Box::Create(Box::Orientation::VERTICAL, 5.f);
-        top->SetRequisition(sf::Vector2f(400.f,0.f));
+        top->SetRequisition(sf::Vector2f(400.f, 0.f));
         Label::Ptr l = Label::Create("Prefab List\n");
         top->Pack(l, true, true);
 
@@ -236,7 +318,7 @@ namespace Raven {
 
         return pl;
     }
-    
+
     // Format the Canvas widget
     CANVAS_WTYPE_SPTR GUISystem::formatCanvas(CANVAS_WTYPE_SPTR c) {
         c->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::canvasClickHandler, this));
@@ -260,7 +342,7 @@ namespace Raven {
         brushList->Pack(moveBrush, true, true);
         t->Pack(currentBrush);
         t->Pack(brushList);
-        
+
         return t;
     }
 
@@ -270,38 +352,84 @@ namespace Raven {
 
     void GUISystem::populatePrefabList(XMLDocument& prefabsDoc) {
         prefabListBox->RemoveAll();
-        XMLNode* top = prefabsDoc.FirstChild();
+        XMLElement* top = prefabsDoc.RootElement();
         XMLElement* entityNode = top->FirstChildElement("Entity");
         while (entityNode) {
             WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-                prefabListBox, entityNode->FirstChildElement("Data")->FirstChildElement("Name")->GetText(), formatAssetListItem);
+                prefabListBox, entityNode->FirstChildElement("Data")->FirstChildElement("Name")->GetText(), formatPrefabListItem);
 
             entityNode = entityNode->NextSiblingElement("Entity");
         }
     }
 
     void GUISystem::addItemToPrefabList(std::string itemName) {
-        WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, itemName, formatAssetListItem);
+        WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(prefabListBox, itemName, formatPrefabListItem);
     }
 
     void GUISystem::removeItemFromPrefabList(std::string itemName) {
         WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(prefabListBox, itemName);
     }
 
-    void GUISystem::populateSceneHierarchy(std::map<std::string, std::shared_ptr<ex::Entity>>& levelMap) {
+    void GUISystem::populateSceneHierarchy(std::set<ex::Entity>& entitySet) {
         sceneHierarchyBox->RemoveAll();
-        for (auto name_entity : levelMap) {
+        for (auto entity : entitySet) {
             WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-                sceneHierarchyBox, name_entity.first, formatAssetListItem);
+                sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
         }
     }
 
     void GUISystem::addItemToSceneHierarchy(std::string itemName) {
-        WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(sceneHierarchyBox, itemName, formatAssetListItem);
+        WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(sceneHierarchyBox, itemName, formatSceneHierarchyListItem);
     }
 
     void GUISystem::removeItemFromSceneHierarchy(std::string itemName) {
         WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(sceneHierarchyBox, itemName);
+    }
+
+    void GUISystem::populateTextureList(std::set<std::string> assetList) {
+        populateAssetList<WidgetLibrary::TextureListPanel>(textureListBox, assetList);
+    }
+
+    void GUISystem::populateMusicList(std::set<std::string> assetList) {
+        populateAssetList<WidgetLibrary::MusicListPanel>(musicListBox, assetList);
+    }
+
+    void GUISystem::populateSoundList(std::set<std::string> assetList) {
+        populateAssetList<WidgetLibrary::SoundListPanel>(soundListBox, assetList);
+    }
+
+    void GUISystem::populateFontList(std::set<std::string> assetList) {
+        populateAssetList<WidgetLibrary::FontListPanel>(fontListBox, assetList);
+    }
+
+    void GUISystem::populateLevelList(std::set<std::string> assetList) {
+        populateAssetList<WidgetLibrary::LevelListPanel>(levelListBox, assetList);
+    }
+
+    void GUISystem::populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map) {
+        for (auto name_animation : map) {
+            WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+                animationListBox, name_animation.first, formatAssetListItem);
+        }
+    }
+
+    template <typename T>
+    void GUISystem::populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList) {
+        assetListWidget->RemoveAll();
+        for (auto filePath : assetList) {
+            WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+                assetListWidget, filePath, formatAssetListItem);
+        }
+    }
+
+    template <typename T>
+    void GUISystem::addItemToAssetList(Box::Ptr assetListWidget, std::string itemName) {
+        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetListWidget, itemName, formatAssetListItem);
+    }
+
+    template <typename T>
+    void GUISystem::removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName) {
+        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(assetListWidget, itemName);
     }
 
 #pragma endregion

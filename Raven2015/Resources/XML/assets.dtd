@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!ELEMENT ASSETS (Textures, Music, Sounds, Fonts, Animations, Levels, Renderables)>
+<!ELEMENT ASSETS (Textures, Music, Sounds, Fonts, Levels, Animations, Renderables)>
   <!ELEMENT Textures (TextureFilePath*)>
     <!ELEMENT TextureFilePath (#PCDATA)>
   <!ELEMENT Music (MusicFilePath*)>
@@ -19,28 +19,28 @@
       <!ELEMENT FrameHeight (#PCDATA)>
       <!ELEMENT AnimationSpeed (#PCDATA)>
       <!ELEMENT IsLooping (#PCDATA)>
-<!ELEMENT Renderables (RenderableTexts, RenderableRectangles, RenderableCircles, RenderableSprites)>
-  <!ELEMENT RenderableTexts (RenderableText*)>
-    <!ELEMENT RenderableText (RenderableTextRenderLayer, RenderableTextRenderPriority, RenderableTextTextContent, FontFilePath)>
-      <!ATTLIST RenderableText Name CDATA #REQUIRED>
-      <!ELEMENT RenderableTextRenderLayer (#PCDATA)>
-      <!ELEMENT RenderableTextRenderPriority (#PCDATA)>
-      <!ELEMENT RenderableTextTextContent (#PCDATA)>
-      <!ELEMENT RenderableTextFontFilePath (#PCDATA)>
-  <!ELEMENT RenderableRectangles (RenderableRectangle*)>
-    <!ELEMENT RenderableRectangle (RenderableRectangleRenderLayer, RenderableRectangleRenderPriority)>
-      <!ATTLIST RenderableRectangle Name CDATA #REQUIRED>
-      <!ELEMENT RenderableRectangleRenderLayer (#PCDATA)>
-      <!ELEMENT RenderableRectangleRenderPriority (#PCDATA)>
-  <!ELEMENT RenderableCircles (RenderableCircle*)>
-    <!ELEMENT RenderableCircle (RenderableCircleRenderLayer, RenderableCircleRenderPriority)>
-      <!ATTLIST RenderableCircle Name CDATA #REQUIRED>
-      <!ELEMENT RenderableCircleRenderLayer (#PCDATA)>
-      <!ELEMENT RenderableCircleRenderPriority (#PCDATA)>
-  <!ELEMENT RenderableSprites (RenderableSprite*)>
-    <!ELEMENT RenderableSprite (RenderableSpriteRenderLayer, RenderableSpriteRenderPriority, RenderableSpriteTextureFilePath, RenderableSpriteAnimationName)>
-      <!ATTLIST RenderableSprite Name CDATA #REQUIRED>
-      <!ELEMENT RenderableSpriteRenderLayer (#PCDATA)>
-      <!ELEMENT RenderableSpriteRenderPriority (#PCDATA)>
-      <!ELEMENT RenderableSpriteTextureFilePath (#PCDATA)>
-      <!ELEMENT RenderableSpriteAnimationName (#PCDATA)>
+  <!ELEMENT Renderables (RenderableTexts, RenderableRectangles, RenderableCircles, RenderableSprites)>
+    <!ELEMENT RenderableTexts (RenderableText*)>
+      <!ELEMENT RenderableText (RenderableTextRenderLayer, RenderableTextRenderPriority, RenderableTextTextContent, FontFilePath)>
+        <!ATTLIST RenderableText Name CDATA #REQUIRED>
+        <!ELEMENT RenderableTextRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableTextRenderPriority (#PCDATA)>
+        <!ELEMENT RenderableTextTextContent (#PCDATA)>
+        <!ELEMENT RenderableTextFontFilePath (#PCDATA)>
+    <!ELEMENT RenderableRectangles (RenderableRectangle*)>
+      <!ELEMENT RenderableRectangle (RenderableRectangleRenderLayer, RenderableRectangleRenderPriority)>
+        <!ATTLIST RenderableRectangle Name CDATA #REQUIRED>
+        <!ELEMENT RenderableRectangleRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableRectangleRenderPriority (#PCDATA)>
+    <!ELEMENT RenderableCircles (RenderableCircle*)>
+      <!ELEMENT RenderableCircle (RenderableCircleRenderLayer, RenderableCircleRenderPriority)>
+        <!ATTLIST RenderableCircle Name CDATA #REQUIRED>
+        <!ELEMENT RenderableCircleRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableCircleRenderPriority (#PCDATA)>
+    <!ELEMENT RenderableSprites (RenderableSprite*)>
+      <!ELEMENT RenderableSprite (RenderableSpriteRenderLayer, RenderableSpriteRenderPriority, RenderableSpriteTextureFilePath, RenderableSpriteAnimationName)>
+        <!ATTLIST RenderableSprite Name CDATA #REQUIRED>
+        <!ELEMENT RenderableSpriteRenderLayer (#PCDATA)>
+        <!ELEMENT RenderableSpriteRenderPriority (#PCDATA)>
+        <!ELEMENT RenderableSpriteTextureFilePath (#PCDATA)>
+        <!ELEMENT RenderableSpriteAnimationName (#PCDATA)>

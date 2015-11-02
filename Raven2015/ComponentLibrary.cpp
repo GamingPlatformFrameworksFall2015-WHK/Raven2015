@@ -11,15 +11,14 @@ namespace Raven {
         return
             tab + "<Data>\r\n" +
             tab + "  <Name>" + this->name + "</Name>\r\n" +
-            tab + "  <refabName>" + this->prefabName + "</refabName>\r\n" +
+            tab + "  <PrefabName>" + this->prefabName + "</PrefabName>\r\n" +
             tab + "  <Modified>" + std::to_string(this->modified) + "</Modified>\r\n" +
-            tab + "  <ersistent>" + std::to_string(this->persistent) + "</ersistent>\r\n" +
+            tab + "  <Persistent>" + std::to_string(this->persistent) + "</Persistent>\r\n" +
             tab + "</Data>\r\n";
     }
 
     void Data::deserialize(XMLNode* node) {
-        XMLElement* nameElem = node->FirstChildElement("Name");
-        name = nameElem->GetText();
+        name = node->FirstChildElement("Name")->GetText();
         prefabName = node->FirstChildElement("PrefabName")->GetText();
         node->FirstChildElement("Modified")->QueryBoolText(&this->modified);
         node->FirstChildElement("Persistent")->QueryBoolText(&this->persistent);
@@ -208,7 +207,6 @@ namespace Raven {
         if (t) {
             do {
                 texts.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableTextMap[t->GetText()]));
-                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableText>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("TextName"));
         }
         e = node->FirstChildElement("Rectangles");
@@ -216,7 +214,6 @@ namespace Raven {
         if (t) {
             do {
                 rectangles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableRectangleMap[t->GetText()]));
-                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableRectangle>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("RectangleName"));
         }
         e = node->FirstChildElement("Circles");
@@ -224,7 +221,6 @@ namespace Raven {
         if (t) {
             do {
                 circles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableCircleMap[t->GetText()]));
-                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableCircle>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("CircleName"));
         }
         e = node->FirstChildElement("Sprites");
@@ -232,7 +228,6 @@ namespace Raven {
         if (t) {
             do {
                 sprites.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableSpriteMap[t->GetText()]));
-                //cmn::game->events.emit<XMLDeserializeRendererAsset<RenderableSprite>>(t->GetText(), this);
             } while (t = t->NextSiblingElement("SpriteName"));
         }
     }

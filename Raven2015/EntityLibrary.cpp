@@ -24,6 +24,12 @@ namespace Raven {
         clearEntity<Components...>(e, components...);
     }
 
+    void EntityLibrary::clearCoreComponents(ex::Entity e) {
+        e.remove<Data>();
+        e.remove<Transform>();
+        e.remove<Rigidbody>();
+    }
+
     template <typename C>
     ex::Entity EntityLibrary::copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c) {
         if (toCopy.has_component<C>()) {

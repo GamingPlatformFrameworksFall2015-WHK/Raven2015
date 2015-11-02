@@ -35,7 +35,8 @@ namespace Raven {
 #define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
 /******************************************************************************************************************/
     enum ComponentType {
-        COMPONENT_TYPES(_t)
+        COMPONENT_TYPES(_t),
+        NumComponentTypes
     };
 
 // serialize:        for serializing the component
@@ -48,13 +49,15 @@ namespace Raven {
         virtual void deserialize(XMLNode* node) override; \
         static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; } \
-        static type_name##* getNullPtrToType() { return nullptr; } 
+        static type_name##* getNullPtrToType() { return nullptr; }
+
+#define NUM_REQUIRED_COMPONENTS 3
 
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
 
-        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false, bool persistent = false) :
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "NULL", bool modified = false, bool persistent = false) :
             name(entityName), prefabName(prefabName), modified(modified), persistent(persistent) {}
 
         // Copy Constructor

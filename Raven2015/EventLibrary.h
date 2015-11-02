@@ -201,18 +201,6 @@ namespace Raven {
         bool isPrefab;
     };
 
-    /*
-    template <typename RenderableAsset>
-    struct XMLDeserializeRendererAsset : public ex::Event<XMLDeserializeRendererAsset<RenderableAsset>> {
-
-        XMLDeserializeRendererAsset(std::string& assetName, Renderer* renderer) :
-            assetName(assetName), renderer(renderer) {}
-
-        ex::ComponentHandle<Renderer> renderer;
-        std::string assetName;
-    };
-    */
-
     struct XMLSerializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
 
         XMLSerializeParticularComponent(ex::Entity entity, ComponentType type) :

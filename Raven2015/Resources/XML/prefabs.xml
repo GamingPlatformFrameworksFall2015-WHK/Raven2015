@@ -27,4 +27,49 @@
             <RadialVelocity>0.000000</RadialVelocity>
         </Rigidbody>
     </Entity>
+    <Entity>
+        <Data>
+            <Name>Player</Name>
+            <PrefabName>this</PrefabName>
+            <Modified>0</Modified>
+            <Persistent>1</Persistent>
+        </Data>
+        <Transform>
+            <SubTransform>
+                <TransformX>0.000000</TransformX>
+                <TransformY>0.000000</TransformY>
+            </SubTransform>
+            <Rotation>0.000000</Rotation>
+        </Transform>
+        <Rigidbody>
+            <Velocity>
+                <VelocityX>0.000000</VelocityX>
+                <VelocityY>0.000000</VelocityY>
+            </Velocity>
+            <Acceleration>
+                <AccelerationX>0.000000</AccelerationX>
+                <AccelerationY>0.000000</AccelerationY>
+            </Acceleration>
+            <RadialVelocity>0.000000</RadialVelocity>
+        </Rigidbody>
+        <BoxCollider>
+            <Width>32</Width>
+            <Height>32</Height>
+            <XOffset>0.000000</XOffset>
+            <YOffset>0.000000</YOffset>
+            <Layers/>
+            <Settings>
+                <Solid>1</Solid>
+                <Fixed>0</Fixed>
+            </Settings>
+        </BoxCollider>
+        <Renderer>
+            <Texts/>
+            <Rectangles/>
+            <Circles/>
+            <Sprites>
+                <SpriteName>PlayerSprite</SpriteName>
+            </Sprites>
+        </Renderer>
+    </Entity>
 </PREFABS>

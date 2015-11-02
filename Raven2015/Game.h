@@ -16,7 +16,11 @@ namespace Raven {
         void addLevel(std::string levelFilePath);
         void removeLevel(std::string levelFilePath);
 
-        std::map<std::string, std::shared_ptr<ex::Entity>> getLevelMap();
+        // The mapping of entities names to entity shared pointers
+        std::set<ex::Entity> getEntitySet();
+        // The set of level file paths
+        std::set<std::string> getLevelList();
+        // The top-level rendering window for the editor
         std::shared_ptr<sf::RenderWindow> getWindow();
         void pollEvents();
         bool isMainWindowOpen();
@@ -31,7 +35,7 @@ namespace Raven {
         // Creates a default entity and assigns it the given name
         ex::Entity makeEntity(std::string name);
         // Creates an instance of the prefab and assigns it the given name
-        std::shared_ptr<ex::Entity> instantiatePrefab(std::string name, std::string prefabName);
+        ex::Entity instantiatePrefab(std::string name, std::string prefabName);
         // Serializes game content into the Raven XML document
         void save();
         // Deserializes game content from the Raven XML document

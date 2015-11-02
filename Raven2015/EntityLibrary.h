@@ -24,6 +24,10 @@ namespace Raven {
         template <typename C, typename... Components>
         static void clearEntity(ex::Entity e, C* c, Components*... components);
 
+        // Having troubles with clearEntity. LNK2019 (no implementation for...) when using only Data, Transform, Rigidbody.
+        // Resorting to a direct function for that functionality to speed things along.
+        static void clearCoreComponents(ex::Entity e);
+
         // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
         template <typename C>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c);
@@ -40,10 +44,6 @@ namespace Raven {
         // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
         template <typename C, typename... Components>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c, Components*... components);
-
-        static void updateEntityRecord(ex::Entity e, std::string newName, bool isPrefab) {
-            cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName, isPrefab);
-        }
 
         // Given a particular enumerated component type, the corresponding component handle will be acquired. Base case.
         template <typename C>
@@ -71,22 +71,21 @@ namespace Raven {
 
         struct Create {
 
-            static ex::Entity Entity(std::string entityName = "Default Entity", bool isPrefab = false) {
+            static ex::Entity Entity(std::string entityName = "Default Entity", bool enumerateName = true) {
                 ex::Entity e = cmn::game->entities.create();
-                ex::ComponentHandle<Data> data = e.assign<Data>();
+                ex::ComponentHandle<Data> data = e.assign<Data>(entityName, "NULL", false, false);
                 e.assign<Transform>();
                 e.assign<Rigidbody>();
-                std::string name = entityName;
-                if (!isPrefab) {
-                    name += " " + std::to_string(counter++);
+                if (enumerateName) {
+                    data->name += " " + std::to_string(counter++);
                 }
-                data->name = name;
-                updateEntityRecord(e, name, isPrefab);
                 return e;
             }
 
+            // FUNCTION WILL BECOME OBSOLETE WITH THE IMPLEMENTATION OF PREFABS
             static ex::Entity Player(std::string playerName = "Default Player") {
                 ex::Entity e = Entity(playerName);
+                e.component<Data>()->persistent = true;
                 e.assign<Pawn>();
                 e.assign<BoxCollider>();
                 e.assign<Renderer>();
