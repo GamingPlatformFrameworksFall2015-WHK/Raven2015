@@ -22,17 +22,17 @@ namespace Raven {
     Game::Game() : EntityX(), editMode(true), defaultLevelPath("Resources/XML/DefaultLevel.xml") {
         currentLevelPath = defaultLevelPath;
         systems.add<XMLSystem>(&editingEntity);
+        assets = &systems.system<XMLSystem>()->assets;
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
         systems.add<GUISystem>(systems.system<InputSystem>(), &editingEntity);  // Required that this comes after InputSystem
-        systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
+        systems.add<RenderingSystem>(systems.system<GUISystem>(), assets);              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
 
-        assets = &systems.system<XMLSystem>()->assets;
         cmn::game = this;
     }
 

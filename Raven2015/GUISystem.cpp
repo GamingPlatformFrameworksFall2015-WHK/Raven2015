@@ -95,9 +95,10 @@ namespace Raven {
 
         // Add all of the various windows to the table, assigning dimensions and settings to the table
         Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
-        table->Attach(leftBox, sf::Rect<sf::Uint32>(0, 0, 7, 10));
-        table->Attach(canvas,   sf::Rect<sf::Uint32>(7, 0, 3, 7));
-        table->Attach(content, sf::Rect<sf::Uint32>(7, 7, 3, 3));
+        table->Attach(leftBox,  sf::Rect<sf::Uint32>(0, 0, 14, 20));
+        table->Attach(canvas,   sf::Rect<sf::Uint32>(14, 0, 6, 15));
+        table->Attach(toolbar,  sf::Rect<sf::Uint32>(14, 14, 6, 1));
+        table->Attach(content,  sf::Rect<sf::Uint32>(14, 16, 6, 4));
 
         // Add the filled table to the mainGUIWindow
         mainGUIWindow->Add(table);
@@ -578,14 +579,16 @@ namespace Raven {
         cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
         if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
-            entity.assign<Tracker>();
+            cmn::game->events.emit<XMLLogEntityEvent>(entity);
+            addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(sceneHierarchyBox, entity.component<Data>()->name);
+            //entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
             transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
             transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
-            cout << "Created entity" << endl;
+            cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
-            renderer->sprites["BlueDot"] = cmn::game->getAssets()->sprites->at("PlayerSprite");
+            renderer->sprites["BlueDot"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
         }
     }
 

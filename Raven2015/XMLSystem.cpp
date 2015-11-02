@@ -137,9 +137,18 @@ namespace Raven {
 
 #pragma endregion
 
-    /*
+    
 #pragma region Data Management Events
 
+    void XMLSystem::receive(const XMLLogEntityEvent& e) {
+        entitySet.insert(e.entity);
+    }
+
+    void XMLSystem::receive(const XMLDeLogEntityEvent& e) {
+        entitySet.erase(e.entity);
+    }
+    
+    /*
     // Updates the name of entity instances and within XML documents. Still must
     // update GUI display with updated names before they will be shown to the user.
     void XMLSystem::receive(const XMLUpdateEntityNameEvent& event) {
@@ -187,9 +196,9 @@ namespace Raven {
             }
         }
     }
+    */
 
 #pragma endregion
-    */
 
 #pragma endregion
 
@@ -415,6 +424,9 @@ namespace Raven {
 
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
         deserializeFilePathSet(textureFilePathSet, "Textures", node);
+        for (auto texture : textureFilePathSet) {
+            cmn::game->events.emit<GUIRegisterTextureEvent>(texture);
+        }
     }
 
     void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {

@@ -16,7 +16,7 @@
             <FrameCount>4</FrameCount>
             <FrameWidth>32</FrameWidth>
             <FrameHeight>32</FrameHeight>
-            <AnimationSpeed>100.000000</AnimationSpeed>
+            <AnimationSpeed>30.000000</AnimationSpeed>
             <IsLooping>1</IsLooping>
         </Animation>
     </Animations>

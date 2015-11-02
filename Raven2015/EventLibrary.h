@@ -177,6 +177,13 @@ namespace Raven {
  //       ComponentType type;
  //   };
 
+    struct GUIRegisterTextureEvent : public ex::Event<GUIRegisterTextureEvent> {
+
+        GUIRegisterTextureEvent(const std::string& textureFilePath) : textureFilePath(textureFilePath) {}
+
+        std::string textureFilePath;
+    };
+
 #pragma endregion
 
 #pragma region XMLEvents
@@ -221,6 +228,21 @@ namespace Raven {
         ex::Entity entity;
         ComponentType type;
         bool forDisplay;
+    };
+
+    struct XMLEntityEvent : public ex::Event<XMLEntityEvent> {
+
+        XMLEntityEvent(ex::Entity e = ex::Entity()) : entity(e) {}
+
+        ex::Entity entity;
+    };
+
+    struct XMLLogEntityEvent : public XMLEntityEvent {
+        XMLLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
+    };
+
+    struct XMLDeLogEntityEvent : public XMLEntityEvent {
+        XMLDeLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
     };
 
 #pragma endregion

@@ -22,6 +22,8 @@ namespace Raven {
         void configure(ex::EventManager& event_manager) {
             event_manager.subscribe<XMLSaveEvent>(*this);
             event_manager.subscribe<XMLLoadEvent>(*this);
+            event_manager.subscribe<XMLLogEntityEvent>(*this);
+            event_manager.subscribe<XMLDeLogEntityEvent>(*this);
             //event_manager.subscribe<XMLUpdateEntityNameEvent>(*this);
         }
 
@@ -29,6 +31,10 @@ namespace Raven {
         void receive(const XMLLoadEvent& e);
         // Upon reception of an XMLSaveEvent, the system will serialize the XMLDocument and preserve the current game state
         void receive(const XMLSaveEvent& e);
+        // Upon reception of an XMLLogEntityEvent, the system will insert the given entity into the entitySet
+        void receive(const XMLLogEntityEvent& e);
+        // Upon reception of an XMLDeLogEntityEvent, the system will erase the given entity from the entitySet
+        void receive(const XMLDeLogEntityEvent& e);
         // Responds to a request to update a given entity's name in either the entitySet/levelDoc or prefabsDoc
         //void receive(const XMLUpdateEntityNameEvent& e);
 
