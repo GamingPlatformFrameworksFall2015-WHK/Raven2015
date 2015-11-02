@@ -23,7 +23,6 @@
 #include "Common.h"                     // For etc.
 #include "DataAssetLibrary.h"           // For Renderable, Timer
 
-
 namespace Raven {
 
 /******************************************************************************************************************/
@@ -36,7 +35,8 @@ namespace Raven {
 #define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
 /******************************************************************************************************************/
     enum ComponentType {
-        COMPONENT_TYPES(_t)
+        COMPONENT_TYPES(_t),
+        NumComponentTypes
     };
 
 // serialize:        for serializing the component
@@ -45,18 +45,20 @@ namespace Raven {
 // getType:          for acquiring a switchable indicator of the component's type (currently unused)
 // getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
 #define ADD_DEFAULTS(type_name) \
-        virtual std::string serialize(std::string tab, bool forPrefab) override; \
-        virtual void deserialize(XMLNode* node, bool forPrefab) override; \
-        static std::string getElementName(bool forPrefab) { return std::string((forPrefab ? "P" : "L")) + #type_name; } \
+        virtual std::string serialize(std::string tab) override; \
+        virtual void deserialize(XMLNode* node) override; \
+        static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; } \
-        static type_name##* getNullPtrToType() { return nullptr; } 
+        static type_name##* getNullPtrToType() { return nullptr; }
+
+#define NUM_REQUIRED_COMPONENTS 3
 
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
 
-        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
-            name(entityName), prefabName(prefabName), modified(modified) {}
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "NULL", bool modified = false, bool persistent = false) :
+            name(entityName), prefabName(prefabName), modified(modified), persistent(persistent) {}
 
         // Copy Constructor
         Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
@@ -65,7 +67,10 @@ namespace Raven {
         std::string name;
         // The name of the prefab
         std::string prefabName;
+        // Whether the entity has been modified from its prefab'd version
         bool modified;
+        // Whether the entity should be preserved in between levels (do not delete upon loading a different level)
+        bool persistent;
 
         ADD_DEFAULTS(Data);
     };

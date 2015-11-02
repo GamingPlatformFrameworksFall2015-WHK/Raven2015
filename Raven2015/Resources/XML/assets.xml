@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE ASSETS SYSTEM "assets.dtd">
+<ASSETS>
+    <Textures>
+        <TextureFilePath>Resources/Textures/BlueDot_vibrating.png</TextureFilePath>
+    </Textures>
+    <Music/>
+    <Sounds/>
+    <Fonts/>
+    <Levels>
+        <LevelFilePath>Resources/XML/DefaultLevel.xml</LevelFilePath>
+    </Levels>
+    <Animations>
+        <Animation Name="BlueDot_Idle">
+            <AnimationTextureFilePath>AnimationTextureFilePath</AnimationTextureFilePath>
+            <FrameCount>4</FrameCount>
+            <FrameWidth>32</FrameWidth>
+            <FrameHeight>32</FrameHeight>
+            <AnimationSpeed>100.000000</AnimationSpeed>
+            <IsLooping>1</IsLooping>
+        </Animation>
+    </Animations>
+    <Renderables>
+        <RenderableTexts/>
+        <RenderableRectangles/>
+        <RenderableCircles/>
+        <RenderableSprites>
+            <RenderableSprite Name="PlayerSprite">
+                <RenderableSpriteRenderLayer>2</RenderableSpriteRenderLayer>
+                <RenderableSpriteRenderPriority>0</RenderableSpriteRenderPriority>
+                <RenderableSpriteTextureFilePath>Resources/Textures/BlueDot_vibrating.png</RenderableSpriteTextureFilePath>
+                <RenderableSpriteAnimationName>BlueDot_Idle</RenderableSpriteAnimationName>
+            </RenderableSprite>
+        </RenderableSprites>
+    </Renderables>
+</ASSETS>

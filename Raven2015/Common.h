@@ -35,7 +35,6 @@ namespace ex = entityx;
 namespace Raven {
 
     class Game;
-    
 
     namespace Common {
 
@@ -96,10 +95,10 @@ namespace Raven {
             Serializable() {}
 
             // Allow the ISerializable to output an XML string representation of its properties
-            virtual std::string serialize(std::string tab, bool forPrefab) = 0;
+            virtual std::string serialize(std::string tab) = 0;
 
             // Allow the ISerializable to assign new values to its properties via an XML string
-            virtual void deserialize(XMLNode* node, bool forPrefab) = 0;
+            virtual void deserialize(XMLNode* node) = 0;
         };
 
         // The default position/dimensions of our various windows
@@ -127,8 +126,6 @@ namespace Raven {
 
         };
 
-        extern ex::EntityManager* entities;
-        extern ex::EventManager* events;
         extern Game* game;
     };
 
