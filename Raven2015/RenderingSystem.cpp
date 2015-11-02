@@ -83,6 +83,10 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
     // Determine the next image to be drawn to the screen for each sprite
     es.each<Renderer>([&](ex::Entity &entity, Renderer &renderer) {
 
+        if (!entity.valid()) {
+            entity.destroy();
+        }
+
         // If we are currently in editMode, don't bother updating the animation frames.
         // Just draw everything as-is.
         // DEV WARNING: This resulted in sprites being drawn as full textures w/o animation, even after EditMode was toggled off
@@ -92,6 +96,19 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
 
         // Acquire each std::string-RenderableSprite pair in the renderer
         for (auto name_renderable : renderer.sprites) {
+
+            try {
+                if (animationMap.find(name_renderable.second->animName) == animationMap.end()) {
+                    cerr << "Warning: Sprite attempting to use non-existent Animation" << endl;
+                    //cerr << "       : Entity: " + entity.id().id() << endl;
+                    //cerr << "       : Sprite: " + name_renderable.first << endl;
+                    //cerr << "       : Animation: " + name_renderable.second->animName << endl;
+                    continue;
+                }
+            }
+            catch (std::exception e) {
+                cerr << endl << e.what() << endl;
+            }
     
             // Save the current Animation
             Animation anim = animationMap[name_renderable.second->animName];

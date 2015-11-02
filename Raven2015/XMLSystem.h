@@ -12,7 +12,7 @@ namespace Raven {
 
     class XMLSystem : public ex::System<XMLSystem>, public ex::Receiver<XMLSystem> {
     public:
-        XMLSystem();
+        XMLSystem(ex::Entity* editingEntity);
         ~XMLSystem();
 
         // Does nothing
@@ -93,7 +93,9 @@ namespace Raven {
         // Maps an entity ID to a given entity instance so that an entity can be found by its ID
         std::set<ex::Entity> entitySet;
 
-        unsigned int entityCounter;
+        ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
+
+        Assets assets;
 
     private:
         ///////////////// Asset Serialization ///////////////

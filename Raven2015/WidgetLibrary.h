@@ -78,6 +78,30 @@ class AnimationListPanel {};
 #define ANIMATION_LIST_WTYPE_SPTR SPTR(ANIMATION_LIST_WTYPE)
 #define ANIMATION_LIST_NAME "Animations"
 
+// SpriteList
+#define SPRITE_LIST_WTYPE ScrolledWindow
+class SpriteListPanel {};
+#define SPRITE_LIST_WTYPE_SPTR SPTR(SPRITE_LIST_WTYPE)
+#define SPRITE_LIST_NAME "Sprites"
+
+// TextList
+#define TEXT_LIST_WTYPE ScrolledWindow
+class TextListPanel {};
+#define TEXT_LIST_WTYPE_SPTR SPTR(TEXT_LIST_WTYPE)
+#define TEXT_LIST_NAME "Texts"
+
+// RectangleList
+#define RECTANGLE_LIST_WTYPE ScrolledWindow
+class RectangleListPanel {};
+#define RECTANGLE_LIST_WTYPE_SPTR SPTR(RECTANGLE_LIST_WTYPE)
+#define RECTANGLE_LIST_NAME "Rectangles"
+
+// CircleList
+#define CIRCLE_LIST_WTYPE ScrolledWindow
+class CircleListPanel {};
+#define CIRCLE_LIST_WTYPE_SPTR SPTR(CIRCLE_LIST_WTYPE)
+#define CIRCLE_LIST_NAME "Circles"
+
 // Content
 #define CONTENT_WTYPE Notebook
 class ContentPanel {};

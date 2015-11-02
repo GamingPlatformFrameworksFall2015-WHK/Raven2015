@@ -21,17 +21,18 @@ namespace Raven {
 
     Game::Game() : EntityX(), editMode(true), defaultLevelPath("Resources/XML/DefaultLevel.xml") {
         currentLevelPath = defaultLevelPath;
-        systems.add<XMLSystem>();
+        systems.add<XMLSystem>(&editingEntity);
         systems.add<MovementSystem>();  // No dependencies
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
-        systems.add<GUISystem>(systems.system<InputSystem>());                  // Required that this comes after InputSystem
+        systems.add<GUISystem>(systems.system<InputSystem>(), &editingEntity);  // Required that this comes after InputSystem
         systems.add<RenderingSystem>(systems.system<GUISystem>());              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
         systems.configure();
 
+        assets = &systems.system<XMLSystem>()->assets;
         cmn::game = this;
     }
 
@@ -42,6 +43,7 @@ namespace Raven {
     bool Game::isMainWindowOpen() { return systems.system<GUISystem>()->isMainWindowOpen(); }
     void Game::clearWindow() { systems.system<GUISystem>()->clear(); }
     void Game::displayWindow() { systems.system<GUISystem>()->display(); }
+    Assets* Game::getAssets() { return assets; }
     
     void Game::initialize() {
         load();
@@ -55,6 +57,10 @@ namespace Raven {
         gui->populateFontList(xml->fontFilePathSet);
         gui->populateLevelList(xml->levelFilePathSet);
         gui->populateAnimationList(xml->animationMap);
+        gui->populateTextList(xml->renderableTextMap);
+        gui->populateRectangleList(xml->renderableRectangleMap);
+        gui->populateCircleList(xml->renderableCircleMap);
+        gui->populateSpriteList(xml->renderableSpriteMap);
     }
 
     void Game::loadLevel(std::string levelFilePath = "", sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {

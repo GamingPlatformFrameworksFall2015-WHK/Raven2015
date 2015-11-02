@@ -4,7 +4,9 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem() : entityCounter(0) {}
+    XMLSystem::XMLSystem(ex::Entity* editingEntity) : editingEntity(editingEntity),
+        assets(&textureFilePathSet, &musicFilePathSet, &soundFilePathSet, &fontFilePathSet, &levelFilePathSet,
+            &animationMap, &renderableTextMap, &renderableRectangleMap, &renderableCircleMap, &renderableSpriteMap) {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -455,6 +457,8 @@ namespace Raven {
             e->QueryDoubleText(&ptr->animationSpeed);
             e = item->FirstChildElement("IsLooping");
             e->QueryBoolText(&ptr->isLooping);
+
+            ptr->init();
 
             item = item->NextSiblingElement("Animation");
         }

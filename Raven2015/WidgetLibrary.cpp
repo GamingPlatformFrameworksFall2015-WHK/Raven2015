@@ -10,4 +10,8 @@ namespace Raven {
     unsigned int WidgetLibrary::WidgetList<WidgetLibrary::FontListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
     unsigned int WidgetLibrary::WidgetList<WidgetLibrary::LevelListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
     unsigned int WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::TextListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::RectangleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::CircleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
+    unsigned int WidgetLibrary::WidgetList<WidgetLibrary::SpriteListPanel, ASSET_LIST_WIDGET_SEQUENCE>::counter = 0;
 }

@@ -2,6 +2,7 @@
 #include "entityx/entityx.h"
 #include "Common.h"
 #include "SFML/Graphics.hpp"
+#include "DataAssetLibrary.h"
 
 namespace Raven {
 
@@ -26,6 +27,7 @@ namespace Raven {
         bool isMainWindowOpen();
         void clearWindow();
         void displayWindow();
+        Assets* getAssets();
 
         void updateGameMode(ex::TimeDelta dt);
         void updateEditMode(ex::TimeDelta dt);
@@ -53,9 +55,10 @@ namespace Raven {
         // Whether we are currently in edit mode
         bool editMode;
 
-
     private:
         void clearEntities();
+        ex::Entity editingEntity;
+        Assets* assets;
     };
 
 }
