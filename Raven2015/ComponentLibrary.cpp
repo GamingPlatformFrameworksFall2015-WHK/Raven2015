@@ -4,23 +4,12 @@
 #include "XMLSystem.h"
 #include "WidgetLibrary.h"
 
-#define ENTITY_DESIGNER_WIDGET_LIST WidgetLibrary::WidgetList<WidgetLibrary::EntityDesignerPanel, EDITABLE_ASSET_LIST_WIDGET_SEQUENCE>
 #define COMBO_TEXT 0
 #define COMBO_RECTANGLE 1
 #define COMBO_CIRCLE 2
 #define COMBO_SPRITE 3
 
 namespace Raven {
-
-    class RavenComboBox : public ComboBox {
-    public:
-        RavenComboBox(std::string) {}
-        RavenComboBox() {}
-
-        static ComboBox::Ptr Create(std::string) {
-            return ComboBox::Create();
-        }
-    };
 
     template <typename C>
     ComboBox::Ptr fillComboBoxWithComponents(ComboBox::Ptr box, C* c) {
@@ -34,7 +23,7 @@ namespace Raven {
         return fillComboBoxWithComponents<Components...>(box, components...);
     }
 
-    void(*formatter)(Box::Ptr) = [](Box::Ptr box) {
+    void(*componentFormatter)(Box::Ptr) = [](Box::Ptr box) {
         Label* varName = (Label*)box->GetChildren()[0].get();
         varName->SetText("");
         Entry* editableValue = (Entry*) box->GetChildren()[1].get();
@@ -50,7 +39,7 @@ namespace Raven {
     };
 
     ComboBox* (*rendererFormatter)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         ComboBox* comboData = (ComboBox*)box->GetChildren()[4].get();
         comboData->Show(true);
         comboData->AppendItem("Text");
@@ -61,31 +50,31 @@ namespace Raven {
     };
 
     void(*rendererFormatterText)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         ComboBox* comboData = rendererFormatter(box);
         comboData->SelectItem(COMBO_TEXT);
     };
 
     void(*rendererFormatterRectangle)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         ComboBox* comboData = rendererFormatter(box);
         comboData->SelectItem(COMBO_RECTANGLE);
     };
 
     void(*rendererFormatterCircle)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         ComboBox* comboData = rendererFormatter(box);
         comboData->SelectItem(COMBO_CIRCLE);
     };
     
     void(*rendererFormatterSprite)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         ComboBox* comboData = rendererFormatter(box);
         comboData->SelectItem(COMBO_SPRITE);
     };
 
     void(*trackerFormatter)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         Entry* e = (Entry*)box->GetChildren()[1].get();
         e->Show(false);
         ComboBox* comboData = (ComboBox*)box->GetChildren()[4].get();
@@ -93,10 +82,13 @@ namespace Raven {
     };
 
     void(*pacerDirectionFormatter)(Box::Ptr) = [](Box::Ptr box) {
-        formatter(box);
+        componentFormatter(box);
         Entry* e = (Entry*)box->GetChildren()[1].get();
         e->Show(false);
         ComboBox* comboData = (ComboBox*)box->GetChildren()[4].get();
+        comboData->AppendItem("Vertical");
+        comboData->AppendItem("Horizontal");
+        comboData->AppendItem("Diagonal");
         comboData->Show(true);
     };
 
@@ -138,6 +130,17 @@ namespace Raven {
         return getNameByTypeHelper<COMPONENT_TYPE_LIST>(type, "", COMPONENT_TYPES(::getNullPtrToType()));
     }
 
+    struct Pacer;
+
+    std::string getTextFromDirection(Pacer::Direction dir) {
+        switch (dir) {
+        case Pacer::Direction::HORIZONTAL: return "Horizontal";
+        case Pacer::Direction::VERTICAL:   return "Vertical";
+        case Pacer::Direction::DIAGONAL:   return "Diagonal";
+        default: return "";
+        }
+    }
+
 #pragma region Data
 
     std::string Data::serialize(std::string tab) {
@@ -158,15 +161,15 @@ namespace Raven {
     }
 
     Box::Ptr Data::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr nameBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "name", formatter);
+        Box::Ptr nameBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "name", componentFormatter);
         initEditableAssetListItem(nameBox, name.c_str());
-        Box::Ptr prefabNameBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "prefabName", formatter);
+        Box::Ptr prefabNameBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "prefabName", componentFormatter);
         initEditableAssetListItem(prefabNameBox, prefabName.c_str());
-        Box::Ptr modifiedBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "modified", formatter);
+        Box::Ptr modifiedBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "modified", componentFormatter);
         initEditableAssetListItem(modifiedBox, std::to_string(modified).c_str());
-        Box::Ptr persistentBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "persistent", formatter);
+        Box::Ptr persistentBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "persistent", componentFormatter);
         initEditableAssetListItem(persistentBox, std::to_string(persistent).c_str());
 
         return box;
@@ -207,13 +210,13 @@ namespace Raven {
     }
 
     Box::Ptr Transform::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr transformXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Transform X", formatter);
+        Box::Ptr transformXBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Transform X", componentFormatter);
         initEditableAssetListItem(transformXBox, std::to_string(transform.x).c_str());
-        Box::Ptr transformYBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Transform Y", formatter);
+        Box::Ptr transformYBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Transform Y", componentFormatter);
         initEditableAssetListItem(transformYBox, std::to_string(transform.y).c_str());
-        Box::Ptr rotationBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Rotation", formatter);
+        Box::Ptr rotationBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Rotation", componentFormatter);
         initEditableAssetListItem(rotationBox, std::to_string(rotation).c_str());
 
         return box;
@@ -257,17 +260,17 @@ namespace Raven {
     }
 
     Box::Ptr Rigidbody::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr velocityXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity X", formatter);
+        Box::Ptr velocityXBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Velocity X", componentFormatter);
         initEditableAssetListItem(velocityXBox, std::to_string(velocity.x).c_str());
-        Box::Ptr velocityYBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity Y", formatter);
+        Box::Ptr velocityYBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Velocity Y", componentFormatter);
         initEditableAssetListItem(velocityYBox, std::to_string(velocity.y).c_str());
-        Box::Ptr accelerationXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Acceleration X", formatter);
+        Box::Ptr accelerationXBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Acceleration X", componentFormatter);
         initEditableAssetListItem(accelerationXBox, std::to_string(acceleration.x).c_str());
-        Box::Ptr accelerationYBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Acceleration Y", formatter);
+        Box::Ptr accelerationYBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Acceleration Y", componentFormatter);
         initEditableAssetListItem(accelerationYBox, std::to_string(acceleration.y).c_str());
-        Box::Ptr radialVelocityBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "RadialVelocity", formatter);
+        Box::Ptr radialVelocityBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "RadialVelocity", componentFormatter);
         initEditableAssetListItem(radialVelocityBox, std::to_string(radialVelocity).c_str());
 
         return box;
@@ -336,19 +339,19 @@ namespace Raven {
     }
 
     Box::Ptr BoxCollider::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr widthBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Width", formatter);
+        Box::Ptr widthBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Width", componentFormatter);
         initEditableAssetListItem(widthBox, std::to_string(width).c_str());
-        Box::Ptr heightBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Height", formatter);
+        Box::Ptr heightBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Height", componentFormatter);
         initEditableAssetListItem(heightBox, std::to_string(height).c_str());
         for (auto layer : layers) {
-            Box::Ptr layerBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Collision Layer", formatter);
+            Box::Ptr layerBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Collision Layer", componentFormatter);
             initEditableAssetListItem(layerBox, layer.c_str());
         }
-        Box::Ptr solidBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_SOLID, formatter);
+        Box::Ptr solidBox = ED_ASSET_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_SOLID, componentFormatter);
         initEditableAssetListItem(solidBox, COLLISION_LAYER_SETTINGS_SOLID);
-        Box::Ptr fixedBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_FIXED, formatter);
+        Box::Ptr fixedBox = ED_ASSET_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_FIXED, componentFormatter);
         initEditableAssetListItem(fixedBox, COLLISION_LAYER_SETTINGS_FIXED);
 
         return box;
@@ -404,10 +407,10 @@ namespace Raven {
     }
 
     Box::Ptr SoundMaker::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
         for (auto name_soundBuffer : soundMap) {
-            Box::Ptr soundBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Sound", formatter);
+            Box::Ptr soundBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Sound", componentFormatter);
             initEditableAssetListItem(soundBox, name_soundBuffer.first.c_str());
         }
 
@@ -453,10 +456,10 @@ namespace Raven {
     }
 
     Box::Ptr MusicMaker::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
         for (auto name_music : musicMap) {
-            Box::Ptr musicBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Music", formatter);
+            Box::Ptr musicBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Music", componentFormatter);
             initEditableAssetListItem(musicBox, name_music.first.c_str());
         }
 
@@ -550,22 +553,22 @@ namespace Raven {
     }
 
     Box::Ptr Renderer::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
         for (auto name_renderable : texts) {
-            Box::Ptr textBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Text", rendererFormatterText);
+            Box::Ptr textBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Text", rendererFormatterText);
             initEditableAssetListItem(textBox, name_renderable.first.c_str());
         }
         for (auto name_renderable : rectangles) {
-            Box::Ptr rectangleBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Rectangle", rendererFormatterRectangle);
+            Box::Ptr rectangleBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Rectangle", rendererFormatterRectangle);
             initEditableAssetListItem(rectangleBox, name_renderable.first.c_str());
         }
         for (auto name_renderable : circles) {
-            Box::Ptr circleBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Circle", rendererFormatterCircle);
+            Box::Ptr circleBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Circle", rendererFormatterCircle);
             initEditableAssetListItem(circleBox, name_renderable.first.c_str());
         }
         for (auto name_renderable : sprites) {
-            Box::Ptr spriteBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Sprite", rendererFormatterSprite);
+            Box::Ptr spriteBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Sprite", rendererFormatterSprite);
             initEditableAssetListItem(spriteBox, name_renderable.first.c_str());
         }
 
@@ -621,9 +624,9 @@ namespace Raven {
     }
 
     Box::Ptr Pawn::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr playerBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Player ID", formatter);
+        Box::Ptr playerBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Player ID", componentFormatter);
         initEditableAssetListItem(playerBox, std::to_string(playerId).c_str());
 
         return box;
@@ -684,9 +687,9 @@ namespace Raven {
     }
 
     Box::Ptr Tracker::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr targetBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Target", trackerFormatter);
+        Box::Ptr targetBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Target", trackerFormatter);
         ((Label*)box->GetChildren()[0].get())->SetText(box->GetName()); // varName
         ((Label*)box->GetChildren()[2].get())->SetText(getNameByType(target).c_str());  // current value
 
@@ -728,20 +731,22 @@ namespace Raven {
     }
 
     Box::Ptr Pacer::createWidget() {
-        Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
+        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
 
-        Box::Ptr directionBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Direction", pacerDirectionFormatter);
+        Box::Ptr directionBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Direction", pacerDirectionFormatter);
+        ((Label*)box->GetChildren()[0].get())->SetText(box->GetName()); // varName
+        ((Label*)box->GetChildren()[2].get())->SetText(getTextFromDirection(direction).c_str());  // current value
+        ((ComboBox*)box->GetChildren()[4].get())->SelectItem(direction);
 
-
-        Box::Ptr velocityXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity X", formatter);
+        Box::Ptr velocityXBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Velocity X", componentFormatter);
         initEditableAssetListItem(velocityXBox, std::to_string(velocity.x).c_str());
-        Box::Ptr velocityYBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity Y", formatter);
+        Box::Ptr velocityYBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Velocity Y", componentFormatter);
         initEditableAssetListItem(velocityYBox, std::to_string(velocity.y).c_str());
-        Box::Ptr originXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Origin X", formatter);
+        Box::Ptr originXBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Origin X", componentFormatter);
         initEditableAssetListItem(originXBox, std::to_string(origin.x).c_str());
-        Box::Ptr originYBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Origin Y", formatter);
+        Box::Ptr originYBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Origin Y", componentFormatter);
         initEditableAssetListItem(originYBox, std::to_string(origin.y).c_str());
-        Box::Ptr radiusBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Radius", formatter);
+        Box::Ptr radiusBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Radius", componentFormatter);
         initEditableAssetListItem(radiusBox, std::to_string(radius).c_str());
 
         return box;

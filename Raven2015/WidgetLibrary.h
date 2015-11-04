@@ -4,8 +4,20 @@
 #include <algorithm>
 
 using namespace sfg;
+#define ED_ASSET_WIDGET_LIST WidgetLibrary::WidgetList<WidgetLibrary::EntityDesignerPanel, ED_ASSET_LIST_WIDGET_SEQUENCE>
 
 namespace Raven {
+
+    // A helper class that merely exists to allow for the template using a string constructor for widgets to compile
+    // We just need a ComboBox and the default ComboBox has no string-accepting constructor
+    class RavenComboBox : public ComboBox {
+    public:
+        RavenComboBox() {}
+
+        static ComboBox::Ptr Create(std::string) {
+            return ComboBox::Create();
+        }
+    };
 
     struct WidgetLibrary {
 
@@ -136,7 +148,7 @@ class ToolbarPanel {};
 // Item name, Select button, duplicate button (hidden?), delete button, move up button, move down button
 #define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button, Button
 // Item name, value you wish to serialize, current value, serialization data (hidden), asset type (NOT hidden for Renderer)
-#define EDITABLE_ASSET_LIST_WIDGET_SEQUENCE Label, Entry, Label, Label, RavenComboBox
+#define ED_ASSET_LIST_WIDGET_SEQUENCE Label, Entry, Label, Label, RavenComboBox
 
 
 /////////////////////
