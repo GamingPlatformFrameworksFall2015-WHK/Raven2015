@@ -4,7 +4,9 @@
 
 namespace Raven {
 
-    XMLSystem::XMLSystem() : entityCounter(0) {}
+    XMLSystem::XMLSystem(ex::Entity* editingEntity) : editingEntity(editingEntity),
+        assets(&textureFilePathSet, &musicFilePathSet, &soundFilePathSet, &fontFilePathSet, &levelFilePathSet,
+            &animationMap, &renderableTextMap, &renderableRectangleMap, &renderableCircleMap, &renderableSpriteMap) {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -135,9 +137,18 @@ namespace Raven {
 
 #pragma endregion
 
-    /*
+    
 #pragma region Data Management Events
 
+    void XMLSystem::receive(const XMLLogEntityEvent& e) {
+        entitySet.insert(e.entity);
+    }
+
+    void XMLSystem::receive(const XMLDeLogEntityEvent& e) {
+        entitySet.erase(e.entity);
+    }
+    
+    /*
     // Updates the name of entity instances and within XML documents. Still must
     // update GUI display with updated names before they will be shown to the user.
     void XMLSystem::receive(const XMLUpdateEntityNameEvent& event) {
@@ -185,9 +196,9 @@ namespace Raven {
             }
         }
     }
+    */
 
 #pragma endregion
-    */
 
 #pragma endregion
 
@@ -413,6 +424,9 @@ namespace Raven {
 
     void XMLSystem::deserializeTextureFilePathSet(XMLNode* node) {
         deserializeFilePathSet(textureFilePathSet, "Textures", node);
+        for (auto texture : textureFilePathSet) {
+            cmn::game->events.emit<GUIRegisterTextureEvent>(texture);
+        }
     }
 
     void XMLSystem::deserializeMusicFilePathSet(XMLNode* node) {
@@ -455,6 +469,8 @@ namespace Raven {
             e->QueryDoubleText(&ptr->animationSpeed);
             e = item->FirstChildElement("IsLooping");
             e->QueryBoolText(&ptr->isLooping);
+
+            ptr->init();
 
             item = item->NextSiblingElement("Animation");
         }

@@ -78,6 +78,30 @@ class AnimationListPanel {};
 #define ANIMATION_LIST_WTYPE_SPTR SPTR(ANIMATION_LIST_WTYPE)
 #define ANIMATION_LIST_NAME "Animations"
 
+// SpriteList
+#define SPRITE_LIST_WTYPE ScrolledWindow
+class SpriteListPanel {};
+#define SPRITE_LIST_WTYPE_SPTR SPTR(SPRITE_LIST_WTYPE)
+#define SPRITE_LIST_NAME "Sprites"
+
+// TextList
+#define TEXT_LIST_WTYPE ScrolledWindow
+class TextListPanel {};
+#define TEXT_LIST_WTYPE_SPTR SPTR(TEXT_LIST_WTYPE)
+#define TEXT_LIST_NAME "Texts"
+
+// RectangleList
+#define RECTANGLE_LIST_WTYPE ScrolledWindow
+class RectangleListPanel {};
+#define RECTANGLE_LIST_WTYPE_SPTR SPTR(RECTANGLE_LIST_WTYPE)
+#define RECTANGLE_LIST_NAME "Rectangles"
+
+// CircleList
+#define CIRCLE_LIST_WTYPE ScrolledWindow
+class CircleListPanel {};
+#define CIRCLE_LIST_WTYPE_SPTR SPTR(CIRCLE_LIST_WTYPE)
+#define CIRCLE_LIST_NAME "Circles"
+
 // Content
 #define CONTENT_WTYPE Notebook
 class ContentPanel {};
@@ -109,8 +133,10 @@ class ToolbarPanel {};
 #define TOOLBAR_NAME "Toolbar"
 
         ///// Low-Level Widgets
-
+// Item name, Select button, duplicate button (hidden?), delete button, move up button, move down button
 #define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button, Button
+// Item name, value you wish to serialize, current value, serialization data (hidden), asset type (NOT hidden for Renderer)
+#define EDITABLE_ASSET_LIST_WIDGET_SEQUENCE Label, Entry, Label, Label, RavenComboBox
 
 
 /////////////////////
@@ -199,15 +225,13 @@ class ToolbarPanel {};
         private:
             WidgetList(); //Cannot be instantiated
 
-            static unsigned int counter;
-
             // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
             template <typename W>
             static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr, std::shared_ptr<std::tuple<W>> t = nullptr) {
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter++));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 Box::Ptr finalBox = box; // save the address of the box
                 return finalBox;
@@ -221,7 +245,7 @@ class ToolbarPanel {};
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 return makeWidgetBox<Widgets...>(labelName, box, nullptr);
             }

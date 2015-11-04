@@ -31,7 +31,7 @@ namespace Raven {
     public:
 
         // Perform initializations
-        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem);
+        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem, ex::Entity* editingEntity);
         
         void clear() {
             mainWindow->clear();
@@ -45,8 +45,7 @@ namespace Raven {
 
         // Subscribe to events, if any
         void configure(ex::EventManager &event_manager) {
-            //event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>>(*this);
-            //event_manager.subscribe<GUIWidgetListEvent<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>>(*this);
+
         }
 
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
@@ -68,6 +67,14 @@ namespace Raven {
         void formatLevelList(LEVEL_LIST_WTYPE_SPTR);
         // Format the Animation List widget
         void formatAnimationList(ANIMATION_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatTextList(TEXT_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatRectangleList(RECTANGLE_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatCircleList(CIRCLE_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatSpriteList(SPRITE_LIST_WTYPE_SPTR);
         // Helper function to consolidate operations for Asset List formatting
         template <typename T>
         Box::Ptr formatAssetListHelper(ScrolledWindow::Ptr list, Box::Ptr listBox, Button::Ptr addNewButton);
@@ -104,12 +111,22 @@ namespace Raven {
         void populateFontList(std::set<std::string> assetList);
         void populateLevelList(std::set<std::string> assetList);
         void populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map);
+        void populateTextList(std::map<std::string, std::shared_ptr<RenderableText>>& map);
+        void populateRectangleList(std::map<std::string, std::shared_ptr<RenderableRectangle>>& map);
+        void populateCircleList(std::map<std::string, std::shared_ptr<RenderableCircle>>& map);
+        void populateSpriteList(std::map<std::string, std::shared_ptr<RenderableSprite>>& map);
         template <typename T>
         void populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList);
         template <typename T>
-        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName);
+        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr));
         template <typename T>
         void removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName);
+        template <typename T, typename Asett>
+        void populateComplexAssetList(Box::Ptr assetMapWidget, std::map<std::string, Asett>& assetMap);
+        template <typename T, typename Asett>
+        void addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
+        template <typename T, typename Asett>
+        void removeItemFromComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
 
         // Format a given asset list item
         void(*formatPrefabListItem)(Box::Ptr box) = [](Box::Ptr box) {
@@ -123,7 +140,7 @@ namespace Raven {
             Button* bselect = (Button*)box->GetChildren()[1].get();
             bselect->SetLabel("Select"); // For selecting the Entity
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
-            bduplicate->SetLabel("Duplicate"); // For selecting the Entity
+            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
@@ -141,7 +158,7 @@ namespace Raven {
             Button* bselect = (Button*)box->GetChildren()[1].get();
             bselect->SetLabel("Select"); // For selecting the Entity
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
-            bduplicate->SetLabel("Duplicate"); // For selecting the Entity
+            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
@@ -160,16 +177,37 @@ namespace Raven {
             e->SetText(temp.c_str());
             e->SetRequisition(sf::Vector2f(350.f, 20.f));
             Button* bselect = (Button*)box->GetChildren()[1].get();
-            bselect->SetLabel("Select"); // For selecting the Entity
+            bselect->SetLabel("Select"); // For selecting the asset
             Button* bhide = (Button*)box->GetChildren()[2].get();
-            bhide->SetLabel(""); // For selecting the Entity
+            bhide->SetLabel(""); // For selecting the asset
             bhide->Show(false);
             Button* bdelete = (Button*)box->GetChildren()[3].get();
-            bdelete->SetLabel("X");      // For deleting the Entity
+            bdelete->SetLabel("X");      // For deleting the asset
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
-            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            bmoveup->SetLabel("+");      // For moving the asset up in the list
             Button* bmovedown = (Button*)box->GetChildren()[5].get();
-            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+            bmovedown->SetLabel("-");      // For moving the asset down in the list
+        };
+
+        // Format a given asset map item
+        void(*formatComplexAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(350.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the asset
+            Button* bopen = (Button*)box->GetChildren()[2].get();
+            bopen->SetLabel("Open"); // For selecting the asset
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the asset
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the asset up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the asset down in the list
         };
 
         // Verifies whether the main game window and editor window are both open
@@ -287,6 +325,26 @@ namespace Raven {
         Box::Ptr animationListBox;
         Button::Ptr addNewAnimationButton;
 
+        //  //  // Text List //  //  //
+        ScrolledWindow::Ptr textList;
+        Box::Ptr textListBox;
+        Button::Ptr addNewTextButton;
+
+        //  //  // Rectangle List //  //  //
+        ScrolledWindow::Ptr rectangleList;
+        Box::Ptr rectangleListBox;
+        Button::Ptr addNewRectangleButton;
+
+        //  //  // Circle List //  //  //
+        ScrolledWindow::Ptr circleList;
+        Box::Ptr circleListBox;
+        Button::Ptr addNewCircleButton;
+
+        //  //  // Sprite List //  //  //
+        ScrolledWindow::Ptr spriteList;
+        Box::Ptr spriteListBox;
+        Button::Ptr addNewSpriteButton;
+
         //----The list of commands available to the user when interacting with the Canvas----
         Box::Ptr toolbar;
 
@@ -299,6 +357,8 @@ namespace Raven {
         //----The window allowing for the user to modify which components are on an entity and modify their member values----
         ScrolledWindow::Ptr entityDesigner;
         Box::Ptr entityDesignerBox;
+        ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
+
 
         //  //  // Component Editor //  //  //
         ScrolledWindow::Ptr componentEditor;
