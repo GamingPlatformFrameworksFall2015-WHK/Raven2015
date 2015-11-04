@@ -730,7 +730,7 @@ namespace Raven {
     Box::Ptr Pacer::createWidget() {
         Box::Ptr box = ENTITY_DESIGNER_WIDGET_LIST::Create();
 
-        Box::Ptr velocityXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity X", pacerDirectionFormatter);
+        Box::Ptr directionBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Direction", pacerDirectionFormatter);
 
 
         Box::Ptr velocityXBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Velocity X", formatter);
