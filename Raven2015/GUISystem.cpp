@@ -440,28 +440,28 @@ namespace Raven {
 
     void GUISystem::populateTextList(std::map<std::string, std::shared_ptr<RenderableText>>& map) {
         for (auto name_text : map) {
-            WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            WidgetLibrary::WidgetList<WidgetLibrary::TextListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 textListBox, name_text.first, formatComplexAssetListItem);
         }
     }
 
     void GUISystem::populateRectangleList(std::map<std::string, std::shared_ptr<RenderableRectangle>>& map) {
         for (auto name_rectangle : map) {
-            WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            WidgetLibrary::WidgetList<WidgetLibrary::RectangleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 rectangleListBox, name_rectangle.first, formatComplexAssetListItem);
         }
     }
 
     void GUISystem::populateCircleList(std::map<std::string, std::shared_ptr<RenderableCircle>>& map) {
         for (auto name_circle : map) {
-            WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            WidgetLibrary::WidgetList<WidgetLibrary::CircleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 circleListBox, name_circle.first, formatComplexAssetListItem);
         }
     }
 
     void GUISystem::populateSpriteList(std::map<std::string, std::shared_ptr<RenderableSprite>>& map) {
         for (auto name_sprite : map) {
-            WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            WidgetLibrary::WidgetList<WidgetLibrary::SpriteListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 spriteListBox, name_sprite.first, formatComplexAssetListItem);
         }
     }
@@ -476,8 +476,8 @@ namespace Raven {
     }
 
     template <typename T>
-    void GUISystem::addItemToAssetList(Box::Ptr assetListWidget, std::string itemName) {
-        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetListWidget, itemName, formatAssetListItem);
+    void GUISystem::addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr)) {
+        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetListWidget, itemName, formatter);
     }
 
     template <typename T>
@@ -580,8 +580,9 @@ namespace Raven {
         if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
             cmn::game->events.emit<XMLLogEntityEvent>(entity);
-            addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(sceneHierarchyBox, entity.component<Data>()->name);
-            //entity.assign<Tracker>();
+            addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
+                sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
+            entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
             transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;

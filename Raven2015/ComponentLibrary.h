@@ -22,6 +22,9 @@
 #include "entityx\Entity.h"             // For ex::Component
 #include "Common.h"                     // For etc.
 #include "DataAssetLibrary.h"           // For Renderable, Timer
+#include "SFGUI/Widgets.hpp"            // For Widget generation
+
+using namespace sfg;
 
 namespace Raven {
 
@@ -39,17 +42,19 @@ namespace Raven {
         NumComponentTypes
     };
 
-// serialize:        for serializing the component
-// deserialize:      for de-serializing the component
-// getElementName:   for acquiring the wrapper element name for the component's serialized form
-// getType:          for acquiring a switchable indicator of the component's type (currently unused)
-// getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
+    // serialize:        for serializing the component
+    // deserialize:      for de-serializing the component
+    // getElementName:   for acquiring the wrapper element name for the component's serialized form
+    // getType:          for acquiring a switchable indicator of the component's type (currently unused)
+    // getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
 #define ADD_DEFAULTS(type_name) \
         virtual std::string serialize(std::string tab) override; \
         virtual void deserialize(XMLNode* node) override; \
         static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; } \
-        static type_name##* getNullPtrToType() { return nullptr; }
+        static type_name##* getNullPtrToType() { return nullptr; } \
+        Box::Ptr createWidget(); \
+        bool deserializeWidget(Box::Ptr);
 
 #define NUM_REQUIRED_COMPONENTS 3
 
@@ -71,6 +76,8 @@ namespace Raven {
         bool modified;
         // Whether the entity should be preserved in between levels (do not delete upon loading a different level)
         bool persistent;
+
+
 
         ADD_DEFAULTS(Data);
     };
@@ -429,12 +436,18 @@ namespace Raven {
 
 #pragma region ComponentLibrary
 
-    // This struct enables us to organize the serialization of components more easily
-    // Now we can acquire the Data component of an entity, cycle through its components set
-    // and call attachComponent as necessary
-    //struct ComponentLibrary {
+    // local namespace for variables used exclusively within ComponentLibrary.h/.cpp
+    /*struct ComponentLibrary {
 
-    //};
+        void(*formatEditableAssetListItem)(Box::Ptr) = [](Box::Ptr box) {
+            Entry* editableValue = (Entry*) box->GetChildren()[0].get();
+            editableValue->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Label* currentValue = (Label*)box->GetChildren()[1].get();
+            currentValue->SetText()
+        };
+    };*/
+
+
 
 #pragma endregion
 

@@ -118,7 +118,7 @@ namespace Raven {
         template <typename T>
         void populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList);
         template <typename T>
-        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName);
+        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr));
         template <typename T>
         void removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName);
         template <typename T, typename Asett>

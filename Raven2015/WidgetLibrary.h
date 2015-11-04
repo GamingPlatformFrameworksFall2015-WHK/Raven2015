@@ -133,8 +133,10 @@ class ToolbarPanel {};
 #define TOOLBAR_NAME "Toolbar"
 
         ///// Low-Level Widgets
-
+// Item name, Select button, duplicate button (hidden?), delete button, move up button, move down button
 #define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button, Button
+// Item name, value you wish to serialize, current value, serialization data (hidden), asset type (NOT hidden for Renderer)
+#define EDITABLE_ASSET_LIST_WIDGET_SEQUENCE Label, Entry, Label, Label, RavenComboBox
 
 
 /////////////////////
@@ -223,15 +225,13 @@ class ToolbarPanel {};
         private:
             WidgetList(); //Cannot be instantiated
 
-            static unsigned int counter;
-
             // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
             template <typename W>
             static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr, std::shared_ptr<std::tuple<W>> t = nullptr) {
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter++));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 Box::Ptr finalBox = box; // save the address of the box
                 return finalBox;
@@ -245,7 +245,7 @@ class ToolbarPanel {};
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 return makeWidgetBox<Widgets...>(labelName, box, nullptr);
             }

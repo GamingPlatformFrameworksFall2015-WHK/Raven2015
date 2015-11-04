@@ -44,47 +44,44 @@ void RenderingSystem::update(entityx::EntityManager &es, entityx::EventManager &
         //}
 
         // Acquire each std::string-RenderableSprite pair in the renderer
-        for (auto name_renderable : renderer.sprites) {
-
-            try {
-                if (assets->animations->find(name_renderable.second->animName) == assets->animations->end()) {
-                    cerr << "Warning: Sprite attempting to use non-existent Animation" << endl;
-                    continue;
-                }
-            }
-            catch (std::exception e) {
-                cerr << endl << e.what() << endl;
-            }
-    
-            // Save the current Animation
-            std::shared_ptr<Animation> anim = assets->animations->at(name_renderable.second->animName);
+        for (auto name_animation : *assets->animations) {
 
             // How much progress have we made towards iterating frames?
-            anim->animationProgress += dt * anim->animationSpeed;
+            name_animation.second->animationProgress += dt * name_animation.second->animationSpeed;
+
+            // Amount to shift frames by
+            int deltaFrames = 0;
 
             // Move the current frame appropriately and reset the progress
-            if (anim->animationSpeed < 0 && anim->animationProgress < -1) {
-                name_renderable.second->frameId += (int)anim->animationProgress;
-                anim->animationProgress += (int)anim->animationProgress;
+            if (name_animation.second->animationSpeed < 0 && name_animation.second->animationProgress < -1) {
+                deltaFrames = (int)name_animation.second->animationProgress;
+                name_animation.second->animationProgress += (int)name_animation.second->animationProgress;
             }
-            else if (anim->animationSpeed > 0 && anim->animationProgress > 1) {
-                name_renderable.second->frameId += (int)anim->animationProgress;
-                anim->animationProgress -= (int)anim->animationProgress;
-            }
-
-            // If looping, then modulate the result within the available frames
-            if (anim->isLooping) {
-                name_renderable.second->frameId %= anim->frames.size();
-            }
-            else { //else, clamp the result between the two extreme ends of the frame sequence
-                cmn::clamp<int>(name_renderable.second->frameId, 0, (int)anim->frames.size() - 1);
+            else if (name_animation.second->animationSpeed > 0 && name_animation.second->animationProgress > 1) {
+                deltaFrames = (int)name_animation.second->animationProgress;
+                name_animation.second->animationProgress -= (int)name_animation.second->animationProgress;
             }
 
-            // Update the map value with the altered animation data
-            assets->animations->at(name_renderable.second->animName) = anim;
+            // Iterate through all entities' sprites
+            for (auto name_renderable : renderer.sprites) {
+                // If they have a sprite that is attempting to match the current Animation
+                if (name_renderable.second->animName == name_animation.first) {
+                    // Shift the frame over appropriately
+                    name_renderable.second->frameId += deltaFrames;
 
-            // Set the renderer's sprite to the IntRect in the animation's frames vector using the frame ID
-            name_renderable.second->sprite.setTextureRect(anim->frames[name_renderable.second->frameId]);
+                    // If looping, then overflow the result to be within the available frames if too large
+                    if (name_animation.second->isLooping) {
+                        name_renderable.second->frameId %= name_animation.second->frames.size();
+                    }
+                    else { //else, clamp the result between the two extreme ends of the frame sequence
+                        cmn::clamp<int>(name_renderable.second->frameId, 0, (int)name_animation.second->frames.size() - 1);
+                    }
+
+                    // Set the renderer's sprite to the IntRect in the animation's frames vector using the frame ID
+                    name_renderable.second->sprite.setTextureRect(
+                        name_animation.second->frames[name_renderable.second->frameId]);
+                }
+            }
         }
     });
     
