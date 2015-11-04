@@ -14,7 +14,7 @@
 #include "WidgetLibrary.h"
 #include "EntityLibrary.h"
 #include "ComponentLibrary.h"
-//#include "XMLSystem.h"
+#include "XMLSystem.h"
 
 using namespace sfg;
 
