@@ -45,21 +45,12 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
     });
 }
 
-void CollisionSystem::receive(const CollisionEvent &event) {
+void CollisionSystem::receive(CollisionEvent &event) {
 
     //cout << "Collision occurred" << endl;
-
-    ex::ComponentHandle<Rigidbody> leftRigidbody = event.leftRigidbody;
-    ex::ComponentHandle<Rigidbody> rightRigidbody = event.rightRigidbody;
-    sf::Vector2f avgVelocity = (leftRigidbody->velocity + rightRigidbody->velocity) / 2.0f;
-    
-    if (event.leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.leftBoxCollider->collisionSettings.end()) {
-        rightRigidbody->velocity -= avgVelocity;
-    } 
-
-    if (event.rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.rightBoxCollider->collisionSettings.end()) {
-        leftRigidbody->velocity -= avgVelocity;
-    }
+    sf::Vector2f leftVelocity = event.leftRigidbody->velocity;
+	sf::Vector2f rightVelocity = event.rightRigidbody->velocity;
+	sf::Vector2f relVel = rightVelocity - leftVelocity;
 }
 
 /*
@@ -85,37 +76,47 @@ std::shared_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEnti
         // TODO
     }
 
-    //Calculate the exact location of each collider
-    float leftColliderX = leftTransform.get()->transform.x + leftBoxCollider.get()->originOffset.x;
-    float leftColliderY = leftTransform.get()->transform.y + leftBoxCollider.get()->originOffset.y;
-    float rightColliderX = rightTransform.get()->transform.x + rightBoxCollider.get()->originOffset.x;
-    float rightColliderY = rightTransform.get()->transform.y + rightBoxCollider.get()->originOffset.y;
+	// If both objects are fixed, do not need to do send collision event
+	if (!(leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != leftBoxCollider->collisionSettings.end() &&
+		rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != rightBoxCollider->collisionSettings.end())) {
 
-    // Calculate the dimensions of a rectangle with the colliders at the corners
-    float xDiff = abs(leftColliderX - rightColliderX);
-    float yDiff = abs(leftColliderY - rightColliderY);
+		// Check that both objects are solid, otherwise collision event doesn't need to occur
+		if (leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_SOLID) != leftBoxCollider->collisionSettings.end() &&
+			rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_SOLID) != rightBoxCollider->collisionSettings.end()) {
 
-    //Acquire one-half the width/height "reach" from each collider's origin location
-    float xReach = (leftBoxCollider.get()->width + rightBoxCollider.get()->width) * 0.5f;  // x-axis left reach
-    float yReach = (leftBoxCollider.get()->height + rightBoxCollider.get()->height) * 0.5f;  // y-axis left reach
+			// Check if both objects are on same layer.  Collision event only needs to occur for objects on same layer
+			for (std::string layer : leftBoxCollider->layers) {
+				if (rightBoxCollider->layers.find(layer) != rightBoxCollider->layers.end()) {
 
-    // Return whether the distance between objects is less than their reach towards each other on BOTH axes
-    if (xDiff <= xReach && yDiff <= yReach) {
+					//Calculate the exact location of each collider
+					float leftColliderX = leftTransform.get()->transform.x + leftBoxCollider.get()->originOffset.x;
+					float leftColliderY = leftTransform.get()->transform.y + leftBoxCollider.get()->originOffset.y;
+					float rightColliderX = rightTransform.get()->transform.x + rightBoxCollider.get()->originOffset.x;
+					float rightColliderY = rightTransform.get()->transform.y + rightBoxCollider.get()->originOffset.y;
 
-        if (leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_SOLID) != leftBoxCollider->collisionSettings.end() &&
-            rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_SOLID) != rightBoxCollider->collisionSettings.end()) {
+					// Calculate the dimensions of a rectangle with the colliders at the corners
+					float xDiff = abs(leftColliderX - rightColliderX);
+					float yDiff = abs(leftColliderY - rightColliderY);
 
-            if (!(leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != leftBoxCollider->collisionSettings.end() &&
-                rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != rightBoxCollider->collisionSettings.end())) {
-            
-                    // Approximate the collision point as directly in between the objects
-                    std::shared_ptr<sf::Vector2f> collisionPoint(new sf::Vector2f(0.5f * xDiff, 0.5f * yDiff));
-                    collisionPoint->x += std::min(leftColliderX, rightColliderX);
-                    collisionPoint->y += std::min(leftColliderY, rightColliderY);
+					//Acquire one-half the width/height "reach" from each collider's origin location
+					float xReach = (leftBoxCollider.get()->width + rightBoxCollider.get()->width) * 0.5f;  // x-axis left reach
+					float yReach = (leftBoxCollider.get()->height + rightBoxCollider.get()->height) * 0.5f;  // y-axis left reach
 
-                    // Notify all of those listening for collisions that a collision has occurred
-                    return collisionPoint;
-            }
+
+					// Return whether the distance between objects is less than their reach towards each other on BOTH axes
+					if (xDiff <= xReach && yDiff <= yReach) {
+
+						// Approximate the collision point as directly in between the objects
+						std::shared_ptr<sf::Vector2f> collisionPoint(new sf::Vector2f(0.5f * xDiff, 0.5f * yDiff));
+						collisionPoint->x += std::min(leftColliderX, rightColliderX);
+						collisionPoint->y += std::min(leftColliderY, rightColliderY);
+
+						// Notify all of those listening for collisions that a collision has occurred
+						return collisionPoint;
+					}
+				}
+			}
+
         }
     }
     return nullptr;

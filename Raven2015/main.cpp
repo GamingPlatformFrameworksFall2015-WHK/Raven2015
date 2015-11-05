@@ -128,6 +128,7 @@ int main() {
         // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
             //efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
+			cout << fps << endl;
             fpsTimer.restart();
             fps = 0;
         }
@@ -140,7 +141,7 @@ int main() {
         //If we have reached delta time value, update game systems, increment FPS counter,
         //subtract delta time from accumulator so we don't lose any leftover time,
         //and clear window to prepare for next display.
-        while (accumulator >= FPS_100_TICK_TIME) {
+        while (accumulator > FPS_100_TICK_TIME) {
             game.pollEvents();
             game.clearWindow();
             //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
