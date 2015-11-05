@@ -603,53 +603,23 @@ namespace Raven {
 
 #pragma region Behaviors
 
-    std::bitset<4> Pawn::ids;
-
     std::string Pawn::serialize(std::string tab) {
         return
             tab + "<Pawn>\r\n" +
-            tab + "  <PlayerID>" + std::to_string(playerId) + "</PlayerID>\r\n" +
             tab + "</Pawn>\r\n";
     }
 
     void Pawn::deserialize(XMLNode* node) {
-        XMLElement* e = nullptr;
-        e = node->FirstChildElement("PlayerID");
-        ids.reset(playerId);
-        e->QueryIntText(&playerId);
-        if (ids.test(playerId)) {
-            cerr << "Warning: Deserialized Pawn using ID already assigned in Pawn::ids" << endl;
-        }
-        ids.set(playerId);
     }
 
     Box::Ptr Pawn::createWidget() {
-        Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
-
-        Box::Ptr playerBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Player ID", componentFormatter);
-        initEditableAssetListItem(playerBox, std::to_string(playerId).c_str());
+        Box::Ptr box = Box::Create();
 
         return box;
     }
 
     bool Pawn::deserializeWidget(Box::Ptr box) {
-        std::string s;
-        bool b = true;
-        b &= (s = getEntryValue(box, 0)).size() ? true : false;
-        int num = std::stoi(s);
-        if (b) {
-            if (!ids.test(num)) {
-                ids.reset(playerId);
-                playerId = num;
-            }
-            else {
-                cerr << "Warning: Pawn widget attempting to assign already existing player id." << endl;
-            }
-        }
-        else {
-            cerr << "Warning: Pawn widget attempting to assign empty string as player id." << endl;
-        }
-        return b;
+        return true;
     }
 
     std::string Villain::serialize(std::string tab) {

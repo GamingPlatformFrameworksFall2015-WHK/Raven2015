@@ -53,15 +53,19 @@ namespace Raven {
         editableValue->SetText(value.c_str());
     }
 
+#define ADD_ASSET_ITEM_TO_WIDGET(name, value) \
+        ED_ASSET_WIDGET_LIST::appendWidget(hbox, name, dataAssetFormatter); \
+        setAssetWidgetValue(hbox, value);
+
+#define GET_ENTRY_AND_TAKE_ACTION(action) \
+        b &= (s = getEntryValue(box, index++)).size() ? true : false; \
+        if (b) action;
+
     void initRenderableWidget(Box::Ptr hbox, Renderable& r) {
-        ED_ASSET_WIDGET_LIST::appendWidget(hbox, "Origin Offset X", dataAssetFormatter);
-        setAssetWidgetValue(hbox, std::to_string(r.offsetX));
-        ED_ASSET_WIDGET_LIST::appendWidget(hbox, "Origin Offset Y", dataAssetFormatter);
-        setAssetWidgetValue(hbox, std::to_string(r.offsetY));
-        ED_ASSET_WIDGET_LIST::appendWidget(hbox, "Render Layer", dataAssetFormatter);
-        setAssetWidgetValue(hbox, translateRenderingLayer(r.renderLayer));
-        ED_ASSET_WIDGET_LIST::appendWidget(hbox, "Render Priority", dataAssetFormatter);
-        setAssetWidgetValue(hbox, std::to_string(r.renderPriority));
+        ADD_ASSET_ITEM_TO_WIDGET("Origin Offset X", std::to_string(r.offsetX))
+        ADD_ASSET_ITEM_TO_WIDGET("Origin Offset Y", std::to_string(r.offsetY))
+        ADD_ASSET_ITEM_TO_WIDGET("Render Layer", translateRenderingLayer(r.renderLayer))
+        ADD_ASSET_ITEM_TO_WIDGET("Render Priority", std::to_string(r.renderPriority))
     }
 
     void initTransformableWidget(Box::Ptr hbox, sf::Transformable* t, std::string renderableType) {
@@ -96,10 +100,6 @@ namespace Raven {
         return box;
     }
 
-#define GET_ENTRY_AND_TAKE_ACTION(action) \
-        b &= (s = getEntryValue(box, index++)).size() ? true : false; \
-        if (b) action;
-
     bool RenderableText::deserializeWidget(Box::Ptr box) {
         std::string s;
         bool b = true;
@@ -114,15 +114,22 @@ namespace Raven {
                 cerr << "Warning: Font failed to load from path: " + fontFilePath << endl;
             }
         );
-        //sf::Uint8 r;
-        //text.getColor().r = 1;
+        sf::Uint8 red, green, blue, alpha;
         GET_ENTRY_AND_TAKE_ACTION(text.setString(s));
         GET_ENTRY_AND_TAKE_ACTION(text.setCharacterSize(stoi(s)));
-        //GET_ENTRY_AND_TAKE_ACTION();
+        GET_ENTRY_AND_TAKE_ACTION(red = text.getColor().r);
+        GET_ENTRY_AND_TAKE_ACTION(green = text.getColor().g);
+        GET_ENTRY_AND_TAKE_ACTION(blue = text.getColor().b);
+        GET_ENTRY_AND_TAKE_ACTION(alpha = text.getColor().a);
+        text.setColor(sf::Color(red, green, blue, alpha));
+        float x, y, rotation;
+        GET_ENTRY_AND_TAKE_ACTION(x = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(y = stof(s));
+        text.setPosition(sf::Vector2f(x, y));
+        GET_ENTRY_AND_TAKE_ACTION(rotation = stof(s));
+        text.setRotation(rotation);
 
-
-
-        return false;
+        return b;
     }
 
     Box::Ptr RenderableRectangle::createWidget() {
@@ -143,7 +150,26 @@ namespace Raven {
     }
 
     bool RenderableRectangle::deserializeWidget(Box::Ptr box) {
-        return false;
+        std::string s;
+        bool b = true;
+        int index = 0;
+        GET_ENTRY_AND_TAKE_ACTION(offsetX = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(offsetY = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderLayer = translateRenderingLayer(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderPriority = stoi(s));
+        sf::Uint8 red, green, blue, alpha;
+        GET_ENTRY_AND_TAKE_ACTION(red = rectangle.getFillColor().r);
+        GET_ENTRY_AND_TAKE_ACTION(green = rectangle.getFillColor().g);
+        GET_ENTRY_AND_TAKE_ACTION(blue = rectangle.getFillColor().b);
+        GET_ENTRY_AND_TAKE_ACTION(alpha = rectangle.getFillColor().a);
+        rectangle.setFillColor(sf::Color(red, green, blue, alpha));
+        float x, y, rotation;
+        GET_ENTRY_AND_TAKE_ACTION(x = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(y = stof(s));
+        rectangle.setPosition(sf::Vector2f(x, y));
+        GET_ENTRY_AND_TAKE_ACTION(rotation = stof(s));
+        rectangle.setRotation(rotation);
+        return b;
     }
 
     Box::Ptr RenderableCircle::createWidget() {
@@ -164,7 +190,26 @@ namespace Raven {
     }
 
     bool RenderableCircle::deserializeWidget(Box::Ptr box) {
-        return false;
+        std::string s;
+        bool b = true;
+        int index = 0;
+        GET_ENTRY_AND_TAKE_ACTION(offsetX = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(offsetY = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderLayer = translateRenderingLayer(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderPriority = stoi(s));
+        sf::Uint8 red, green, blue, alpha;
+        GET_ENTRY_AND_TAKE_ACTION(red = circle.getFillColor().r);
+        GET_ENTRY_AND_TAKE_ACTION(green = circle.getFillColor().g);
+        GET_ENTRY_AND_TAKE_ACTION(blue = circle.getFillColor().b);
+        GET_ENTRY_AND_TAKE_ACTION(alpha = circle.getFillColor().a);
+        circle.setFillColor(sf::Color(red, green, blue, alpha));
+        float x, y, rotation;
+        GET_ENTRY_AND_TAKE_ACTION(x = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(y = stof(s));
+        circle.setPosition(sf::Vector2f(x, y));
+        GET_ENTRY_AND_TAKE_ACTION(rotation = stof(s));
+        circle.setRotation(rotation);
+        return b;
     }
 
     Box::Ptr RenderableSprite::createWidget() {
@@ -189,7 +234,28 @@ namespace Raven {
     }
 
     bool RenderableSprite::deserializeWidget(Box::Ptr box) {
-        return false;
+        std::string s;
+        bool b = true;
+        int index = 0;
+        GET_ENTRY_AND_TAKE_ACTION(offsetX = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(offsetY = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderLayer = translateRenderingLayer(s));
+        GET_ENTRY_AND_TAKE_ACTION(renderPriority = stoi(s));
+        GET_ENTRY_AND_TAKE_ACTION(textureFileName = s);
+        GET_ENTRY_AND_TAKE_ACTION(animName = s);
+        sf::Uint8 red, green, blue, alpha;
+        GET_ENTRY_AND_TAKE_ACTION(red = sprite.getColor().r);
+        GET_ENTRY_AND_TAKE_ACTION(green = sprite.getColor().g);
+        GET_ENTRY_AND_TAKE_ACTION(blue = sprite.getColor().b);
+        GET_ENTRY_AND_TAKE_ACTION(alpha = sprite.getColor().a);
+        sprite.setColor(sf::Color(red, green, blue, alpha));
+        float x, y, rotation;
+        GET_ENTRY_AND_TAKE_ACTION(x = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(y = stof(s));
+        sprite.setPosition(sf::Vector2f(x, y));
+        GET_ENTRY_AND_TAKE_ACTION(rotation = stof(s));
+        sprite.setRotation(rotation);
+        return b;
     }
 
     Box::Ptr Animation::createWidget() {
@@ -199,7 +265,7 @@ namespace Raven {
         setAssetWidgetValue(box, textureFileName);
         ED_ASSET_WIDGET_LIST::appendWidget(box, "Number of Frames", dataAssetFormatter);
         setAssetWidgetValue(box, std::to_string(size));
-        ED_ASSET_WIDGET_LIST::appendWidget(box, "Looping?", dataAssetFormatter);
+        ED_ASSET_WIDGET_LIST::appendWidget(box, "Looping? (0/1)", dataAssetFormatter);
         setAssetWidgetValue(box, std::to_string(isLooping));
         ED_ASSET_WIDGET_LIST::appendWidget(box, "Animation Speed", dataAssetFormatter);
         setAssetWidgetValue(box, std::to_string(animationSpeed));
@@ -212,6 +278,15 @@ namespace Raven {
     }
 
     bool Animation::deserializeWidget(Box::Ptr box) {
-        return false;
+        std::string s;
+        bool b;
+        int index = 0;
+        GET_ENTRY_AND_TAKE_ACTION(textureFileName = s);
+        GET_ENTRY_AND_TAKE_ACTION(size = stoi(s));
+        GET_ENTRY_AND_TAKE_ACTION(isLooping = (bool) stoi(s));
+        GET_ENTRY_AND_TAKE_ACTION(animationSpeed = stof(s));
+        GET_ENTRY_AND_TAKE_ACTION(frameWidth = stoi(s));
+        GET_ENTRY_AND_TAKE_ACTION(frameHeight = stoi(s));
+        return b;
     }
 }
