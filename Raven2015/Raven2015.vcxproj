@@ -167,6 +167,7 @@
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="ComponentLibrary.cpp" />
+    <ClCompile Include="DataAssetLibrary.cpp" />
     <ClCompile Include="EntityLibrary.cpp" />
     <ClCompile Include="entityx-master\entityx\Entity.cc" />
     <ClCompile Include="entityx-master\entityx\Event.cc" />
