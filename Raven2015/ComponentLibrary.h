@@ -58,6 +58,10 @@ namespace Raven {
 
 #define NUM_REQUIRED_COMPONENTS 3
 
+    int getDropDownValue(Box::Ptr box, size_t position);
+
+    std::string getEntryValue(Box::Ptr box, size_t position);
+
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
