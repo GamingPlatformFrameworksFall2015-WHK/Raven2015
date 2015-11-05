@@ -587,7 +587,7 @@ namespace Raven {
             auto transform = entity.component<Transform>();
             transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
             transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
-            cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
+            //cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
 			ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
 		}
