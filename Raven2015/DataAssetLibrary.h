@@ -3,8 +3,16 @@
 #include "Common.h"
 #include "SFML/System.hpp"
 #include "SFML/Graphics.hpp"
+#include "SFGUI/Widgets.hpp"
+#include "WidgetLibrary.h"
+
+using namespace sfg;
 
 namespace Raven {
+
+#define ADD_DATA_ASSET_DEFAULTS \
+    Box::Ptr createWidget(); \
+    bool deserializeWidget(Box::Ptr);
 
      // A wrapper class around drawable assets to allow for sorting.
      // Sorting is based on layer first, priority second.
@@ -79,6 +87,15 @@ namespace Raven {
             drawPtr = &text;
         }
 
+        // A Font used to format text
+        sf::Font font;
+        
+        // The Font file path
+        std::string fontFilePath;
+
+        // A Text used to draw text to the window        
+        sf::Text text;
+
         // Initializes the text data
         void init(const std::string& textContent, const sf::Vector2f& position, 
                 const sf::Color& color, const std::string& fontFilePath) {
@@ -94,14 +111,7 @@ namespace Raven {
             text.setFont(font);
         }
 
-        // A Font used to format text
-        sf::Font font;
-        
-        // The Font file path
-        std::string fontFilePath;
-
-        // A Text used to draw text to the window        
-        sf::Text text;
+        ADD_DATA_ASSET_DEFAULTS
     };
 
     // A base class for sortable Shapes for rendering
@@ -128,6 +138,8 @@ namespace Raven {
         }
 
         sf::CircleShape circle;
+
+        ADD_DATA_ASSET_DEFAULTS
     };
 
     // A base class for sortable Rectangles for rendering
@@ -147,6 +159,8 @@ namespace Raven {
         }
 
         sf::RectangleShape rectangle;
+
+        ADD_DATA_ASSET_DEFAULTS
     };
 
     // A base class for sortable Sprites for rendering & animation
@@ -183,6 +197,8 @@ namespace Raven {
 
         // The sprite to be sorted
         sf::Sprite sprite;
+
+        ADD_DATA_ASSET_DEFAULTS
     };
 
      // A helper class to contain information regarding a given Animation.
@@ -210,19 +226,6 @@ namespace Raven {
             init();
         }
 
-        // Initializes frames
-        void init() {
-            // Ensure that we have one viewing rectangle (sf::IntRect) into the texture for each sprite frame
-            frames.resize(size);
-
-            // Ensure that each successive window is placed over the next frame of the spritesheet animation in turn
-            for (int i = 0; i < frames.size(); ++i) {
-                frames[i].width = frameWidth;
-                frames[i].height = frameHeight;
-                frames[i].left += i*frameWidth;
-            }
-        }
-
         // The sections of the texture the animation draws from for each sprite        
         std::vector<sf::IntRect> frames;
         
@@ -246,11 +249,36 @@ namespace Raven {
 
         // The name of the texture file referenced by the animation (the spritesheet, single line)        
         std::string textureFileName;
+
+        // Initializes frames
+        void init() {
+            // Ensure that we have one viewing rectangle (sf::IntRect) into the texture for each sprite frame
+            frames.resize(size);
+
+            // Ensure that each successive window is placed over the next frame of the spritesheet animation in turn
+            for (int i = 0; i < frames.size(); ++i) {
+                frames[i].width = frameWidth;
+                frames[i].height = frameHeight;
+                frames[i].left += i*frameWidth;
+            }
+        }
+
+        ADD_DATA_ASSET_DEFAULTS
     };
 
     // A wrapper for an sf::Clock and ex::TimeDelta that allows a higher level of control over the clock
     struct Timer {
+    private:        
+        // An sf::Clock to assist in recording time
+        sf::Clock clock;
         
+        // Record of elapsed time
+        ex::TimeDelta elapsedTime;
+        
+        // Current state of timer
+        bool isPlaying;
+
+    public:
         // Initializes a new instance of the <see cref="Timer"/> struct.
         Timer(sf::Clock clock = sf::Clock(), ex::TimeDelta deltaTime = 0.0, bool isPlaying = true)
             : elapsedTime(deltaTime), isPlaying(isPlaying) {}
@@ -294,16 +322,6 @@ namespace Raven {
             clock.restart();
             return time;
         }
-
-    private:        
-        // An sf::Clock to assist in recording time
-        sf::Clock clock;
-        
-        // Record of elapsed time
-        ex::TimeDelta elapsedTime;
-        
-        // Current state of timer
-        bool isPlaying;
     };
 
     struct Assets {
