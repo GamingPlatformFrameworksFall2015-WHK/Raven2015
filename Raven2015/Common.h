@@ -18,6 +18,8 @@
 #define COLLISION_LAYER_SETTINGS_SOLID "Solid"
 #define COLLISION_LAYER_SETTINGS_FIXED "Fixed"
 
+
+
 #include <iostream>
 #include "entityx\config.h"
 #include "tinyxml2.h"

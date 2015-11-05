@@ -66,7 +66,7 @@ namespace Raven {
         entityDesigner = formatEntityDesigner(ScrolledWindow::Create());
         componentList = formatComponentList<COMPONENT_TYPE_LIST>(ScrolledWindow::Create(), COMPONENT_TYPES(::getNullPtrToType()));
         prefabList = formatPrefabList(ScrolledWindow::Create());
-
+        
         /*
         // Original Layout. Screen is too small + failed attempts to merge conflicting panel dimensions
         table->Attach(sceneHierarchy, sf::Rect<sf::Uint32>(0, 0, 1, 6), all, all);
@@ -109,14 +109,14 @@ namespace Raven {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
             if (event->type == sf::Event::Closed) {
-                mainWindow->close();
-            }
+				mainWindow->close();
+			}
             //-----------------------------------------------
             // Call a function that encapsulates the event.type switch statement and simply returns the corresponding action.
             // Use the value returned by this function to then call another function that will emit an event that triggers the
             // corresponding action on all entities listening for that action via a Pawn component.
             //-----------------------------------------------
-            input->handleEvent(*event);
+			input->handleEvent(*event);
         }
     }
 
@@ -147,15 +147,15 @@ namespace Raven {
         /*
         auto vbox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5);
         auto hbox1 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
-        auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
-        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+		auto button = sfg::Button::Create("Entity 1 I HAVE A SERIOUSLY LONG NAME RIGHT NAO");
+		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         hbox1->Pack(button, true, false);
         auto hbox2 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
-        button = sfg::Button::Create("Entity 2");
-        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+		button = sfg::Button::Create("Entity 2");
+		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         hbox2->Pack(button, true, false);
-        button = sfg::Button::Create("Entity 3");
-        button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
+		button = sfg::Button::Create("Entity 3");
+		button->GetSignal(sfg::Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyButton, this, button));
         auto hbox3 = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL);
         hbox3->Pack(button, true, false);
         vbox->Pack(hbox1, true, true);
@@ -187,7 +187,7 @@ namespace Raven {
     void GUISystem::formatFontList(FONT_LIST_WTYPE_SPTR fl) {
         fontListBox = formatAssetListHelper<WidgetLibrary::FontListPanel>(fontList = fl, fontListBox, addNewFontButton);
     }
-
+    
     // Format the Level List widget
     void GUISystem::formatLevelList(LEVEL_LIST_WTYPE_SPTR ll) {
         levelListBox = formatAssetListHelper<WidgetLibrary::LevelListPanel>(levelList = ll, levelListBox, addNewLevelButton);
@@ -197,7 +197,7 @@ namespace Raven {
     void GUISystem::formatAnimationList(ANIMATION_LIST_WTYPE_SPTR al) {
         animationListBox = formatAssetListHelper<WidgetLibrary::AnimationListPanel>(animationList = al, animationListBox, addNewAnimationButton);
     }
-
+        
     void GUISystem::formatTextList(TEXT_LIST_WTYPE_SPTR tl) {
         textListBox = formatAssetListHelper<WidgetLibrary::TextListPanel>(textList = tl, textListBox, addNewTextButton);
     }
@@ -209,7 +209,7 @@ namespace Raven {
     void GUISystem::formatCircleList(CIRCLE_LIST_WTYPE_SPTR cl) {
         circleListBox = formatAssetListHelper<WidgetLibrary::CircleListPanel>(circleList = cl, circleListBox, addNewCircleButton);
     }
-
+        
     void GUISystem::formatSpriteList(SPRITE_LIST_WTYPE_SPTR sl) {
         spriteListBox = formatAssetListHelper<WidgetLibrary::SpriteListPanel>(spriteList = sl, spriteListBox, addNewSpriteButton);
     }
@@ -227,16 +227,16 @@ namespace Raven {
 
         // Create the dynamic widget
         listBox = WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::Create();
-
+        
         top->Pack(listBox, true, true);
-
+        
         // Create a button for adding new items
         addNewButton = Button::Create("Add New...");
 
         top->Pack(addNewButton);
 
         list->AddWithViewport(top);
-
+        
         return listBox;
     }
 
@@ -343,7 +343,7 @@ namespace Raven {
 
         return pl;
     }
-
+    
     // Format the Canvas widget
     CANVAS_WTYPE_SPTR GUISystem::formatCanvas(CANVAS_WTYPE_SPTR c) {
         c->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::canvasClickHandler, this));
@@ -572,26 +572,26 @@ namespace Raven {
         }*/
         //change things in the entity designer and display things according to the
         //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
-    }
+	}
 
-    void GUISystem::canvasClickHandler() {
-        sf::Vector2i position = sf::Mouse::getPosition();
+	void GUISystem::canvasClickHandler() {
+		sf::Vector2i position = sf::Mouse::getPosition();
         cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
-        if (currentBrush->GetText().toAnsiString() == "Create") {
+		if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
             cmn::game->events.emit<XMLLogEntityEvent>(entity);
             addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
-            entity.assign<Tracker>();
-            entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+			entity.assign<Tracker>();
+			entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
             transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
             transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
             cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
-            ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
+			ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
-        }
-    }
+		}
+	}
 
 #pragma endregion
 

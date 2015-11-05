@@ -345,14 +345,14 @@ namespace Raven {
         for (auto layer : layers) {
             Box::Ptr layerBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, "Collision Layer", formatter);
             initEditableAssetListItem(layerBox, layer.c_str());
-        }
+	}
         Box::Ptr solidBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_SOLID, formatter);
         initEditableAssetListItem(solidBox, COLLISION_LAYER_SETTINGS_SOLID);
         Box::Ptr fixedBox = ENTITY_DESIGNER_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_FIXED, formatter);
         initEditableAssetListItem(fixedBox, COLLISION_LAYER_SETTINGS_FIXED);
 
         return box;
-    }
+	}
 
     bool BoxCollider::deserializeWidget(Box::Ptr box) {
         std::string s;
@@ -365,17 +365,33 @@ namespace Raven {
         int numLayers = b ? stoi(s) : b;
         for (int i = 0; i < numLayers; ++i) {
             b &= (s = getEntryValue(box, 2 + i)).size() ? true : false;
-        }
+	}
         b &= (s = getEntryValue(box, 2 + numLayers)).size() ? true : false;
         if (b && stoi(s)) {
             collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
-        }
+	}
         b &= (s = getEntryValue(box, 3 + numLayers)).size() ? true : false;
         if (b && stoi(s)) {
             collisionSettings.insert(COLLISION_LAYER_SETTINGS_FIXED);
-        }
+	}
         return b;
     }
+
+	std::string Tracker::serialize(std::string) {
+		return "";
+	}
+
+	void Tracker::deserialize(XMLNode*) {
+
+	}
+
+	std::string Pacer::serialize(std::string) {
+		return "";
+	}
+
+	void Pacer::deserialize(XMLNode*) {
+
+	}
 
 #pragma endregion
 
@@ -675,7 +691,7 @@ namespace Raven {
             tab + "<Tracker>\r\n" +
             tab + "  <Target>" + std::to_string(target) + "</Target>\r\n" +
             tab + "</Tracker>\r\n";
-    }
+        }
 
     void Tracker::deserialize(XMLNode* node) {
         int i;
@@ -691,7 +707,7 @@ namespace Raven {
         ((Label*)box->GetChildren()[2].get())->SetText(getNameByType(target).c_str());  // current value
 
         return box;
-    }
+        }
 
     bool Tracker::deserializeWidget(Box::Ptr box) {
         target = (ComponentType)getDropDownValue(box, 0);
@@ -712,7 +728,7 @@ namespace Raven {
             tab + "  </PacerOrigin>\r\n" +
             tab + "  <PacerRadius>" + std::to_string(radius) + "</PacerRadius>\r\n" +
             tab + "</Pacer>\r\n";
-    }
+        }
 
     void Pacer::deserialize(XMLNode* node) {
         int i;
@@ -745,7 +761,7 @@ namespace Raven {
         initEditableAssetListItem(radiusBox, std::to_string(radius).c_str());
 
         return box;
-    }
+        }
 
     bool Pacer::deserializeWidget(Box::Ptr box) {
         direction = (Direction)getDropDownValue(box, 0);
