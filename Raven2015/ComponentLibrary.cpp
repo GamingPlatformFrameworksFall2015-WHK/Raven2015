@@ -144,21 +144,7 @@ namespace Raven {
 
     }
 
-	std::string Tracker::serialize(std::string) {
-		return "";
-	}
 
-	void Tracker::deserialize(XMLNode*) {
-
-	}
-
-	std::string Pacer::serialize(std::string) {
-		return "";
-	}
-
-	void Pacer::deserialize(XMLNode*) {
-
-	}
 
 #pragma endregion
 
