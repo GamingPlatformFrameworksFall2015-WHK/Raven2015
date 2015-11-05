@@ -22,76 +22,48 @@
 #include "entityx\Entity.h"             // For ex::Component
 #include "Common.h"                     // For etc.
 #include "DataAssetLibrary.h"           // For Renderable, Timer
+#include "SFGUI/Widgets.hpp"            // For Widget generation
 
+using namespace sfg;
 
 namespace Raven {
 
-    // Helper macros /*************************************************************************************************/
-#define SERIALIZE_COMPONENT(type_name, e, str) auto a##type_name = e.component<type_name>(); str + (a##type_name ? a##type_name->serialize(tab) : "");
-#define DESERIALIZE_COMPONENT(type_name, e, node) auto a##type_name = node->FirstChildElement(#type_name); a##type_name ? e.component<type_name>()->deserialize(a##type_name) : nullptr;
 /******************************************************************************************************************/
-
-/**** Update-Necessary Macros : altering the types of components that exist requires that the user update these macros *****/
+// Update-Necessary Macros : altering the types of components that exist requires that the user update these macros
+// The order of components in these macros MUST match.
 
 // Used to instantiate the ComponentType enum
-#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, Pawn##_t, Tracker##_t, Pacer##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, TimeTable##_t
+#define COMPONENT_TYPES(_t) Data##_t, Transform##_t, Rigidbody##_t, BoxCollider##_t, SoundMaker##_t, MusicMaker##_t, Renderer##_t, Pawn##_t, Villain##_t, Tracker##_t, Pacer##_t
 // Used to pass into templated lists for acquiring all component types
-#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, Pawn, Tracker, Pacer, SoundMaker, MusicMaker, Renderer, TimeTable
-// Used to exploit recursive parameter packs for iterating through all components on a given entity, regardless of type
-// Must provide the actual instance of the component type so that the typename T exploited is the original type and not a pointer to the type or some such
-#define COMPONENTS_OF_ENTITY(e) \
-            *e.component<Data>().get(), \
-            *e.component<Transform>().get(), \
-            *e.component<Rigidbody>().get(), \
-            *e.component<BoxCollider>().get(), \
-            *e.component<Pawn>().get(), \
-            *e.component<Tracker>().get(), \
-            *e.component<Pacer>().get(), \
-            *e.component<SoundMaker>().get(), \
-            *e.component<MusicMaker>().get(), \
-            *e.component<Renderer>().get(), \
-            *e.component<TimeTable>().get() //<- an actual TimeTable, not a TimeTable* or ex::ComponentHandle<TimeTable>, etc.
-// Used to serialize each component
-#define SERIALIZE_COMPONENTS(e, str) \
-            SERIALIZE_COMPONENT(Data, e, str); \
-            SERIALIZE_COMPONENT(Transform, e, str); \
-            SERIALIZE_COMPONENT(Rigidbody, e, str); \
-            SERIALIZE_COMPONENT(BoxCollider, e, str); \
-            SERIALIZE_COMPONENT(Pawn, e, str); \
-            SERIALIZE_COMPONENT(Tracker, e, str); \
-            SERIALIZE_COMPONENT(Pacer, e, str); \
-            SERIALIZE_COMPONENT(SoundMaker, e, str); \
-            SERIALIZE_COMPONENT(MusicMaker, e, str); \
-            SERIALIZE_COMPONENT(Renderer, e, str); \
-            SERIALIZE_COMPONENT(TimeTable, e, str);
-// Used to deserialize each component
-#define DESERIALIZE_COMPONENTS(e, node) \
-            DESERIALIZE_COMPONENT(Data, e, node); \
-            DESERIALIZE_COMPONENT(Transform, e, node); \
-            DESERIALIZE_COMPONENT(Rigidbody, e, node); \
-            DESERIALIZE_COMPONENT(BoxCollider, e, node); \
-            DESERIALIZE_COMPONENT(Pawn, e, node); \
-            DESERIALIZE_COMPONENT(Tracker, e, node); \
-            DESERIALIZE_COMPONENT(Pacer, e, node); \
-            DESERIALIZE_COMPONENT(SoundMaker, e, node); \
-            DESERIALIZE_COMPONENT(MusicMaker, e, node); \
-            DESERIALIZE_COMPONENT(Renderer, e, node); \
-            DESERIALIZE_COMPONENT(TimeTable, e, node);
+#define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
 /******************************************************************************************************************/
     enum ComponentType {
-        COMPONENT_TYPES(_t)
+        COMPONENT_TYPES(_t),
+        NumComponentTypes
     };
 
-#define ADD_STATICS(type_name) \
+    // serialize:        for serializing the component
+    // deserialize:      for de-serializing the component
+    // getElementName:   for acquiring the wrapper element name for the component's serialized form
+    // getType:          for acquiring a switchable indicator of the component's type (currently unused)
+    // getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
+#define ADD_DEFAULTS(type_name) \
+        virtual std::string serialize(std::string tab) override; \
+        virtual void deserialize(XMLNode* node) override; \
         static std::string getElementName() { return #type_name; } \
-        static ComponentType getType() { return ComponentType::type_name##_t; }
+        static ComponentType getType() { return ComponentType::type_name##_t; } \
+        static type_name##* getNullPtrToType() { return nullptr; } \
+        Box::Ptr createWidget(); \
+        bool deserializeWidget(Box::Ptr);
+
+#define NUM_REQUIRED_COMPONENTS 3
 
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
 
-        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
-            name(entityName), prefabName(prefabName), modified(modified) {}
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "NULL", bool modified = false, bool persistent = false) :
+            name(entityName), prefabName(prefabName), modified(modified), persistent(persistent) {}
 
         // Copy Constructor
         Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
@@ -100,11 +72,14 @@ namespace Raven {
         std::string name;
         // The name of the prefab
         std::string prefabName;
+        // Whether the entity has been modified from its prefab'd version
         bool modified;
+        // Whether the entity should be preserved in between levels (do not delete upon loading a different level)
+        bool persistent;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Data);
+
+
+        ADD_DEFAULTS(Data);
     };
 
 #pragma endregion
@@ -132,9 +107,7 @@ namespace Raven {
         // Assumes that 0 begins at the right, running counterclockwise.
         float rotation;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Transform);
+        ADD_DEFAULTS(Transform);
     };
 
     // A component enabling a dynamic physical state. Required for movement.
@@ -169,9 +142,7 @@ namespace Raven {
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Rigidbody);
+        ADD_DEFAULTS(Rigidbody);
     };
     
     // An abstract component used to identify collision areas.
@@ -227,102 +198,16 @@ namespace Raven {
         
         // The set of layers to which the collider is assigned. 
         // The collider will "collide" with any BoxCollider that possesses the same entry.
-        // The value is a boolean pair of options dictating when CollisionEvents are emitted.
-        //     First="Required". Second="Automatic".
-        // "Required" indicates that if the layer IS NOT matched up, no CollisionEvent will be emitted.
-        // "Automatic" indicates that if the layer IS matched up, a CollisionEvent will immediately be emitted.
-        // An "automatic" setting will override any lack of "required" layers
-        std::map<std::string, std::pair<bool, bool>> layers;
+        std::set<std::string> layers;
         
         // The collision settings. Valid values can be found in Common::CollisionLayerSettings
         // SOLID : The layer that indicates the entities should be "pushed out of each other"
         // FIXED : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
     
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(BoxCollider);
+        ADD_DEFAULTS(BoxCollider);
     };
 
-    // An abstract component used to classify player objects
-    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pawn() {}
-
-        // Copy Constructor
-        Pawn(const Pawn& other)  {}
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pawn);
-    };
-
-    // An abstract component used to classify AI objects
-    // Tracker will follow closest pawn (player) object
-    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
-        // Creates new instance of struct
-        Tracker() {}
-
-        // Copy Constructor
-        Tracker(const Tracker& other) {}
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Tracker);
-    };
-
-    // An abstract component used to classify AI objects
-    // Pacer will continuously pace with a horizontal(HOR_PATH),
-    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
-    // movement radius.
-    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
-        // Creates new instance of struct
-        Pacer(std::string direction, sf::Vector2f origin, float radius) 
-            : direction(direction), origin(origin), radius(radius) {
-
-            // Vertical path will only have a velocity in the y direction
-            if (direction == VERT_PATH) {
-                velocity.x = 0.f;
-                velocity.y = 0.1f;
-            }
-            // Horizontal path will only have velocity in the x direction
-            else if (direction == HOR_PATH) {
-                velocity.x = 0.1f;
-                velocity.y = 0.f;
-            }
-            // Diagonal path will have both x and y velocities
-            else {
-                velocity.x = 0.1f;
-                velocity.y = 0.1f;
-            }
-        }
-
-        // Copy Constructor
-        Pacer(const Pacer& other) {
-            direction = other.direction;
-            velocity = other.velocity;
-        }
-
-        // Vertical(VERT_PATH), Horizontal(HOR_PATH), Diagonal(DIAG_PATH)
-        std::string direction;
-
-        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
-        sf::Vector2f velocity;
-
-        // Center point of pacer's path
-        sf::Vector2f origin;
-
-        // Distance out in either direction that pacer willtravel from its center point
-        float radius;
-
-        //Serialization and deserialization for edit/play mode
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Pacer);
-    };
-    
 
 #pragma endregion
 
@@ -346,9 +231,7 @@ namespace Raven {
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(SoundMaker);
+        ADD_DEFAULTS(SoundMaker);
     };
 
     // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
@@ -363,9 +246,7 @@ namespace Raven {
         // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(MusicMaker);
+        ADD_DEFAULTS(MusicMaker);
     };
 
 #pragma endregion
@@ -411,84 +292,162 @@ namespace Raven {
         // Maps a string name to a given Sprite to be rendered        
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
 
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(Renderer);
-    };
-
-#pragma endregion
-
-#pragma region Timers
-
-    struct TimeTable : public ex::Component<TimeTable>, public cmn::Serializable {        
-        // Initializes a new instance of the <see cref="TimeTable"/> struct.
-        TimeTable() {}
-        
-        // Copy Constructor
-        TimeTable(const TimeTable& other) : timerMap(other.timerMap) {}
-        
-        // Maps a name to current timers
-        std::map<std::string, Timer> timerMap;
-
-        virtual std::string serialize(std::string tab) override;
-        virtual void deserialize(XMLNode* node) override;
-        ADD_STATICS(TimeTable);
+        ADD_DEFAULTS(Renderer);
     };
 
 #pragma endregion
 
 #pragma region Behaviors
 
-    // Behaviors
+    // An abstract component used to classify player objects
+    struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
+        // Creates new instance of Pawn with an assumed ID
+        Pawn() : playerId(getId()) {
+            if (playerId == -1) {
+                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
+                    " This Pawn will not respond to input." << endl;
+            }
+            else {
+                Pawn::ids.set(playerId);
+            }
+        }
+
+        // Creates a new instance of Pawn and attempts to assign a given ID
+        Pawn(int playerId) {
+            if (!ids.test(playerId)) {
+                this->playerId = playerId;
+                ids.set(playerId);
+            }
+            else {
+                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
+                    " to the given entity." << endl;
+                int i = getId();
+                if (i == -1) {
+                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
+                }
+                else {
+                    playerId = i;
+                    Pawn::ids.set(i);
+                }
+            }
+        }
+
+        // Copy Constructor
+        Pawn(const Pawn& other)  {}
+
+        ~Pawn() { ids.reset(playerId); }
+
+        // The distinct id associated with the Pawn
+        int playerId;
+
+        // The total set of possible IDs available for Pawns
+        static std::bitset<4> ids;
+
+        // Acquires the next available ID
+        static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+
+        //Serialization and deserialization for edit/play mode
+        ADD_DEFAULTS(Pawn);
+    };
+
+    // A tagging component used to quickly identify enemies in the game
+    struct Villain : public ex::Component<Villain>, public cmn::Serializable {
+
+        Villain() {}
+
+        ADD_DEFAULTS(Villain);
+    };
+
+    // An abstract component used to classify AI objects
+    // Tracker will follow closest pawn (player) object
+    struct Tracker : public ex::Component<Tracker>, public cmn::Serializable {
+        // Creates new instance of struct
+        Tracker(ComponentType type = ComponentType::Pawn_t) : target(type) {}
+
+        // Copy Constructor
+        Tracker(const Tracker& other) : target(other.target) {}
+
+        ComponentType target;
+
+        //Serialization and deserialization for edit/play mode
+        ADD_DEFAULTS(Tracker);
+    };
+
+    // An abstract component used to classify AI objects
+    // Pacer will continuously pace with a horizontal(HOR_PATH),
+    // vertical(VERT_PATH), or diagonal(DIAG_PATH), for a given
+    // movement radius.
+    struct Pacer : public ex::Component<Pacer>, public cmn::Serializable {
+
+        enum Direction {
+            VERTICAL,
+            HORIZONTAL,
+            DIAGONAL
+        };
+
+        // Creates new instance of struct
+        Pacer(Direction direction = Direction::HORIZONTAL, sf::Vector2f origin = sf::Vector2f(), float radius = 0.f) 
+            : direction(direction), origin(origin), radius(radius) {
+
+            switch (direction) {
+            case Direction::VERTICAL:
+            // Vertical path will only have a velocity in the y direction
+                velocity.x = 0.f;
+                velocity.y = 0.1f;
+                break;
+            case Direction::HORIZONTAL:
+            // Horizontal path will only have velocity in the x direction
+                velocity.x = 0.1f;
+                velocity.y = 0.f;
+                break;
+            case Direction::DIAGONAL:
+                // Diagonal path will have both x and y velocities
+                velocity.x = 0.1f;
+                velocity.y = 0.1f;
+                break;
+            }
+        }
+
+        // Copy Constructor
+        Pacer(const Pacer& other) {
+            direction = other.direction;
+            velocity = other.velocity;
+            origin = other.origin;
+        }
+
+        // The direction along which the Pacer should move
+        Direction direction;
+
+        // Velocity of Pacer that will be passed to entitie's rigidbody upon update()
+        sf::Vector2f velocity;
+
+        // Center point of pacer's path
+        sf::Vector2f origin;
+
+        // Distance out in either direction that pacer willtravel from its center point
+        float radius;
+
+        //Serialization and deserialization for edit/play mode
+        ADD_DEFAULTS(Pacer);
+    };
+    
 
 #pragma endregion
 
 #pragma region ComponentLibrary
 
-    // This struct enables us to organize the serialization of components more easily
-    // Now we can acquire the Data component of an entity, cycle through its components set
-    // and call attachComponent as necessary
-    struct ComponentLibrary {
+    // local namespace for variables used exclusively within ComponentLibrary.h/.cpp
+    /*struct ComponentLibrary {
 
-        // Serializes all components on the given entity while taking into account the current tab amount
-        static std::string serializeEntity(ex::Entity e, std::string tab);
+        void(*formatEditableAssetListItem)(Box::Ptr) = [](Box::Ptr box) {
+            Entry* editableValue = (Entry*) box->GetChildren()[0].get();
+            editableValue->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Label* currentValue = (Label*)box->GetChildren()[1].get();
+            currentValue->SetText()
+        };
+    };*/
 
-        // Deserializes a given entity assuming the passed in node is the <Entity> tag for the entity to deserialize
-        static void deserializeEntity(ex::Entity e, XMLNode* node);
 
-        // Turns the first entity into a replica of the second entity before returning the first entity.
-        // Simply combines the use of clearEntity and copyComponents with the full set of template parameters.
-        static ex::Entity copyEntity(ex::Entity toReturn, ex::Entity toCopy);
-
-        // Clears the last component from an entity. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static void clearEntity(ex::Entity e, T last);
-
-        // Clears all components from the given entity
-        // Usage:
-        // /* Entity e1 with Data, Transform, and Rigidbody */
-        // clearEntity<Data, Transform, Rigibody>(e1); // OR
-        // clearEntity<Data, Transform, Rigibody, BoxCollider, etc.>(e1);
-        template <typename T, typename... Args>
-        static void clearEntity(ex::Entity e, T first, Args... args);
-
-        // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
-        template <typename T>
-        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T last);
-
-        // Copies all possible components from the given toCopy entity into the toReturn entity
-        // By the end, the following 4 conditions will be true:
-        // 1. If toReturn has a component that toCopy has, toReturn's version will be replaced with a copy of toCopy's
-        // 2. If toReturn does not have a component that toCopy has, it will not have a copy of toCopy's
-        // 3. Any components that toReturn has that toCopy doesn't will remain untouched
-        // 4. Component pointer members will have deep copies made
-        // Usage:
-        // /* Entity e1 with some set of components, Entity e2 with some different set of components */
-        // copyComponents<Data, Transform, etc.>(e1, e2, *e2.component<Data>().get(), *e2.component<Transform>().get(), etc.); // OR
-        // copyComponents<COMPONENT_TYPE_LIST>(e1, e2, COMPONENTS_OF_ENTITY(toCopy); // captures all possible components
-        template <typename T, typename... Args>
-        static ex::Entity copyComponents(ex::Entity toReturn, ex::Entity toCopy, T first, Args... args);
-    };
 
 #pragma endregion
 

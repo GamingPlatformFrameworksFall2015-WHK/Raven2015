@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!ELEMENT PREFABS (Entity*)>
+  <!ELEMENT Entity (Data, Transform, Rigidbody, BoxCollider?, SoundMaker?, MusicMaker?, Renderer?, Pawn?, Villain?, Tracker?, Pacer?)>
+    <!ELEMENT Data (Name, PrefabName, Modified, Persistent)>
+      <!ELEMENT Name (#PCDATA)>
+      <!ELEMENT PrefabName (#PCDATA)>
+      <!ELEMENT Modified (#PCDATA)>
+      <!ELEMENT Persistent (#PCDATA)>
+    <!ELEMENT Transform (SubTransform, Rotation)>
+      <!ELEMENT SubTransform (TransformX, TransformY)>
+        <!ELEMENT TransformX (#PCDATA)>
+        <!ELEMENT TransformY (#PCDATA)>
+      <!ELEMENT Rotation (#PCDATA)>
+    <!ELEMENT Rigidbody (Velocity, Acceleration, RadialVelocity)>
+      <!ELEMENT Velocity (VelocityX, VelocityY)>
+        <!ELEMENT VelocityX (#PCDATA)>
+        <!ELEMENT VelocityY (#PCDATA)>
+      <!ELEMENT Acceleration (AccelerationX, AccelerationY)>
+        <!ELEMENT AccelerationX (#PCDATA)>
+        <!ELEMENT AccelerationY (#PCDATA)>
+      <!ELEMENT RadialVelocity (#PCDATA)>
+    <!ELEMENT BoxCollider (Width, Height, XOffset, YOffset, Layers, Settings)>
+      <!ELEMENT Width (#PCDATA)>
+      <!ELEMENT Height (#PCDATA)>
+      <!ELEMENT XOffset (#PCDATA)>
+      <!ELEMENT YOffset (#PCDATA)>
+      <!ELEMENT Layers (Layer*)>
+        <!ELEMENT Layer (#PCDATA)>
+      <!ELEMENT Settings (Solid, Fixed)>
+        <!ELEMENT Solid (#PCDATA)>
+        <!ELEMENT Fixed (#PCDATA)>
+    <!ELEMENT SoundMaker (SoundMakerSoundFilePath*)>
+      <!ELEMENT SoundMakerSoundFilePath (#PCDATA)>
+    <!ELEMENT MusicMaker (MusicMakerMusicFilePath*)>
+      <!ELEMENT MusicMakerMusicFilePath (#PCDATA)>
+    <!ELEMENT Renderer (Texts, Rectangles, Circles, Sprites)>
+      <!ELEMENT Texts (TextName*)>
+        <!ELEMENT TextName (#PCDATA)>
+      <!ELEMENT Rectangles (RectangleName*)>
+        <!ELEMENT RectangleName (#PCDATA)>
+      <!ELEMENT Circles (CircleName*)>
+        <!ELEMENT CircleName (#PCDATA)>
+      <!ELEMENT Sprites (SpriteName*)>
+        <!ELEMENT SpriteName (#PCDATA)>
+    <!ELEMENT Pawn (PlayerID)>
+      <!ELEMENT PlayerID (#PCDATA)>
+    <!ELEMENT Villain EMPTY>
+    <!ELEMENT Tracker (Target)>
+      <!ELEMENT Target (#PCDATA)>
+    <!ELEMENT Pacer (PacerDirection, PacerVelocity, PacerOrigin, PacerRadius)>
+      <!ELEMENT PacerDirection (#PCDATA)>
+      <!ELEMENT PacerVelocity (PacerVelocityX, PacerVelocityY)>
+        <!ELEMENT PacerVelocityX (#PCDATA)>
+        <!ELEMENT PacerVelocityY (#PCDATA)>
+      <!ELEMENT PacerOrigin (PacerOriginX, PacerOriginY)>
+        <!ELEMENT PacerOriginX (#PCDATA)>
+        <!ELEMENT PacerOriginY (#PCDATA)>
+      <!ELEMENT PacerRadius (#PCDATA)>

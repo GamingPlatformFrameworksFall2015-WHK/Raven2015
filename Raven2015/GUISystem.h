@@ -27,12 +27,11 @@ namespace Raven {
 
     // A system class that manages the creation of windows, the display of windows (excluding "draw" calls handled
     // by the RenderingSystem), and the updating of GUI widgets within "Desktop" elements linked to RenderWindows
-    class GUISystem : public ex::System<GUISystem>,
-        public ex::Receiver<GUISystem> {
+    class GUISystem : public ex::System<GUISystem>, public ex::Receiver<GUISystem> {
     public:
 
         // Perform initializations
-        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem);
+        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem, ex::Entity* editingEntity);
         
         void clear() {
             mainWindow->clear();
@@ -49,99 +48,167 @@ namespace Raven {
 
         }
 
-        //process CollisionEvents
-        //void receive(const CollisionEvent &event);
-
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
 
-        // Shortcut method for acquiring the SceneHierarchy, a list of entities in the scene
-        SCENE_HIERARCHY_WTYPE_SPTR getSceneHierarchy() {
-            return WIDGET_CAST(widgetMap[SCENE_HIERARCHY_NAME], SCENE_HIERARCHY_WTYPE);
-        }
-
-        // Shortcut method for acquiring the ComponentList, a list of the different types of components that exist
-        COMPONENT_LIST_WTYPE_SPTR getComponentList() {
-            return WIDGET_CAST(widgetMap[COMPONENT_LIST_NAME], COMPONENT_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the TextureList, a list of the different types of texture assets that exist
-        TEXTURE_LIST_WTYPE_SPTR getTextureList() {
-            return WIDGET_CAST(widgetMap[TEXTURE_LIST_NAME], TEXTURE_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the MusicList, a list of the different types of music assets that exist
-        MUSIC_LIST_WTYPE_SPTR getMusicList() { 
-            return WIDGET_CAST(widgetMap[MUSIC_LIST_NAME], MUSIC_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the SoundList, a list of the different types of sound assets that exist
-        SOUND_LIST_WTYPE_SPTR getSoundList() {
-            return WIDGET_CAST(widgetMap[SOUND_LIST_NAME], SOUND_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the FontList, a list of the different types of font assets that exist
-        FONT_LIST_WTYPE_SPTR getFontList() {
-            return WIDGET_CAST(widgetMap[FONT_LIST_NAME], FONT_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Content notebook, a tabbed list of the different types of assets (content) available
-        CONTENT_WTYPE_SPTR getContent() {
-            return WIDGET_CAST(widgetMap[CONTENT_NAME], CONTENT_WTYPE);
-        }
-
-        // Shortcut method for acquiring the EntityDesigner, a window for tweaking structure and values in an Entity
-        ENTITY_DESIGNER_WTYPE_SPTR getEntityDesigner() {
-            return WIDGET_CAST(widgetMap[ENTITY_DESIGNER_NAME], ENTITY_DESIGNER_WTYPE);
-        }
-
-        // Shortcut method for acquiring the PrefabList, a list of specifically named Entities with a recorded form
-        PREFAB_LIST_WTYPE_SPTR getPrefabList() {
-            return WIDGET_CAST(widgetMap[PREFAB_LIST_NAME], PREFAB_LIST_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Canvas, a renderable screen into the game space
-        CANVAS_WTYPE_SPTR getCanvas() {
-            return WIDGET_CAST(widgetMap[CANVAS_NAME], CANVAS_WTYPE);
-        }
-
-        // Shortcut method for acquiring the Toolbar, a sequence of buttons that provide access to Brushes for Canvas interaction
-        TOOLBAR_WTYPE_SPTR getToolbar() {
-            return WIDGET_CAST(widgetMap[TOOLBAR_NAME], TOOLBAR_WTYPE);
-        }
-
-        // Makes a GUI widget, giving it a name, storing it in the WidgetMap, and adding it to the Desktop
-        template <class T>
-        std::shared_ptr<T> makeWidget(std::string widgetType, std::string widgetName);
-
-        // Makes a GUI widget, but without giving it a name / storing it in the WidgetMap. For when you don't need direct access.
-        template <class T>
-        std::shared_ptr<T> makeWidget();
-
-        // Format the Master Table widget
-        //std::shared_ptr<Table> formatMasterTable(std::shared_ptr<Table>);
         // Format the Scene Hierarchy widget
         SCENE_HIERARCHY_WTYPE_SPTR formatSceneHierarchy(SCENE_HIERARCHY_WTYPE_SPTR);
-        // Format the Component List widget
-        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR);
-        // Format the Texture List widget
-        TEXTURE_LIST_WTYPE_SPTR formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
-        // Format the Music List widget
-        MUSIC_LIST_WTYPE_SPTR formatMusicList(MUSIC_LIST_WTYPE_SPTR);
-        // Format the Sound List widget
-        SOUND_LIST_WTYPE_SPTR formatSoundList(SOUND_LIST_WTYPE_SPTR);
-        // Format the Font List widget
-        FONT_LIST_WTYPE_SPTR formatFontList(FONT_LIST_WTYPE_SPTR);
         // Format the Content widget
         CONTENT_WTYPE_SPTR formatContent(CONTENT_WTYPE_SPTR);
+        // Format the Texture List widget
+        void formatTextureList(TEXTURE_LIST_WTYPE_SPTR);
+        // Format the Music List widget
+        void formatMusicList(MUSIC_LIST_WTYPE_SPTR);
+        // Format the Sound List widget
+        void formatSoundList(SOUND_LIST_WTYPE_SPTR);
+        // Format the Font List widget
+        void formatFontList(FONT_LIST_WTYPE_SPTR);
+        // Format the Level List widget
+        void formatLevelList(LEVEL_LIST_WTYPE_SPTR);
+        // Format the Animation List widget
+        void formatAnimationList(ANIMATION_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatTextList(TEXT_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatRectangleList(RECTANGLE_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatCircleList(CIRCLE_LIST_WTYPE_SPTR);
+        // Format the Text List widget
+        void formatSpriteList(SPRITE_LIST_WTYPE_SPTR);
+        // Helper function to consolidate operations for Asset List formatting
+        template <typename T>
+        Box::Ptr formatAssetListHelper(ScrolledWindow::Ptr list, Box::Ptr listBox, Button::Ptr addNewButton);
         // Format the Entity Designer widget
         ENTITY_DESIGNER_WTYPE_SPTR formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR);
+        // Format the Component List widget, Base Case
+        template <typename C>
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR, C* c);
+        // Format the Component List widget, Recursive Case
+        template <typename C, typename... Components>
+        COMPONENT_LIST_WTYPE_SPTR formatComponentList(COMPONENT_LIST_WTYPE_SPTR, C* c, Components*... components);
+        // Helper function to consolidate operations for Component List formatting
+        template <typename C>
+        void formatComponentListHelper(C* c);
         // Format the Prefab List widget
         PREFAB_LIST_WTYPE_SPTR formatPrefabList(PREFAB_LIST_WTYPE_SPTR);
         // Format the Canvas widget
         CANVAS_WTYPE_SPTR formatCanvas(CANVAS_WTYPE_SPTR);
         // Format the Toolbar widget
         TOOLBAR_WTYPE_SPTR formatToolbar(TOOLBAR_WTYPE_SPTR);
+
+        // Prefab List Manipulation
+        void populatePrefabList(XMLDocument& prefabsDoc);
+        void addItemToPrefabList(std::string itemName);
+        void removeItemFromPrefabList(std::string itemName);
+        // Scene Hierarchy Manipulation
+        void populateSceneHierarchy(std::set<ex::Entity>& entitySet);
+        void addItemToSceneHierarchy(std::string itemName);
+        void removeItemFromSceneHierarchy(std::string itemName);
+        // Asset List Manipulation
+        void populateTextureList(std::set<std::string> assetList);
+        void populateMusicList(std::set<std::string> assetList);
+        void populateSoundList(std::set<std::string> assetList);
+        void populateFontList(std::set<std::string> assetList);
+        void populateLevelList(std::set<std::string> assetList);
+        void populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map);
+        void populateTextList(std::map<std::string, std::shared_ptr<RenderableText>>& map);
+        void populateRectangleList(std::map<std::string, std::shared_ptr<RenderableRectangle>>& map);
+        void populateCircleList(std::map<std::string, std::shared_ptr<RenderableCircle>>& map);
+        void populateSpriteList(std::map<std::string, std::shared_ptr<RenderableSprite>>& map);
+        template <typename T>
+        void populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList);
+        template <typename T>
+        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr));
+        template <typename T>
+        void removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName);
+        template <typename T, typename Asett>
+        void populateComplexAssetList(Box::Ptr assetMapWidget, std::map<std::string, Asett>& assetMap);
+        template <typename T, typename Asett>
+        void addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
+        template <typename T, typename Asett>
+        void removeItemFromComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
+
+        // Format a given asset list item
+        void(*formatPrefabListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the Entity
+            Button* bduplicate = (Button*)box->GetChildren()[2].get();
+            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+        };
+
+        // Format a given asset list item
+        void(*formatSceneHierarchyListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            e->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the Entity
+            Button* bduplicate = (Button*)box->GetChildren()[2].get();
+            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+        };
+
+        // Format a given asset list item
+        void(*formatAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(350.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the asset
+            Button* bhide = (Button*)box->GetChildren()[2].get();
+            bhide->SetLabel(""); // For selecting the asset
+            bhide->Show(false);
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the asset
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the asset up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the asset down in the list
+        };
+
+        // Format a given asset map item
+        void(*formatComplexAssetListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            std::string temp = e->GetText();
+            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            e->SetText(temp.c_str());
+            e->SetRequisition(sf::Vector2f(350.f, 20.f));
+            Button* bselect = (Button*)box->GetChildren()[1].get();
+            bselect->SetLabel("Select"); // For selecting the asset
+            Button* bopen = (Button*)box->GetChildren()[2].get();
+            bopen->SetLabel("Open"); // For selecting the asset
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the asset
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the asset up in the list
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the asset down in the list
+        };
 
         // Verifies whether the main game window and editor window are both open
         bool isMainWindowOpen() {
@@ -150,6 +217,45 @@ namespace Raven {
 
         // Processes the event stack and permits both RenderWindows and SFGUI widgets to react to events
         void pollEvents();
+
+        //--------------------Callback Methods-----------------------
+
+        // Switches the currentBrush based on the button clicked, thereby changing the canvasClickHandler operation
+        void brushToolbarButtonHandler(Button::Ptr clickedButton);
+
+        // Displays the selected Entity's component list in the EntityDesigner panel
+        void sceneHierachySelectButtonHandler(Button::Ptr clickedButton);
+
+        // Destroys the Entity instance and removes its record from the entitySet
+        void sceneHierachyDeleteButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves up one
+        void sceneHierachyMoveUpButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves down one
+        void sceneHierachyMoveDownButtonHandler(Button::Ptr clickedButton);
+
+        // When modified, updates the name of the given entity
+        void sceneHierachyEntryHandler(Entry::Ptr updatedEntry);
+
+        // Displays the selected Entity's component list in the EntityDesigner panel
+        void prefabListSelectButtonHandler(Button::Ptr clickedButton);
+
+        // Destroys the Entity instance and removes its record from the entitySet
+        void prefabListDeleteButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the prefabListBox so that the clicked prefab moves up one
+        void prefabListMoveUpButtonHandler(Button::Ptr clickedButton);
+
+        // Reorders the children of the prefabListBox so that the clicked prefab moves down one
+        void prefabListMoveDownButtonHandler(Button::Ptr clickedButton);
+
+        // When modified, updates the name of the given prefab
+        void prefabListEntryHandler(Entry::Ptr updatedEntry);
+
+        // Performs an operation on the Canvas based on the current brush mode
+        void canvasClickHandler();
+
 
         //---------------------Member Variables----------------------
 
@@ -169,22 +275,115 @@ namespace Raven {
         std::shared_ptr<InputSystem> input;
 
         // A pointer to the top-level GUI container for the entire editor
-        std::shared_ptr<Window> mainGUIWindow;
+        Window::Ptr mainGUIWindow;
 
         // A pointer to the table organizing the content in the mainGUIWindow
-        std::shared_ptr<Table> table;
+        Table::Ptr table;
 
-        // A mapping between widget names and their shared pointers
-        std::map <std::string, std::shared_ptr<Widget>> widgetMap;
+        //-------------Top level widget panels and their sub-widget-containers------------------
+
+        //----The window upon which the game is drawn----
+        Canvas::Ptr canvas;
+
+        //----The panel displaying entities currently in the level----
+        ScrolledWindow::Ptr sceneHierarchy;
+        // The procedurally generated box managed by the Scene Hierarchy. Contains a list of the entities in the level
+        Box::Ptr sceneHierarchyBox;
+        // The button used to add a default entity at (0, 0)
+        Button::Ptr addNewEntityButton;
+
+        //----The tabbed list of assets available to the user----
+        Notebook::Ptr content;
+
+        //  //  // Texture List //  //  //
+        ScrolledWindow::Ptr textureList;
+        Box::Ptr textureListBox;
+        Button::Ptr addNewTextureButton;
+
+        //  //  // Music List //  //  //
+        ScrolledWindow::Ptr musicList;
+        Box::Ptr musicListBox;
+        Button::Ptr addNewMusicButton;
+
+        //  //  // Sound List //  //  //
+        ScrolledWindow::Ptr soundList;
+        Box::Ptr soundListBox;
+        Button::Ptr addNewSoundButton;
+
+        //  //  // Font List //  //  //
+        ScrolledWindow::Ptr fontList;
+        Box::Ptr fontListBox;
+        Button::Ptr addNewFontButton;
+
+        //  //  // Level List //  //  //
+        ScrolledWindow::Ptr levelList;
+        Box::Ptr levelListBox;
+        Button::Ptr addNewLevelButton;
+
+        //  //  // Animation List //  //  //
+        ScrolledWindow::Ptr animationList;
+        Box::Ptr animationListBox;
+        Button::Ptr addNewAnimationButton;
+
+        //  //  // Text List //  //  //
+        ScrolledWindow::Ptr textList;
+        Box::Ptr textListBox;
+        Button::Ptr addNewTextButton;
+
+        //  //  // Rectangle List //  //  //
+        ScrolledWindow::Ptr rectangleList;
+        Box::Ptr rectangleListBox;
+        Button::Ptr addNewRectangleButton;
+
+        //  //  // Circle List //  //  //
+        ScrolledWindow::Ptr circleList;
+        Box::Ptr circleListBox;
+        Button::Ptr addNewCircleButton;
+
+        //  //  // Sprite List //  //  //
+        ScrolledWindow::Ptr spriteList;
+        Box::Ptr spriteListBox;
+        Button::Ptr addNewSpriteButton;
+
+        //----The list of commands available to the user when interacting with the Canvas----
+        Box::Ptr toolbar;
+
+        //----The window containing a list of components present in the currently exposed Entity-------
+        ScrolledWindow::Ptr componentList;
+        Box::Ptr componentListBox;
+        std::map<ComponentType, Button::Ptr> openComponentButtons;           // For quickly adding callback methods
+        std::map<ComponentType, CheckButton::Ptr> toggleComponentCheckButtons; // For quickly adding callback methods
+        
+        //----The window allowing for the user to modify which components are on an entity and modify their member values----
+        ScrolledWindow::Ptr entityDesigner;
+        Box::Ptr entityDesignerBox;
+        ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
+
+
+        //  //  // Component Editor //  //  //
+        ScrolledWindow::Ptr componentEditor;
+        Box::Ptr componentEditorBox;
+
+        //  //  // Prefab Operations Menu //  //  //
+        ScrolledWindow::Ptr prefabOperationsMenu;
+        Box::Ptr prefabOperationsMenuBox;
+
+        //----The panel displaying entities are currently stored as prefabs----
+        ScrolledWindow::Ptr prefabList;
+        // The procedurally generated box managed by the PrefabList. Contains a list of the prefabs that can be instantiated
+        Box::Ptr prefabListBox; 
+        // The button used for adding new prefabs
+        Button::Ptr addNewPrefabButton;
+
+        //-----------------------Toolbar Member Variables----------------------------------
+
+        // The label for the specific brush currently in use
+        Label::Ptr currentBrush = Label::Create("Create");
+
+        //---------------------------Constants---------------------------------------------
 
         // The preset name for the main window of the engine
         const static std::string MAIN_WINDOW_NAME;
-
-        void brushToolbarButtonClick(Button::Ptr clickedButton);
-        void GUISystem::sceneHierachyButton(Button::Ptr clickedButton);
-        void canvasClickHandler();
-        Label::Ptr currentBrush = Label::Create("Create");
-
     };
 
 }

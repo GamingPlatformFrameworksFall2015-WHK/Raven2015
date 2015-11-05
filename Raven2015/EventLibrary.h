@@ -17,6 +17,9 @@
 #include "entityx\Entity.h" // For entityx::Entity
 #include "SFML/System.hpp"
 #include "ComponentLibrary.h"
+#include "SFGUI/Widgets.hpp"
+
+using namespace sfg;
 
 namespace Raven {
 
@@ -126,15 +129,59 @@ namespace Raven {
 
     struct TimerEvent : public ex::Event<TimerEvent> {
 
-        TimerEvent(std::shared_ptr<TimeTable> timeTable = nullptr,
+        TimerEvent(
             std::string timerName = "", cmn::ETimerOperation op =
             cmn::ETimerOperation::NO_TIMER_OPERATION, ex::TimeDelta = 0.0)
-            : timeTable(timeTable), timerName(timerName), timerOperation(op), scanTime(scanTime) {}
+            : timerName(timerName), timerOperation(op), scanTime(scanTime) {}
 
         ex::TimeDelta scanTime;
         cmn::ETimerOperation timerOperation;
         std::string timerName;
-        std::shared_ptr<TimeTable> timeTable;
+    };
+
+#pragma endregion
+
+#pragma region GUIEvents
+
+    // The PanelType is not explicitly used, but because it is there, a unique version of the function can be made for
+    // A given typename of panel. All panel typenames are detailed at the top of WidgetLibrary.h
+ //   template <typename PanelType, typename... Widgets>
+ //   struct GUIWidgetListEvent : public ex::Event<GUIWidgetListEvent<PanelType, Widgets...>> {
+
+ //       enum Operation {
+ //           POPULATE,
+ //           ADD,
+ //           REMOVE
+ //       };
+
+ //       GUIWidgetListEvent(Box::Ptr box = nullptr, void (*listItemFormatter)(Box::Ptr) = nullptr, 
+ //           Operation op = Operation::ADD, std::string itemName = "") : 
+ //           box(box), formatter(listItemFormatter), itemName(itemName), op(op) {}
+
+ //       Box::Ptr box;
+ //       std::string itemName;
+ //       void(*formatter)(Box::Ptr);
+ //       Operation op;
+        
+ //   };
+
+ //   struct GUIDisplayParticularComponent : public ex::Event<GUIDisplayParticularComponent> {
+
+        // Required for compilation
+ //       GUIDisplayParticularComponent() {}
+
+ //       GUIDisplayParticularComponent(ex::Entity entity, ComponentType type) :
+ //           entity(entity), type(type) {}
+
+ //       ex::Entity entity;
+ //       ComponentType type;
+ //   };
+
+    struct GUIRegisterTextureEvent : public ex::Event<GUIRegisterTextureEvent> {
+
+        GUIRegisterTextureEvent(const std::string& textureFilePath) : textureFilePath(textureFilePath) {}
+
+        std::string textureFilePath;
     };
 
 #pragma endregion
@@ -147,6 +194,55 @@ namespace Raven {
 
     struct XMLSaveEvent : public ex::Event<XMLSaveEvent> {
         XMLSaveEvent() {}
+    };
+
+    struct XMLUpdateEntityNameEvent : public ex::Event<XMLUpdateEntityNameEvent> {
+
+        XMLUpdateEntityNameEvent(ex::Entity entity, std::string newName, bool isPrefab) : 
+            entity(entity), newName(newName), isPrefab(isPrefab) {}
+
+        ex::Entity entity;
+
+        std::string newName;
+
+        bool isPrefab;
+    };
+
+    struct XMLSerializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
+
+        XMLSerializeParticularComponent(ex::Entity entity, ComponentType type) :
+            entity(entity), type(type) {}
+
+        ex::Entity entity;
+        ComponentType type;
+    };
+
+    struct XMLDeserializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
+
+        // Required for compilation
+        XMLDeserializeParticularComponent() {}
+
+        XMLDeserializeParticularComponent(ex::Entity entity, ComponentType type, bool forDisplay) :
+            entity(entity), type(type), forDisplay(forDisplay) {}
+
+        ex::Entity entity;
+        ComponentType type;
+        bool forDisplay;
+    };
+
+    struct XMLEntityEvent : public ex::Event<XMLEntityEvent> {
+
+        XMLEntityEvent(ex::Entity e = ex::Entity()) : entity(e) {}
+
+        ex::Entity entity;
+    };
+
+    struct XMLLogEntityEvent : public XMLEntityEvent {
+        XMLLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
+    };
+
+    struct XMLDeLogEntityEvent : public XMLEntityEvent {
+        XMLDeLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
     };
 
 #pragma endregion
