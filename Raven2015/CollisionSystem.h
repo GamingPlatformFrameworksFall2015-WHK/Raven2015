@@ -41,7 +41,7 @@ namespace Raven {
             ex::TimeDelta dt) override;
 
         // Picks up CollisionEvents
-        void receive(CollisionEvent &event);
+        void receive(const CollisionEvent &event);
 
         /*
          * Tests whether two entities' colliders register a collision.

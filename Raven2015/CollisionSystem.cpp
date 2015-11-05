@@ -45,12 +45,21 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
     });
 }
 
-void CollisionSystem::receive(CollisionEvent &event) {
+void CollisionSystem::receive(const CollisionEvent &event) {
 
     //cout << "Collision occurred" << endl;
+	/*
+	ex::ComponentHandle<Rigidbody> leftRigidbody = event.leftRigidBody;
+	ex::ComponentHandle<Rigidbody> rightRigidbody = event.rightRigidBody;
     sf::Vector2f leftVelocity = event.leftRigidbody->velocity;
 	sf::Vector2f rightVelocity = event.rightRigidbody->velocity;
 	sf::Vector2f relVel = rightVelocity - leftVelocity;
+	double dotProduct = (relVel.x * event.collisionPoint.x) + (relVel.y * event.CollisionPoint.y);
+
+	if (dotProduct <= 0) {
+		double j = -(1 - E)
+	}
+	*/
 }
 
 /*
