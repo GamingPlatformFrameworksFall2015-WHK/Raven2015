@@ -336,9 +336,11 @@ namespace Raven {
             std::map<std::string, std::shared_ptr<RenderableText>>* texts,
             std::map<std::string, std::shared_ptr<RenderableRectangle>>* rectangles,
             std::map<std::string, std::shared_ptr<RenderableCircle>>* circles,
-            std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites
+            std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites,
+            std::map<Widget::Ptr, ex::Entity>* entitiesByWidget
             ) : textures(textures), music(music), sounds(sounds), fonts(fonts), levels(levels),
-            animations(animations), texts(texts), rectangles(rectangles), circles(circles), sprites(sprites) {}
+            animations(animations), texts(texts), rectangles(rectangles), circles(circles), sprites(sprites),
+            entitiesByWidget(entitiesByWidget) {}
 
         std::set<std::string>* textures;
         std::set<std::string>* music;
@@ -350,5 +352,6 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<RenderableRectangle>>* rectangles;
         std::map<std::string, std::shared_ptr<RenderableCircle>>* circles;
         std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites;
+        std::map<Widget::Ptr, ex::Entity>* entitiesByWidget
     };
 }

@@ -200,9 +200,6 @@ namespace Raven {
         // A pointer to the table organizing the content in the mainGUIWindow
         Table::Ptr table;
 
-        // A mapping between widgets and entity objects
-        std::map<Widget::Ptr, ex::Entity> entityWidgetMap;
-
         //-------------Top level widget panels and their sub-widget-containers------------------
 
         //----The window upon which the game is drawn----
