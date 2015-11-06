@@ -1,8 +1,7 @@
 #pragma once
 #include "Common.h"
-#include "ComponentLibrary.h"
 #include "Game.h"
-#include "entityx/System.h"
+#include "ComponentLibrary.h"
 #include "EventLibrary.h"
 
 namespace Raven {
@@ -25,6 +24,10 @@ namespace Raven {
         template <typename C, typename... Components>
         static void clearEntity(ex::Entity e, C* c, Components*... components);
 
+        // Having troubles with clearEntity. LNK2019 (no implementation for...) when using only Data, Transform, Rigidbody.
+        // Resorting to a direct function for that functionality to speed things along.
+        static void clearCoreComponents(ex::Entity e);
+
         // Copies the last component from one entity to another. Base case for the parameter pack version to work recursively
         template <typename C>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c);
@@ -42,28 +45,47 @@ namespace Raven {
         template <typename C, typename... Components>
         static ex::Entity copyEntityComponents(ex::Entity toReturn, ex::Entity toCopy, C* c, Components*... components);
 
-        static void updateEntityRecord(ex::Entity e, std::string newName, bool isPrefab) {
-            cmn::game->events.emit<XMLUpdateEntityNameEvent>(e, newName, isPrefab);
+        // Given a particular enumerated component type, the corresponding component handle will be acquired. Base case.
+        template <typename C>
+        static ex::ComponentHandle<C> getComponentByType(ex::Entity entity, ComponentType type, C* c) {
+            return (C::getType() == type) ? entity.component<C>() : return nullptr;
+        }
+
+        // Given a particular enumerated component type, the corresponding component handle will be acquired. Recursive case.
+        template <typename C, typename... Components>
+        static ex::ComponentHandle<C> getComponentByType(ex::Entity entity, ComponentType type, C* c, Components*... components) {
+            return (C::getType() == type) ? entity.component<C>() : getComponentByType<Components...>(components);
+        }
+
+        // Given a particular component name, the corresponding component handle will be acquired. Base case.
+        template <typename C>
+        static ex::ComponentHandle<C> getComponentByName(ex::Entity entity, std::string name, C* c) {
+            return (C::getElementName() == name) ? entity.component<C>() : return nullptr;
+        }
+
+        // Given a particular component name, the corresponding component handle will be acquired. Recursive case.
+        template <typename C, typename... Components>
+        static ex::ComponentHandle<C> getComponentByName(ex::Entity entity, std::string name, C* c, Components*... components) {
+            return (C::getElementName() == name) ? entity.component<C>() : getComponentByType<Components...>(components);
         }
 
         struct Create {
 
-            static ex::Entity Entity(std::string entityName = "Default Entity", bool isPrefab = false) {
-                ex::Entity e = cmn::entities->create();
-                ex::ComponentHandle<Data> data = e.assign<Data>();
+            static ex::Entity Entity(std::string entityName = "Default Entity", bool enumerateName = true) {
+                ex::Entity e = cmn::game->entities.create();
+                ex::ComponentHandle<Data> data = e.assign<Data>(entityName, "NULL", false, false);
                 e.assign<Transform>();
                 e.assign<Rigidbody>();
-                std::string name = entityName;
-                if (!isPrefab) {
-                    name += " " + std::to_string(counter++);
+                if (enumerateName) {
+                    data->name += " " + std::to_string(counter++);
                 }
-                data->name = name;
-                updateEntityRecord(e, name, isPrefab);
                 return e;
             }
 
+            // FUNCTION WILL BECOME OBSOLETE WITH THE IMPLEMENTATION OF PREFABS
             static ex::Entity Player(std::string playerName = "Default Player") {
                 ex::Entity e = Entity(playerName);
+                e.component<Data>()->persistent = true;
                 e.assign<Pawn>();
                 e.assign<BoxCollider>();
                 e.assign<Renderer>();

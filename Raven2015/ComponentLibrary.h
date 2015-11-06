@@ -22,7 +22,9 @@
 #include "entityx\Entity.h"             // For ex::Component
 #include "Common.h"                     // For etc.
 #include "DataAssetLibrary.h"           // For Renderable, Timer
+#include "SFGUI/Widgets.hpp"            // For Widget generation
 
+using namespace sfg;
 
 namespace Raven {
 
@@ -36,27 +38,36 @@ namespace Raven {
 #define COMPONENT_TYPE_LIST Data, Transform, Rigidbody, BoxCollider, SoundMaker, MusicMaker, Renderer, Pawn, Villain, Tracker, Pacer
 /******************************************************************************************************************/
     enum ComponentType {
-        COMPONENT_TYPES(_t)
+        COMPONENT_TYPES(_t),
+        NumComponentTypes
     };
 
-// serialize:        for serializing the component
-// deserialize:      for de-serializing the component
-// getElementName:   for acquiring the wrapper element name for the component's serialized form
-// getType:          for acquiring a switchable indicator of the component's type (currently unused)
-// getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
-#define ADD_DEFAULTS(type_name) \
-        virtual std::string serialize(std::string tab, bool forPrefab) override; \
-        virtual void deserialize(XMLNode* node, bool forPrefab) override; \
-        static std::string getElementName(bool forPrefab) { return std::string((forPrefab ? "P" : "L")) + #type_name; } \
+    // serialize:        for serializing the component
+    // deserialize:      for de-serializing the component
+    // getElementName:   for acquiring the wrapper element name for the component's serialized form
+    // getType:          for acquiring a switchable indicator of the component's type (currently unused)
+    // getNullPtrToType: for creating variadic parameter-pack parameter lists that use pointers rather than actual types
+#define ADD_COMPONENT_DEFAULTS(type_name) \
+        virtual std::string serialize(std::string tab) override; \
+        virtual void deserialize(XMLNode* node) override; \
+        static std::string getElementName() { return #type_name; } \
         static ComponentType getType() { return ComponentType::type_name##_t; } \
-        static type_name##* getNullPtrToType() { return nullptr; } 
+        static type_name##* getNullPtrToType() { return nullptr; } \
+        Box::Ptr createWidget(); \
+        bool deserializeWidget(Box::Ptr);
+
+#define NUM_REQUIRED_COMPONENTS 3
+
+    int getDropDownValue(Box::Ptr box, size_t position);
+
+    std::string getEntryValue(Box::Ptr box, size_t position);
 
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
 
-        Data(std::string entityName = "Default_Entity", std::string prefabName = "", bool modified = false) :
-            name(entityName), prefabName(prefabName), modified(modified) {}
+        Data(std::string entityName = "Default_Entity", std::string prefabName = "NULL", bool modified = false, bool persistent = false) :
+            name(entityName), prefabName(prefabName), modified(modified), persistent(persistent) {}
 
         // Copy Constructor
         Data(const Data& other) : name(other.name), prefabName(other.prefabName), modified(other.modified) {}
@@ -65,9 +76,14 @@ namespace Raven {
         std::string name;
         // The name of the prefab
         std::string prefabName;
+        // Whether the entity has been modified from its prefab'd version
         bool modified;
+        // Whether the entity should be preserved in between levels (do not delete upon loading a different level)
+        bool persistent;
 
-        ADD_DEFAULTS(Data);
+
+
+        ADD_COMPONENT_DEFAULTS(Data);
     };
 
 #pragma endregion
@@ -95,7 +111,7 @@ namespace Raven {
         // Assumes that 0 begins at the right, running counterclockwise.
         float rotation;
 
-        ADD_DEFAULTS(Transform);
+        ADD_COMPONENT_DEFAULTS(Transform);
     };
 
     // A component enabling a dynamic physical state. Required for movement.
@@ -130,7 +146,7 @@ namespace Raven {
         // The turning rate of the entity in degrees per second, counterclockwise.
         float radialVelocity;
 
-        ADD_DEFAULTS(Rigidbody);
+        ADD_COMPONENT_DEFAULTS(Rigidbody);
     };
     
     // An abstract component used to identify collision areas.
@@ -193,7 +209,7 @@ namespace Raven {
         // FIXED : The layer that indicates the entity will react to the collision
         std::set<std::string> collisionSettings;
     
-        ADD_DEFAULTS(BoxCollider);
+        ADD_COMPONENT_DEFAULTS(BoxCollider);
     };
 
 
@@ -219,7 +235,7 @@ namespace Raven {
         // An object for performing sound operations on a buffer.
         sf::Sound sound;
 
-        ADD_DEFAULTS(SoundMaker);
+        ADD_COMPONENT_DEFAULTS(SoundMaker);
     };
 
     // A component that stores the names of large tracks (~30 seconds+) for sf::Music.
@@ -234,7 +250,7 @@ namespace Raven {
         // A mapping between music file names and their stream storage objects
         MUSICMAP_T musicMap;
 
-        ADD_DEFAULTS(MusicMaker);
+        ADD_COMPONENT_DEFAULTS(MusicMaker);
     };
 
 #pragma endregion
@@ -280,7 +296,7 @@ namespace Raven {
         // Maps a string name to a given Sprite to be rendered        
         std::map<std::string, std::shared_ptr<RenderableSprite>> sprites;
 
-        ADD_DEFAULTS(Renderer);
+        ADD_COMPONENT_DEFAULTS(Renderer);
     };
 
 #pragma endregion
@@ -290,52 +306,13 @@ namespace Raven {
     // An abstract component used to classify player objects
     struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
         // Creates new instance of Pawn with an assumed ID
-        Pawn() : playerId(getId()) {
-            if (playerId == -1) {
-                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
-                    " This Pawn will not respond to input." << endl;
-            }
-            else {
-                Pawn::ids.set(playerId);
-            }
-        }
-
-        // Creates a new instance of Pawn and attempts to assign a given ID
-        Pawn(int playerId) {
-            if (!ids.test(playerId)) {
-                this->playerId = playerId;
-                ids.set(playerId);
-            }
-            else {
-                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
-                    " to the given entity." << endl;
-                int i = getId();
-                if (i == -1) {
-                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
-                }
-                else {
-                    playerId = i;
-                    Pawn::ids.set(i);
-                }
-            }
-        }
+        Pawn() {}
 
         // Copy Constructor
-        Pawn(const Pawn& other)  {}
-
-        ~Pawn() { ids.reset(playerId); }
-
-        // The distinct id associated with the Pawn
-        int playerId;
-
-        // The total set of possible IDs available for Pawns
-        static std::bitset<4> ids;
-
-        // Acquires the next available ID
-        static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+        Pawn(const Pawn& other) {}
 
         //Serialization and deserialization for edit/play mode
-        ADD_DEFAULTS(Pawn);
+        ADD_COMPONENT_DEFAULTS(Pawn);
     };
 
     // A tagging component used to quickly identify enemies in the game
@@ -343,7 +320,9 @@ namespace Raven {
 
         Villain() {}
 
-        ADD_DEFAULTS(Villain);
+        Villain(const Villain& other) {}
+
+        ADD_COMPONENT_DEFAULTS(Villain);
     };
 
     // An abstract component used to classify AI objects
@@ -358,7 +337,7 @@ namespace Raven {
         ComponentType target;
 
         //Serialization and deserialization for edit/play mode
-        ADD_DEFAULTS(Tracker);
+        ADD_COMPONENT_DEFAULTS(Tracker);
     };
 
     // An abstract component used to classify AI objects
@@ -416,7 +395,7 @@ namespace Raven {
         float radius;
 
         //Serialization and deserialization for edit/play mode
-        ADD_DEFAULTS(Pacer);
+        ADD_COMPONENT_DEFAULTS(Pacer);
     };
     
 
@@ -424,12 +403,18 @@ namespace Raven {
 
 #pragma region ComponentLibrary
 
-    // This struct enables us to organize the serialization of components more easily
-    // Now we can acquire the Data component of an entity, cycle through its components set
-    // and call attachComponent as necessary
-    //struct ComponentLibrary {
+    // local namespace for variables used exclusively within ComponentLibrary.h/.cpp
+    /*struct ComponentLibrary {
 
-    //};
+        void(*formatEditableAssetListItem)(Box::Ptr) = [](Box::Ptr box) {
+            Entry* editableValue = (Entry*) box->GetChildren()[0].get();
+            editableValue->SetRequisition(sf::Vector2f(160.f, 20.f));
+            Label* currentValue = (Label*)box->GetChildren()[1].get();
+            currentValue->SetText()
+        };
+    };*/
+
+
 
 #pragma endregion
 

@@ -13,25 +13,12 @@
 
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <vector>
-#include <string>
-#include <exception>
-#include "SFML/Graphics.hpp"
-#include "SFML/System.hpp"
-#include "entityx/entityx.h"
-#include "ComponentLibrary.h"
-#include "MovementSystem.h"
-#include "AudioSystem.h"
-#include "CollisionSystem.h"
-#include "InputSystem.h"
-#include "RenderingSystem.h"
-#include "GUISystem.h"
-#include "XMLSystem.h"
-#include "entityx/deps/Dependencies.h"
-#include "EntityLibrary.h"
-#include "Game.h"
+#include <iostream>             // For std::cout, std::cerr, std::endl
+#include "SFML/System.hpp"      // For sf::RenderWindow
+#include "Common.h"             // For FPS constants
+#include "DataAssetLibrary.h"   // For rvn::Timer
+#include "Game.h"               // For rvn::Game
+#include "ComponentLibrary.h"   // 
 
 using namespace Raven;
 
@@ -44,7 +31,7 @@ int main() {
 
     // Create EntityX manager object
     Game game(requiredWindow);
-    std::shared_ptr<sf::RenderWindow> window(game.systems.system<GUISystem>()->mainWindow);
+    std::shared_ptr<sf::RenderWindow> window = game.getWindow();
 
     /*
     // This should all eventually get converted into XML, that way no "registration" is required
@@ -127,24 +114,13 @@ int main() {
     */
 
     game.initialize();
-    auto aLevelMap = game.systems.system<XMLSystem>()->levelMap;
-    if (aLevelMap.find("Default Level") == aLevelMap.end()) {
-        cerr << "WARNING: Could not find initial level." << endl;
-    }
-    else {
-        cout << "Found the Default Level!" << endl;
-    }
-    game.save();
-    cout << "Saved game" << endl;
-
-    cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
     Timer fpsTimer;
     Timer gameTimer;
     double currentTime = 0.0;
     double accumulator = 0.0;
     int fps = 0;
-    while (game.systems.system<GUISystem>()->isMainWindowOpen()) {
+    while (game.isMainWindowOpen()) {
 
         // Calculate FPS based on iterations game loop has updated in 1 second
         if (fpsTimer.getElapsedTime() >= 1.0) {
@@ -162,15 +138,15 @@ int main() {
         //subtract delta time from accumulator so we don't lose any leftover time,
         //and clear window to prepare for next display.
         while (accumulator >= FPS_100_TICK_TIME) {
-            game.systems.system<GUISystem>()->pollEvents();
-            game.systems.system<GUISystem>()->clear();
+            game.pollEvents();
+            game.clearWindow();
             //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
             game.updateGameMode(frameTime);
             fps++;
             accumulator -= FPS_100_TICK_TIME;
         }
 
-        game.systems.system<GUISystem>()->display();
+        game.displayWindow();
     }
 
     return 0;

@@ -4,8 +4,20 @@
 #include <algorithm>
 
 using namespace sfg;
+#define ED_ASSET_WIDGET_LIST WidgetLibrary::WidgetList<WidgetLibrary::EntityDesignerPanel, ED_ASSET_LIST_WIDGET_SEQUENCE>
 
 namespace Raven {
+
+    // A helper class that merely exists to allow for the template using a string constructor for widgets to compile
+    // We just need a ComboBox and the default ComboBox has no string-accepting constructor
+    class RavenComboBox : public ComboBox {
+    public:
+        RavenComboBox() {}
+
+        static ComboBox::Ptr Create(std::string) {
+            return ComboBox::Create();
+        }
+    };
 
     struct WidgetLibrary {
 
@@ -66,6 +78,42 @@ class FontListPanel {};
 #define FONT_LIST_WTYPE_SPTR SPTR(FONT_LIST_WTYPE)
 #define FONT_LIST_NAME "Fonts"
 
+// LevelList
+#define LEVEL_LIST_WTYPE ScrolledWindow
+class LevelListPanel {};
+#define LEVEL_LIST_WTYPE_SPTR SPTR(LEVEL_LIST_WTYPE)
+#define LEVEL_LIST_NAME "Levels"
+
+// AnimationList
+#define ANIMATION_LIST_WTYPE ScrolledWindow
+class AnimationListPanel {};
+#define ANIMATION_LIST_WTYPE_SPTR SPTR(ANIMATION_LIST_WTYPE)
+#define ANIMATION_LIST_NAME "Animations"
+
+// SpriteList
+#define SPRITE_LIST_WTYPE ScrolledWindow
+class SpriteListPanel {};
+#define SPRITE_LIST_WTYPE_SPTR SPTR(SPRITE_LIST_WTYPE)
+#define SPRITE_LIST_NAME "Sprites"
+
+// TextList
+#define TEXT_LIST_WTYPE ScrolledWindow
+class TextListPanel {};
+#define TEXT_LIST_WTYPE_SPTR SPTR(TEXT_LIST_WTYPE)
+#define TEXT_LIST_NAME "Texts"
+
+// RectangleList
+#define RECTANGLE_LIST_WTYPE ScrolledWindow
+class RectangleListPanel {};
+#define RECTANGLE_LIST_WTYPE_SPTR SPTR(RECTANGLE_LIST_WTYPE)
+#define RECTANGLE_LIST_NAME "Rectangles"
+
+// CircleList
+#define CIRCLE_LIST_WTYPE ScrolledWindow
+class CircleListPanel {};
+#define CIRCLE_LIST_WTYPE_SPTR SPTR(CIRCLE_LIST_WTYPE)
+#define CIRCLE_LIST_NAME "Circles"
+
 // Content
 #define CONTENT_WTYPE Notebook
 class ContentPanel {};
@@ -97,8 +145,10 @@ class ToolbarPanel {};
 #define TOOLBAR_NAME "Toolbar"
 
         ///// Low-Level Widgets
-
-#define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button
+// Item name, Select button, duplicate button (hidden?), delete button, move up button, move down button
+#define ASSET_LIST_WIDGET_SEQUENCE Entry, Button, Button, Button, Button, Button
+// Item name, value you wish to serialize, current value, serialization data (hidden), asset type (NOT hidden for Renderer)
+#define ED_ASSET_LIST_WIDGET_SEQUENCE Label, Entry, Label, Label, RavenComboBox
 
 
 /////////////////////
@@ -131,14 +181,14 @@ class ToolbarPanel {};
         template <typename PanelType, typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
         class WidgetList {
         public:
-            static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
+            /*static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->Pack(b, true, true);
                 listItemFormatter(b);
                 type->ReorderChild(box, position);
                 //sortList(type);
                 return b;
-            }
+            }*/
 
             static Box::Ptr appendWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
@@ -148,13 +198,13 @@ class ToolbarPanel {};
                 return b;
             }
 
-            static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
+            /*static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->PackStart(b, true, true);
                 listItemFormatter(b);
                 //sortList(type);
                 return b;
-            }
+            }*/
 
             static void removeWidget(Box::Ptr type, std::string labelName) {
                 for (int i = 0; i < type->GetChildren().size(); ++i) {
@@ -166,9 +216,9 @@ class ToolbarPanel {};
                 //sortList(type);
             }
 
-            static void sortList(Box::Ptr type) {
+            /*static void sortList(Box::Ptr type) {
                 std::sort(type->GetChildren().begin(), type->GetChildren().end(), compareWidgets);
-            }
+            }*/
 
             static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
                 // Not sure this will work since I was getting errors when casting 
@@ -187,15 +237,13 @@ class ToolbarPanel {};
         private:
             WidgetList(); //Cannot be instantiated
 
-            static unsigned int counter;
-
             // Base case for recursive parameter pack widget box creation. Should be called initially with just the labelName
             template <typename W>
             static Box::Ptr makeWidgetBox(std::string labelName, Box::Ptr box = nullptr, std::shared_ptr<std::tuple<W>> t = nullptr) {
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter++));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 Box::Ptr finalBox = box; // save the address of the box
                 return finalBox;
@@ -209,7 +257,7 @@ class ToolbarPanel {};
                 if (!box) {
                     box = Box::Create(Box::Orientation::HORIZONTAL, 5.f);
                 }
-                auto widget = W::Create(labelName + " " + std::to_string(counter));
+                auto widget = W::Create(labelName);
                 box->Pack(widget, true, true);
                 return makeWidgetBox<Widgets...>(labelName, box, nullptr);
             }

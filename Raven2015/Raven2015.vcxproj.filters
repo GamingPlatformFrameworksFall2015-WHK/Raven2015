@@ -120,6 +120,9 @@
     <ClCompile Include="EntityLibrary.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
+    <ClCompile Include="DataAssetLibrary.cpp">
+      <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -214,7 +217,13 @@
     <None Include="Resources\Audio\Sounds\choose.ogg">
       <Filter>Resource Files\Audio</Filter>
     </None>
-    <None Include="raven.dtd">
+    <None Include="Resources\XML\assets.dtd">
+      <Filter>Resource Files\XML</Filter>
+    </None>
+    <None Include="Resources\XML\level.dtd">
+      <Filter>Resource Files\XML</Filter>
+    </None>
+    <None Include="Resources\XML\prefabs.dtd">
       <Filter>Resource Files\XML</Filter>
     </None>
   </ItemGroup>
@@ -235,7 +244,16 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="raven.xml">
+    <Xml Include="Resources\XML\assets.xml">
+      <Filter>Resource Files\XML</Filter>
+    </Xml>
+    <Xml Include="Resources\XML\DefaultLevel.xml">
+      <Filter>Resource Files\XML</Filter>
+    </Xml>
+    <Xml Include="Resources\XML\prefabs.xml">
+      <Filter>Resource Files\XML</Filter>
+    </Xml>
+    <Xml Include="Resources\XML\anotherLevel.xml">
       <Filter>Resource Files\XML</Filter>
     </Xml>
   </ItemGroup>

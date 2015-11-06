@@ -145,24 +145,52 @@ namespace Raven {
 
     // The PanelType is not explicitly used, but because it is there, a unique version of the function can be made for
     // A given typename of panel. All panel typenames are detailed at the top of WidgetLibrary.h
-    template <typename PanelType, typename... Widgets>
-    struct GUIWidgetListEvent : public ex::Event<GUIWidgetListEvent<PanelType, Widgets...>> {
+ //   template <typename PanelType, typename... Widgets>
+ //   struct GUIWidgetListEvent : public ex::Event<GUIWidgetListEvent<PanelType, Widgets...>> {
 
-        enum Operation {
-            POPULATE,
-            ADD,
-            REMOVE
-        };
+ //       enum Operation {
+ //           POPULATE,
+ //           ADD,
+ //           REMOVE
+ //       };
 
-        GUIWidgetListEvent(Box::Ptr box = nullptr, void (*listItemFormatter)(Box::Ptr) = nullptr, 
-            Operation op = Operation::ADD, std::string itemName = "") : 
-            box(box), formatter(listItemFormatter), itemName(itemName), op(op) {}
+ //       GUIWidgetListEvent(Box::Ptr box = nullptr, void (*listItemFormatter)(Box::Ptr) = nullptr, 
+ //           Operation op = Operation::ADD, std::string itemName = "") : 
+ //           box(box), formatter(listItemFormatter), itemName(itemName), op(op) {}
 
-        Box::Ptr box;
-        std::string itemName;
-        void(*formatter)(Box::Ptr);
-        Operation op;
+ //       Box::Ptr box;
+ //       std::string itemName;
+ //       void(*formatter)(Box::Ptr);
+ //       Operation op;
         
+ //   };
+
+ //   struct GUIDisplayParticularComponent : public ex::Event<GUIDisplayParticularComponent> {
+
+        // Required for compilation
+ //       GUIDisplayParticularComponent() {}
+
+ //       GUIDisplayParticularComponent(ex::Entity entity, ComponentType type) :
+ //           entity(entity), type(type) {}
+
+ //       ex::Entity entity;
+ //       ComponentType type;
+ //   };
+
+    /*template <typename Panel>
+    struct GUIDeleteWidgetEvent : public ex::Event<GUIDeleteWidgetEvent> {
+        GUIDeleteWidgetEvent(std::string parentID, std::string childToDeleteID) :
+            parentID(parentID), childToDeleteID(childToDeleteID) {}
+
+        std::string parentID;
+        std::string childToDeleteID;
+    };*/
+
+    struct GUIRegisterTextureEvent : public ex::Event<GUIRegisterTextureEvent> {
+
+        GUIRegisterTextureEvent(const std::string& textureFilePath) : textureFilePath(textureFilePath) {}
+
+        std::string textureFilePath;
     };
 
 #pragma endregion
@@ -189,15 +217,41 @@ namespace Raven {
         bool isPrefab;
     };
 
-    template <typename RenderableAsset>
-    struct XMLDeserializeRendererAsset : public ex::Event<XMLDeserializeRendererAsset<RenderableAsset>> {
+    struct XMLSerializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
 
-        XMLDeserializeRendererAsset(std::string assetName, std::map<std::string, std::shared_ptr<RenderableAsset>>& assets, bool forPrefabs) :
-            assetName(assetName), assets(&assets), forPrefabs(forPrefabs) {}
+        XMLSerializeParticularComponent(ex::Entity entity, ComponentType type) :
+            entity(entity), type(type) {}
 
-        std::string assetName;
-        std::map<std::string, std::shared_ptr<RenderableAsset>>* assets;
-        bool forPrefabs;
+        ex::Entity entity;
+        ComponentType type;
+    };
+
+    struct XMLDeserializeParticularComponent : public ex::Event<XMLSerializeParticularComponent> {
+
+        // Required for compilation
+        XMLDeserializeParticularComponent() {}
+
+        XMLDeserializeParticularComponent(ex::Entity entity, ComponentType type, bool forDisplay) :
+            entity(entity), type(type), forDisplay(forDisplay) {}
+
+        ex::Entity entity;
+        ComponentType type;
+        bool forDisplay;
+    };
+
+    struct XMLEntityEvent : public ex::Event<XMLEntityEvent> {
+
+        XMLEntityEvent(ex::Entity e = ex::Entity()) : entity(e) {}
+
+        ex::Entity entity;
+    };
+
+    struct XMLLogEntityEvent : public XMLEntityEvent {
+        XMLLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
+    };
+
+    struct XMLDeLogEntityEvent : public XMLEntityEvent {
+        XMLDeLogEntityEvent(ex::Entity e = ex::Entity()) : XMLEntityEvent(e) {}
     };
 
 #pragma endregion
