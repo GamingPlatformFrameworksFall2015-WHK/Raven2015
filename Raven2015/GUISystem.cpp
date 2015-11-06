@@ -532,7 +532,7 @@ namespace Raven {
         //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
     }
 
-    void GUISystem::sceneHierachyDeleteButtonHandler(Button::Ptr button) {
+    void GUISystem::sceneHierarchyDeleteButtonHandler(Button* button) {
 		std::string button_name = button->GetLabel().toAnsiString();
 		cout << button_name << " SH Delete Clicked" << endl;
 		//cmn::game->systems.system<XMLSystem>();
@@ -645,9 +645,11 @@ namespace Raven {
             if (formatter == formatSceneHierarchyListItem) {
                 Entry* e = getAssetNameEntry(sceneHierarchyBox, i);
                 e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::sceneHierarchyEntryHandler, this, e));
-                //Button* bopen = getAssetOpenButton(sceneHierarchyBox, i);
-                //Button* bduplicate = getAssetDuplicateButton(sceneHierarchyBox, i);
-                //Button* bdelete = getAssetDeleteButton(sceneHierarchyBox, i);
+                Button* bopen = getAssetOpenButton(sceneHierarchyBox, i);
+                Button* bduplicate = getAssetDuplicateButton(sceneHierarchyBox, i);
+                Button* bdelete = getAssetDeleteButton(sceneHierarchyBox, i);
+				bdelete->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierarchyDeleteButtonHandler, this, bdelete));
+
             }
             else if (formatter == formatPrefabListItem) {
 
