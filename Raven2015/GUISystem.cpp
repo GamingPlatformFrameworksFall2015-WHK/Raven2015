@@ -33,7 +33,10 @@ namespace Raven {
         assets(assets),
         editingEntity(editingEntity) {
 
-        mainWindow->resetGLStates(); // Without this, items will not be rendered properly immediately
+        needToRepopulate.insert(std::make_pair("SceneHierarchy", false));
+        needToRepopulate.insert(std::make_pair("PrefabList", false));
+
+        mainWindow->resetGLStates(); // Without this, items will not be rendered properly immediatel
         //mainWindow->setPosition(sf::Vector2i(cmn::WINDOW_XPOS, cmn::WINDOW_YPOS));
         mainWindow->setSize(sf::Vector2u(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height - 100));
 
@@ -69,7 +72,7 @@ namespace Raven {
         // Distinguish editing content from game content
         Box::Ptr leftBox = Box::Create(Box::Orientation::VERTICAL);
         leftBox->Pack(upperBox);
-        leftBox->Pack(lowerBox, true, true);
+        //leftBox->Pack(lowerBox, true, true);
 
         Box::Ptr rightBox = Box::Create(Box::Orientation::HORIZONTAL);
         rightBox->Pack(content, true, true);
@@ -86,6 +89,13 @@ namespace Raven {
         desktop->Add(mainGUIWindow);
     }
 
+    /*void GUISystem::receive(const GUIDeleteWidgetEvent<WidgetLibrary::SceneHierarchyPanel>& e) {
+        Container* c = (Container*)sceneHierarchyBox->GetWidgetById(e.parentID).get();
+        Widget* w = sceneHierarchyBox->GetWidgetById(e.childToDeleteID).get();
+        assets->entitiesByWidget->erase(std::shared_ptr<Widget>(w));
+        c->Remove(std::shared_ptr<Widget>(w));
+    }*/
+
     void GUISystem::pollEvents() {
         while (mainWindow->pollEvent(*event)) {
             desktop->HandleEvent(*event);
@@ -101,7 +111,54 @@ namespace Raven {
         }
     }
 
+    void GUISystem::populateByPanelName(std::string panelName) {
+        if ("SceneHierarchy") {
+            populateSceneHierarchy(*assets->entities);
+        }
+        else if ("PrefabList") {
+            populatePrefabList(*assets->prefabsDoc);
+        }
+        else if ("TextureList") {
+            populateTextureList(*assets->textures);
+        }
+        else if ("MusicList") {
+            populateMusicList(*assets->music);
+        }
+        else if ("SoundList") {
+            populateSoundList(*assets->sounds);
+        }
+        else if ("FontList") {
+            populateFontList(*assets->fonts);
+        }
+        else if ("LevelList") {
+            populateLevelList(*assets->levels);
+        }
+        else if ("AnimationList") {
+            populateAnimationList(*assets->animations);
+        }
+        else if ("RenderableTextList") {
+            populateTextList(*assets->texts);
+        }
+        else if ("RenderableRectangleList") {
+            populateRectangleList(*assets->rectangles);
+        }
+        else if ("RenderableCircleList") {
+            populateCircleList(*assets->circles);
+        }
+        else if ("RenderableSpriteList") {
+            populateSpriteList(*assets->sprites);
+        }
+    }
+
+    //void GUISystem::populateTextList(std::map<std::string, std::shared_ptr<RenderableText>>& map) {
+
     void GUISystem::update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) {
+        for (auto panel_toRepopulate : needToRepopulate) {
+            if (panel_toRepopulate.second) {
+                populateByPanelName(panel_toRepopulate.first);
+            }
+        }
+
         // Update all GUI widgets associated with the set of GUI windows in all Desktops
         desktop->Update((float)dt);
     }
@@ -401,9 +458,27 @@ namespace Raven {
         }
     }
 
+    void GUISystem::removeXMLPrefabName(Entry* entry) {
+        XMLElement* top = assets->prefabsDoc->FirstChildElement("ASSETS");
+        XMLElement* ent = top->FirstChildElement("Entity");
+        while (ent) {
+
+            XMLElement* data = ent->FirstChildElement("Data");
+            XMLElement* nameNode = data->FirstChildElement("Name");
+
+            if (nameNode->GetText() == entry->GetText().toAnsiString()) {
+                needToRepopulate["Prefab List"] = true;
+                top->DeleteChild(ent);
+                return;
+            }
+
+            ent = ent->NextSiblingElement("Entity");
+        }
+    }
+
     void GUISystem::populateSceneHierarchy(std::set<ex::Entity>& entitySet) {
-        sceneHierarchyBox->RemoveAll();
         assets->entitiesByWidget->clear();
+        sceneHierarchyBox->RemoveAll();
         for (auto entity : entitySet) {
             if (entity.valid()) {
                 if (entity.has_component<Data>()) {
@@ -499,8 +574,8 @@ namespace Raven {
     }
 
     template <typename T>
-    void GUISystem::addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr)) {
-        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetListWidget, itemName, formatter);
+    Box::Ptr GUISystem::addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr)) {
+        return WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetListWidget, itemName, formatter);
     }
 
     template <typename T>
@@ -518,8 +593,8 @@ namespace Raven {
     }
 
     template <typename T, typename Asett>
-    void addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName) {
-        WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetMapWidget, itemName, formatComplexAssetListItem);
+    Box::Ptr addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName) {
+        return WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(assetMapWidget, itemName, formatComplexAssetListItem);
     }
 
     template <typename T, typename Asett>
@@ -550,8 +625,8 @@ namespace Raven {
         assets->entitiesByWidget->at(entry->GetParent()).component<Data>()->name = entry->GetText();
     }
 
-    void GUISystem::sceneHierarchyOpenButtonHandler(Button* button) {
-        cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
+    void GUISystem::sceneHierarchyOpenButtonHandler(Button* button) {  // Currently a "Select" button
+        *editingEntity = assets->entitiesByWidget->at(button->GetParent());
     }
 
     void GUISystem::sceneHierarchyDuplicateButtonHandler(Button* button) {
@@ -568,7 +643,7 @@ namespace Raven {
         if (e.valid()) {
             e.destroy();
             assets->entities->erase(e);
-            populateSceneHierarchy(*assets->entities);
+            needToRepopulate["SceneHierarchy"] = true;
         }
     }
 
@@ -611,7 +686,7 @@ namespace Raven {
         if (currentBrush->GetText().toAnsiString() == "Create") {
             ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
             cmn::game->events.emit<XMLLogEntityEvent>(entity);
-            addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
+            Box::Ptr box = addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
             configureWidgetListItem(sceneHierarchyBox, sceneHierarchyBox->GetChildren().size() - 1, formatSceneHierarchyListItem);
             assets->entitiesByWidget->insert(std::make_pair(sceneHierarchyBox, entity));
@@ -681,7 +756,9 @@ namespace Raven {
         }
         else if (formatter == formatPrefabListItem) {
             Entry* e = getAssetNameEntry(prefabListBox, position);
-            //e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::prefabListEntryHandler, this, e, e->GetText()));
+            e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::prefabListEntryHandler, this, e, e->GetText()));
+            Button* binstantiate = getAssetOpenButton(prefabListBox, position);
+            binstantiate->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::prefabListInstantiateButtonHandler, this, binstantiate));
         }
         else if (formatter == formatAssetListItem) {
 
