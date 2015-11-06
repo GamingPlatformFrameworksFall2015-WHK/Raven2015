@@ -340,10 +340,12 @@ namespace Raven {
             std::map<std::string, std::shared_ptr<RenderableRectangle>>* rectangles,
             std::map<std::string, std::shared_ptr<RenderableCircle>>* circles,
             std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites,
-            std::map<Widget::Ptr, ex::Entity>* entitiesByWidget
+            std::map<Widget::Ptr, ex::Entity>* entitiesByWidget,
+            std::set<ex::Entity>* entities
             ) : assetsDoc(assetsDoc), prefabsDoc(prefabsDoc), levelDoc(levelDoc), textures(textures), 
             music(music), sounds(sounds), fonts(fonts), levels(levels), animations(animations), 
-            texts(texts), rectangles(rectangles), circles(circles), sprites(sprites), entitiesByWidget(entitiesByWidget) {}
+            texts(texts), rectangles(rectangles), circles(circles), sprites(sprites), entitiesByWidget(entitiesByWidget),
+            entities(entities) {}
            
 
         XMLDocument* assetsDoc;
@@ -360,5 +362,6 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<RenderableCircle>>* circles;
         std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites;
         std::map<Widget::Ptr, ex::Entity>* entitiesByWidget;
+        std::set<ex::Entity>* entities;
     };
 }

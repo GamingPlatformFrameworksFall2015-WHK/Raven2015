@@ -18,6 +18,7 @@
 #include "Common.h"             // For FPS constants
 #include "DataAssetLibrary.h"   // For rvn::Timer
 #include "Game.h"               // For rvn::Game
+#include "ComponentLibrary.h"   // 
 
 using namespace Raven;
 
