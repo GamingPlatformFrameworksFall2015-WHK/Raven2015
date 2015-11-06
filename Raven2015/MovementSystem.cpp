@@ -55,6 +55,18 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
         // Transform tracker towards pawn
         // If xDis is negative, pawn is to left of tracker
+		if ((xDis < 0.0 && trackerEntity.component<Rigidbody>()->velocity.x > 0) ||
+			(xDis > 0.0 && trackerEntity.component<Rigidbody>()->velocity.x < 0)) {
+			trackerEntity.component<Rigidbody>()->velocity.x *= -1;
+		}
+		
+		// If yDis is negative, pawn is below tracker
+		if ((yDis < 0.0 && trackerEntity.component<Rigidbody>()->velocity.y > 0) ||
+			(yDis > 0.0 && trackerEntity.component<Rigidbody>()->velocity.y < 0)) {
+			trackerEntity.component<Rigidbody>()->velocity.y *= -1;
+		}
+
+		/*
         if (xDis < 0.0) {
             trackerEntity.component<Transform>()->transform.x -= (FPS_100_TICK_TIME * 50);
         }
@@ -68,7 +80,7 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
         else {
             trackerEntity.component<Transform>()->transform.y += (FPS_100_TICK_TIME * 50);
         }
-        
+        */
     });
 
     // Acquire each entity containing a pacer

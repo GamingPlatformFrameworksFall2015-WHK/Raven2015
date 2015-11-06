@@ -325,9 +325,10 @@ namespace Raven {
 
         XMLElement* t = node->FirstChildElement("Layer");
         layers.clear();
-        do {
+        while (t) {
+			t = t->NextSiblingElement("Layer");
             layers.insert(t->GetText());
-        } while (t = t->NextSiblingElement("Layer"));
+		};
 
         t = node->FirstChildElement("Settings");
         collisionSettings.clear();

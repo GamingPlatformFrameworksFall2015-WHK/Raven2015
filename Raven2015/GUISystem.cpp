@@ -571,6 +571,7 @@ namespace Raven {
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
+			entity.component<BoxCollider>()->layers.insert("Layer1");
             auto transform = entity.component<Transform>();
             transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
             transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;

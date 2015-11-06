@@ -47,28 +47,62 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 void CollisionSystem::receive(const CollisionEvent &event) {
 
-    cout << "Collision occurred" << endl;
 	
-	ex::ComponentHandle<Rigidbody> leftRigidbody = event.leftRigidbody;
-	ex::ComponentHandle<Rigidbody> rightRigidbody = event.rightRigidbody;
-    sf::Vector2f leftVelocity = event.leftRigidbody->velocity;
-	sf::Vector2f rightVelocity = event.rightRigidbody->velocity;
-	sf::Vector2f relVel = rightVelocity - leftVelocity;
+	ex::Entity entityA = event.leftEntity;
+	ex::Entity entityB = event.rightEntity;
+	cout << entityA.component<Rigidbody>()->velocity.x << "," << entityB.component<Rigidbody>()->velocity.y << endl;
+    sf::Vector2f velA = entityA.component<Rigidbody>()->velocity;
+	sf::Vector2f velB = entityB.component<Rigidbody>()->velocity;
+	sf::Vector2f relVel = velB - velA;
 	double dotProduct = (relVel.x * event.collisionPoint.x) + (relVel.y * event.collisionPoint.y);
+
+	if (dotProduct <= 0) {
+		cout << "Here" << endl;
+		double j = -(1 - RESTITUTION) * dotProduct;
+		j /= (2 / STANDARD_MASS);
+
+		sf::Vector2f newVel((event.collisionPoint.x * j), (event.collisionPoint.y * j));
+		if (!(entityA.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+			!= entityA.component<BoxCollider>()->collisionSettings.end())) {
+			entityA.component<Rigidbody>()->velocity.x += (1.0 / STANDARD_MASS) * newVel.x;
+			entityA.component<Rigidbody>()->velocity.y += (1.0 / STANDARD_MASS) * newVel.y;
+		}
+		if (!(entityB.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+			!= entityB.component<BoxCollider>()->collisionSettings.end())) {
+			entityB.component<Rigidbody>()->velocity.x -= (1.0 / STANDARD_MASS) * newVel.x;
+			entityB.component<Rigidbody>()->velocity.y -= (1.0 / STANDARD_MASS) * newVel.y;
+		}
+	}
+	
+}
+
+void CollisionSystem::collisionResolution
+	(ex::Entity &entityA, ex::Entity &entityB, sf::Vector2f collisionNormal) {
+
+	
+	cout << entityA.component<Rigidbody>()->velocity.x << ", "
+		 << entityA.component<Rigidbody>()->velocity.y << endl;
+
+	sf::Vector2f leftVelocity = entityA.component<Rigidbody>()->velocity;
+	sf::Vector2f rightVelocity = entityB.component<Rigidbody>()->velocity;
+	sf::Vector2f relVel = rightVelocity - leftVelocity;
+	double dotProduct = (relVel.x * collisionNormal.x) + (relVel.y * collisionNormal.y);
 
 	if (dotProduct <= 0) {
 		double j = -(1 - RESTITUTION) * dotProduct;
 		j /= (2 / STANDARD_MASS);
 
-		sf::Vector2f newVel((event.collisionPoint.x * j), (event.collisionPoint.y * j));
-		if (!(event.leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.leftBoxCollider->collisionSettings.end())) {
-			leftRigidbody->velocity -= 1 / STANDARD_MASS * newVel;
+		sf::Vector2f newVel((collisionNormal.x * j), (collisionNormal.y * j));
+		if (!(entityA.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+				!= entityA.component<BoxCollider>()->collisionSettings.end())) {
+			entityA.component<Rigidbody>()->velocity -= 1 / STANDARD_MASS * newVel;
 		}
-		if (!(event.rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.rightBoxCollider->collisionSettings.end())) {
-			rightRigidbody->velocity += 1 / STANDARD_MASS * newVel;
+
+		if (!(entityB.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+			!= entityB.component<BoxCollider>()->collisionSettings.end())) {
+			entityB.component<Rigidbody>()->velocity += 1 / STANDARD_MASS * newVel;
 		}
 	}
-	
 }
 
 /*

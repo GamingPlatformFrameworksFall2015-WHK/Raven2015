@@ -43,6 +43,9 @@ namespace Raven {
         // Picks up CollisionEvents
         void receive(const CollisionEvent &event);
 
+		void CollisionSystem::collisionResolution
+			(ex::Entity &entityA, ex::Entity &entityB, sf::Vector2f collisionNormal);
+
         /*
          * Tests whether two entities' colliders register a collision.
          */
