@@ -31,7 +31,7 @@ namespace Raven {
     public:
 
         // Perform initializations
-        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem, ex::Entity* editingEntity);
+        explicit GUISystem(std::shared_ptr<InputSystem> inputSystem, Assets* assets, ex::Entity* editingEntity);
         
         void clear() {
             mainWindow->clear();
@@ -141,40 +141,62 @@ namespace Raven {
         //--------------------Callback Methods-----------------------
 
         // Switches the currentBrush based on the button clicked, thereby changing the canvasClickHandler operation
-        void brushToolbarButtonHandler(Button::Ptr clickedButton);
-
-        // Displays the selected Entity's component list in the EntityDesigner panel
-        void sceneHierachySelectButtonHandler(Button::Ptr clickedButton);
-
-        // Destroys the Entity instance and removes its record from the entitySet
-        void sceneHierachyDeleteButtonHandler(Button::Ptr clickedButton);
-
-        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves up one
-        void sceneHierachyMoveUpButtonHandler(Button::Ptr clickedButton);
-
-        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves down one
-        void sceneHierachyMoveDownButtonHandler(Button::Ptr clickedButton);
+        void brushToolbarButtonHandler(Button* clickedButton);
 
         // When modified, updates the name of the given entity
-        void sceneHierachyEntryHandler(Entry::Ptr updatedEntry);
+        void sceneHierarchyEntryHandler(Entry* updatedEntry);
 
         // Displays the selected Entity's component list in the EntityDesigner panel
-        void prefabListSelectButtonHandler(Button::Ptr clickedButton);
+        void sceneHierarchyOpenButtonHandler(Button* clickedButton);
 
         // Destroys the Entity instance and removes its record from the entitySet
-        void prefabListDeleteButtonHandler(Button::Ptr clickedButton);
+        void sceneHierarchyDeleteButtonHandler(Button* clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves up one
+        void sceneHierarchyMoveUpButtonHandler(Button* clickedButton);
+
+        // Reorders the children of the sceneHierarchyBox so that the clicked entity moves down one
+        void sceneHierarchyMoveDownButtonHandler(Button* clickedButton);
+
+        // Displays the selected Entity's component list in the EntityDesigner panel
+        void prefabListInstantiateButtonHandler(Button* clickedButton);
+
+        // Destroys the Entity instance and removes its record from the entitySet
+        void prefabListDeleteButtonHandler(Button* clickedButton);
 
         // Reorders the children of the prefabListBox so that the clicked prefab moves up one
-        void prefabListMoveUpButtonHandler(Button::Ptr clickedButton);
+        void prefabListMoveUpButtonHandler(Button* clickedButton);
 
         // Reorders the children of the prefabListBox so that the clicked prefab moves down one
-        void prefabListMoveDownButtonHandler(Button::Ptr clickedButton);
+        void prefabListMoveDownButtonHandler(Button* clickedButton);
 
         // When modified, updates the name of the given prefab
-        void prefabListEntryHandler(Entry::Ptr updatedEntry);
+        void prefabListEntryHandler(Entry* updatedEntry);
 
         // Performs an operation on the Canvas based on the current brush mode
         void canvasClickHandler();
+
+        // Syncs a prefab to an entity.
+        // Serializes the given entity into its prefab, overwriting it.
+        // Cycles through all entities with a PrefabName matching the edited entity's prefab name.
+        // Saves their core components. Creates a whole new entity and assigns the entity ID.
+        // Re-applies their core components.
+        void prefabSyncButtonHandler(Button* clickedButton);
+
+        // Creates a new prefab matching the edited entity.
+        // Serializes the given entity into a new prefab with a default iterative name.
+        void prefabDivertButtonHandler(Button* clickedButton);
+
+        // Makes the entity once again become a copy of the prefab it is associated with IF not "NULL"
+        // Saves core components. Clears components. Creates a whole new entity and assigns the entity ID.
+        // Re-applies their core components.
+        void prefabRevertButtonHandler(Button* clickedButton);
+
+        // Assigns a new widget to the Entity Designer
+        void assignAssetEditorWidget(Button* clickedButton);
+
+        // Clears the current component from the entity and assigns a new component deserialized from the widget
+        void entityDesignerSaveChangesButtonHandler(Button* clickedButton);
 
 
         //---------------------Member Variables----------------------
@@ -199,6 +221,9 @@ namespace Raven {
 
         // A pointer to the table organizing the content in the mainGUIWindow
         Table::Ptr table;
+
+        // A collection of pointers to the XMLSystem's assets
+        Assets* assets;
 
         //-------------Top level widget panels and their sub-widget-containers------------------
 
@@ -277,6 +302,7 @@ namespace Raven {
         Box::Ptr entityDesignerBox;
         Button::Ptr entityDesignerSaveChangesButton;
         ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
+        ComponentType currentComponentType; // The component widget currently being displayed
 
         //  //  // Component Editor //  //  //
         ScrolledWindow::Ptr componentEditor;
@@ -307,6 +333,26 @@ namespace Raven {
         //--------------------------Formatters---------------------------------------------
 
         // Format a given asset list item
+        void(*formatSceneHierarchyListItem)(Box::Ptr box) = [](Box::Ptr box) {
+            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
+            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
+            Entry* e = (Entry*) box->GetChildren()[0].get();
+            e->SetRequisition(sf::Vector2f(100.f, 20.f));
+            Button* bopen= (Button*)box->GetChildren()[1].get();
+            bopen->SetLabel("Open"); // For selecting the Entity
+            Button* bduplicate = (Button*)box->GetChildren()[2].get();
+            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
+            bdelete->SetLabel("X");      // For deleting the Entity
+            Button* bmoveup = (Button*)box->GetChildren()[4].get();
+            bmoveup->SetLabel("+");      // For moving the Entity up in the list
+            bmoveup->Show(false);
+            Button* bmovedown = (Button*)box->GetChildren()[5].get();
+            bmovedown->SetLabel("-");      // For moving the Entity down in the list
+            bmovedown->Show(false);
+        };
+
+        // Format a given asset list item
         void(*formatPrefabListItem)(Box::Ptr box) = [](Box::Ptr box) {
             // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
             // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
@@ -320,28 +366,8 @@ namespace Raven {
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
             bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
             Button* bdelete = (Button*)box->GetChildren()[3].get();
-            bduplicate->Show(false);
-            bdelete->SetLabel("X");      // For deleting the Entity
-            Button* bmoveup = (Button*)box->GetChildren()[4].get();
-            bmoveup->SetLabel("+");      // For moving the Entity up in the list
-            bmoveup->Show(false);
-            Button* bmovedown = (Button*)box->GetChildren()[5].get();
-            bmovedown->SetLabel("-");      // For moving the Entity down in the list
-            bmovedown->Show(false);
-        };
-
-        // Format a given asset list item
-        void(*formatSceneHierarchyListItem)(Box::Ptr box) = [](Box::Ptr box) {
-            // pointers retrieved from any GetChildren() operation MUST be acquired as, casted as, and used as RAW pointers.
-            // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
-            Entry* e = (Entry*) box->GetChildren()[0].get();
-            e->SetRequisition(sf::Vector2f(100.f, 20.f));
-            Button* bopen= (Button*)box->GetChildren()[1].get();
-            bopen->SetLabel("Open"); // For selecting the Entity
-            Button* bduplicate = (Button*)box->GetChildren()[2].get();
-            bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
-            Button* bdelete = (Button*)box->GetChildren()[3].get();
 			bdelete->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyDeleteButtonHandler, *("what do I put here"), bdelete));
+            bduplicate->Show(false);
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
             bmoveup->SetLabel("+");      // For moving the Entity up in the list
@@ -400,6 +426,12 @@ namespace Raven {
             bmovedown->Show(false);
         };
 
+        //---------------------------Widget List Configuration----------------------------
+        Entry* getAssetNameEntry(Box::Ptr box, size_t position);
+        Button* getAssetOpenButton(Box::Ptr box, size_t position);
+        Button* getAssetDuplicateButton(Box::Ptr box, size_t position);
+        Button* getAssetDeleteButton(Box::Ptr box, size_t position);
+        void configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr));
 
         //---------------------------Constants---------------------------------------------
 

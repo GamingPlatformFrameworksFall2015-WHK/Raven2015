@@ -181,14 +181,14 @@ class ToolbarPanel {};
         template <typename PanelType, typename... Widgets> // where Widgets is the types of Widgets to be embedded in the List items
         class WidgetList {
         public:
-            static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
+            /*static Box::Ptr insertWidget(Box::Ptr type, size_t position, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->Pack(b, true, true);
                 listItemFormatter(b);
                 type->ReorderChild(box, position);
                 //sortList(type);
                 return b;
-            }
+            }*/
 
             static Box::Ptr appendWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
@@ -198,13 +198,13 @@ class ToolbarPanel {};
                 return b;
             }
 
-            static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
+            /*static Box::Ptr prependWidget(Box::Ptr type, std::string labelName, void(*listItemFormatter)(Box::Ptr)) {
                 Box::Ptr b = makeWidgetBox<Widgets...>(labelName);
                 type->PackStart(b, true, true);
                 listItemFormatter(b);
                 //sortList(type);
                 return b;
-            }
+            }*/
 
             static void removeWidget(Box::Ptr type, std::string labelName) {
                 for (int i = 0; i < type->GetChildren().size(); ++i) {
@@ -216,9 +216,9 @@ class ToolbarPanel {};
                 //sortList(type);
             }
 
-            static void sortList(Box::Ptr type) {
+            /*static void sortList(Box::Ptr type) {
                 std::sort(type->GetChildren().begin(), type->GetChildren().end(), compareWidgets);
-            }
+            }*/
 
             static Box::Ptr getWidgetBox(Box::Ptr type, size_t position) {
                 // Not sure this will work since I was getting errors when casting 

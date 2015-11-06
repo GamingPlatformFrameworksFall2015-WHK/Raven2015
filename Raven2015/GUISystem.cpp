@@ -22,7 +22,7 @@ namespace Raven {
     const std::string GUISystem::MAIN_WINDOW_NAME = "Raven";
 
     // Perform initializations of what we CAN
-    GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem, ex::Entity* editingEntity) :
+    GUISystem::GUISystem(std::shared_ptr<InputSystem> inputSystem, Assets* assets, ex::Entity* editingEntity) :
         mainWindow(new sf::RenderWindow(sf::VideoMode::getDesktopMode(), MAIN_WINDOW_NAME)),
         /*sf::VideoMode((unsigned int)cmn::WINDOW_WIDTH, (unsigned int)cmn::WINDOW_HEIGHT),
         MAIN_WINDOW_NAME, sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize)),*/
@@ -30,6 +30,7 @@ namespace Raven {
         desktop(new Desktop()),
         event(new sf::Event()),
         input(inputSystem),
+        assets(assets),
         editingEntity(editingEntity) {
 
         mainWindow->resetGLStates(); // Without this, items will not be rendered properly immediately
@@ -117,8 +118,13 @@ namespace Raven {
         top->Pack(l, true, true);
 
         sceneHierarchyBox = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
-
         top->Pack(sceneHierarchyBox, true, true);
+
+        Button::Ptr saveLevelButton = Button::Create("Save Level");
+        saveLevelButton->GetSignal(Button::OnLeftClick).Connect([]() {
+            cmn::game->saveLevel();
+        });
+        top->Pack(saveLevelButton, true, true);
 
         sh->AddWithViewport(top);
         return sh;
@@ -226,6 +232,34 @@ namespace Raven {
     ENTITY_DESIGNER_WTYPE_SPTR GUISystem::formatEntityDesigner(ENTITY_DESIGNER_WTYPE_SPTR ed) {
         ed->SetScrollbarPolicy(ScrolledWindow::HORIZONTAL_AUTOMATIC | ScrolledWindow::VERTICAL_AUTOMATIC);
 
+        // For some vertical padding at the top
+        Box::Ptr top = Box::Create(Box::Orientation::VERTICAL, 5.f);
+        top->SetRequisition(sf::Vector2f(200.f, 0.f));
+        Label::Ptr l = Label::Create("Entity Designer\n");
+        top->Pack(l, true, true);
+
+        prefabOperationsMenuBox = Box::Create(Box::Orientation::HORIZONTAL);
+        prefabSyncButton = Button::Create("Sync");
+        prefabDivertButton = Button::Create("Divert");
+        prefabRevertButton = Button::Create("Revert");
+        prefabOperationsMenuBox->Pack(prefabSyncButton, true, true);
+        prefabOperationsMenuBox->Pack(prefabDivertButton, true, true);
+        prefabOperationsMenuBox->Pack(prefabRevertButton, true, true);
+        top->Pack(prefabOperationsMenuBox, true, true);
+
+        entityDesignerBox = WidgetLibrary::WidgetList<WidgetLibrary::EntityDesignerPanel, ED_ASSET_LIST_WIDGET_SEQUENCE>::Create();
+
+        entityDesignerSaveChangesButton = Button::Create("Save");
+        entityDesignerSaveChangesButton->SetRequisition(sf::Vector2f(200.f, 0.f));
+
+        Table::Ptr table = Table::Create();
+        Table::AttachOption all = (Table::AttachOption) (Table::FILL | Table::EXPAND);
+        table->Attach(top,                              sf::Rect<sf::Uint32>(0, 0, 1, 1), all, all);
+        table->Attach(entityDesignerBox,                sf::Rect<sf::Uint32>(0, 1, 1, 7), all, all);
+        table->Attach(entityDesignerSaveChangesButton,  sf::Rect<sf::Uint32>(0, 8, 1, 1), all, all);
+
+        ed->AddWithViewport(table);
+
         return ed;
     }
 
@@ -306,11 +340,11 @@ namespace Raven {
         auto brushList = Box::Create(Box::Orientation::HORIZONTAL);
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
-        createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, createBrush));
+        createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, createBrush.get()));
         auto deleteBrush = Button::Create("Delete");
-        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, deleteBrush));
+        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, deleteBrush.get()));
         auto moveBrush = Button::Create("Move");
-        moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, moveBrush));
+        moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, moveBrush.get()));
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
         brushList->Pack(deleteBrush, true, true);
@@ -347,10 +381,13 @@ namespace Raven {
 
     void GUISystem::populateSceneHierarchy(std::set<ex::Entity>& entitySet) {
         sceneHierarchyBox->RemoveAll();
+        assets->entitiesByWidget->clear();
         for (auto entity : entitySet) {
-            WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            Box::Ptr box = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
+            assets->entitiesByWidget->insert(std::make_pair(box,entity));
         }
+        configureWidgetList(sceneHierarchyBox, formatSceneHierarchyListItem);
     }
 
     void GUISystem::addItemToSceneHierarchy(std::string itemName) {
@@ -378,6 +415,7 @@ namespace Raven {
     }
 
     void GUISystem::populateLevelList(std::set<std::string> assetList) {
+        levelListBox->RemoveAll();
         for (auto level : assetList) {
             WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 levelListBox, level, formatComplexAssetListItem);
@@ -385,6 +423,7 @@ namespace Raven {
     }
 
     void GUISystem::populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map) {
+        animationListBox->RemoveAll();
         for (auto name_animation : map) {
             WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 animationListBox, name_animation.first, formatComplexAssetListItem);
@@ -392,6 +431,7 @@ namespace Raven {
     }
 
     void GUISystem::populateTextList(std::map<std::string, std::shared_ptr<RenderableText>>& map) {
+        textListBox->RemoveAll();
         for (auto name_text : map) {
             WidgetLibrary::WidgetList<WidgetLibrary::TextListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 textListBox, name_text.first, formatComplexAssetListItem);
@@ -399,6 +439,7 @@ namespace Raven {
     }
 
     void GUISystem::populateRectangleList(std::map<std::string, std::shared_ptr<RenderableRectangle>>& map) {
+        rectangleListBox->RemoveAll();
         for (auto name_rectangle : map) {
             WidgetLibrary::WidgetList<WidgetLibrary::RectangleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 rectangleListBox, name_rectangle.first, formatComplexAssetListItem);
@@ -406,6 +447,7 @@ namespace Raven {
     }
 
     void GUISystem::populateCircleList(std::map<std::string, std::shared_ptr<RenderableCircle>>& map) {
+        circleListBox->RemoveAll();
         for (auto name_circle : map) {
             WidgetLibrary::WidgetList<WidgetLibrary::CircleListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 circleListBox, name_circle.first, formatComplexAssetListItem);
@@ -413,6 +455,7 @@ namespace Raven {
     }
 
     void GUISystem::populateSpriteList(std::map<std::string, std::shared_ptr<RenderableSprite>>& map) {
+        spriteListBox->RemoveAll();
         for (auto name_sprite : map) {
             WidgetLibrary::WidgetList<WidgetLibrary::SpriteListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 spriteListBox, name_sprite.first, formatComplexAssetListItem);
@@ -462,12 +505,25 @@ namespace Raven {
 
 #pragma region Callback Methods
 
-    void GUISystem::brushToolbarButtonHandler(Button::Ptr button) {
+    void GUISystem::brushToolbarButtonHandler(Button* button) {
         cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
         currentBrush->SetText(button->GetLabel().toAnsiString());
     }
 
-    void GUISystem::sceneHierachySelectButtonHandler(Button::Ptr button) {
+    void GUISystem::sceneHierarchyEntryHandler(Entry* entry) {
+        //cout << entry->GetText().toAnsiString() << " Entry changed " << endl;
+        ex::Entity e = assets->entitiesByWidget->at(entry->GetParent());
+        cout << "Before: " << e.component<Data>()->name << endl;
+        e.component<Data>()->name = entry->GetText();
+        cout << "After: " << e.component<Data>()->name << endl;
+        /*for (auto child : getEntityDesigner()->GetChildren()) {
+            cout << child->GetName() << endl;
+        }*/
+        //change things in the entity designer and display things according to the
+        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
+
+    void GUISystem::sceneHierarchyOpenButtonHandler(Button* button) {
         cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
         /*for (auto child : getEntityDesigner()->GetChildren()) {
             cout << child->GetName() << endl;
@@ -485,24 +541,15 @@ namespace Raven {
 		removeItemFromSceneHierarchy(button_name);
     }
 
-    void GUISystem::sceneHierachyMoveUpButtonHandler(Button::Ptr button) {
+    void GUISystem::sceneHierarchyMoveUpButtonHandler(Button* button) {
 
     }
 
-    void GUISystem::sceneHierachyMoveDownButtonHandler(Button::Ptr button) {
+    void GUISystem::sceneHierarchyMoveDownButtonHandler(Button* button) {
 
     }
 
-    void GUISystem::sceneHierachyEntryHandler(Entry::Ptr entry) {
-        cout << entry->GetText().toAnsiString() << " Button Clicked" << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
-    }
-
-    void GUISystem::prefabListSelectButtonHandler(Button::Ptr button) {
+    void GUISystem::prefabListInstantiateButtonHandler(Button* button) {
         cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
         /*for (auto child : getEntityDesigner()->GetChildren()) {
             cout << child->GetName() << endl;
@@ -511,19 +558,20 @@ namespace Raven {
         //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
     }
 
-    void GUISystem::prefabListDeleteButtonHandler(Button::Ptr button) {
+    void GUISystem::prefabListDeleteButtonHandler(Button* button) {
 
     }
 
-    void GUISystem::prefabListMoveUpButtonHandler(Button::Ptr button) {
+    void GUISystem::prefabListMoveUpButtonHandler(Button* button) {
 
     }
 
-    void GUISystem::prefabListMoveDownButtonHandler(Button::Ptr button) {
+    void GUISystem::prefabListMoveDownButtonHandler(Button* button) {
 
     }
 
-    void GUISystem::prefabListEntryHandler(Entry::Ptr entry) {
+    void GUISystem::prefabListEntryHandler(Entry* entry) {
+
         cout << entry->GetText().toAnsiString() << " Button Clicked" << endl;
         /*for (auto child : getEntityDesigner()->GetChildren()) {
             cout << child->GetName() << endl;
@@ -550,6 +598,67 @@ namespace Raven {
         }
     }
 
+    void GUISystem::prefabSyncButtonHandler(Button* button) {
+
+    }
+
+
+    void GUISystem::prefabDivertButtonHandler(Button* button) {
+
+    }
+
+
+    void GUISystem::prefabRevertButtonHandler(Button* button) {
+
+    }
+
+
+    void GUISystem::assignAssetEditorWidget(Button* button) {
+
+    }
+
+    void GUISystem::entityDesignerSaveChangesButtonHandler(Button* button) {
+
+    }
+
 #pragma endregion
+
+    //----------------------------Helper methods for widget lists---------------------
+    Entry* GUISystem::getAssetNameEntry(Box::Ptr box, size_t position) {
+        return (Entry*)((Box*)box->GetChildren()[position].get())->GetChildren()[0].get();
+    }
+
+    Button* GUISystem::getAssetOpenButton(Box::Ptr box, size_t position) {
+        return (Button*)((Box*)box->GetChildren()[position].get())->GetChildren()[1].get();
+    }
+
+    Button* GUISystem::getAssetDuplicateButton(Box::Ptr box, size_t position) {
+        return (Button*)((Box*)box->GetChildren()[position].get())->GetChildren()[2].get();
+    }
+
+    Button* GUISystem::getAssetDeleteButton(Box::Ptr box, size_t position) {
+        return (Button*)((Box*)box->GetChildren()[position].get())->GetChildren()[3].get();
+    }
+
+    void GUISystem::configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr)) {
+        for (int i = 0; i < verticalBoxForList->GetChildren().size(); ++i) {
+            if (formatter == formatSceneHierarchyListItem) {
+                Entry* e = getAssetNameEntry(sceneHierarchyBox, i);
+                e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::sceneHierarchyEntryHandler, this, e));
+                //Button* bopen = getAssetOpenButton(sceneHierarchyBox, i);
+                //Button* bduplicate = getAssetDuplicateButton(sceneHierarchyBox, i);
+                //Button* bdelete = getAssetDeleteButton(sceneHierarchyBox, i);
+            }
+            else if (formatter == formatPrefabListItem) {
+
+            }
+            else if (formatter == formatAssetListItem) {
+
+            }
+            else if (formatter == formatComplexAssetListItem) {
+
+            }
+        }
+    }
 
 }
