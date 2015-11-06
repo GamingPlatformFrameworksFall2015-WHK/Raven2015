@@ -113,10 +113,6 @@ int main() {
     */
 
     game.initialize();
-    game.save();
-    cout << "Saved game" << endl;
-
-    cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
     Timer fpsTimer;
     Timer gameTimer;

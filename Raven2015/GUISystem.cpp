@@ -118,8 +118,13 @@ namespace Raven {
         top->Pack(l, true, true);
 
         sceneHierarchyBox = WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::Create();
-
         top->Pack(sceneHierarchyBox, true, true);
+
+        Button::Ptr saveLevelButton = Button::Create("Save Level");
+        saveLevelButton->GetSignal(Button::OnLeftClick).Connect([]() {
+            cmn::game->saveLevel();
+        });
+        top->Pack(saveLevelButton, true, true);
 
         sh->AddWithViewport(top);
         return sh;
@@ -382,6 +387,7 @@ namespace Raven {
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
             assets->entitiesByWidget->insert(std::make_pair(box,entity));
         }
+        configureWidgetList(sceneHierarchyBox, formatSceneHierarchyListItem);
     }
 
     void GUISystem::addItemToSceneHierarchy(std::string itemName) {
@@ -506,8 +512,10 @@ namespace Raven {
 
     void GUISystem::sceneHierarchyEntryHandler(Entry* entry) {
         //cout << entry->GetText().toAnsiString() << " Entry changed " << endl;
-        assets->entitiesByWidget->at(entry->GetParent()).component<Data>()->name = entry->GetText();
-
+        ex::Entity e = assets->entitiesByWidget->at(entry->GetParent());
+        cout << "Before: " << e.component<Data>()->name << endl;
+        e.component<Data>()->name = entry->GetText();
+        cout << "After: " << e.component<Data>()->name << endl;
         /*for (auto child : getEntityDesigner()->GetChildren()) {
             cout << child->GetName() << endl;
         }*/
@@ -583,7 +591,6 @@ namespace Raven {
             cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["BlueDot"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
-            configureWidgetList(sceneHierarchyBox, formatSceneHierarchyListItem);
         }
     }
 
