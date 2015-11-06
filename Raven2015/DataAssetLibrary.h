@@ -327,6 +327,9 @@ namespace Raven {
     struct Assets {
 
         Assets(
+            XMLDocument* assetsDoc,
+            XMLDocument* prefabsDoc,
+            XMLDocument* levelDoc,
             std::set<std::string>* textures,
             std::set<std::string>* music,
             std::set<std::string>* sounds,
@@ -337,11 +340,17 @@ namespace Raven {
             std::map<std::string, std::shared_ptr<RenderableRectangle>>* rectangles,
             std::map<std::string, std::shared_ptr<RenderableCircle>>* circles,
             std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites,
-            std::map<Widget::Ptr, ex::Entity>* entitiesByWidget
-            ) : textures(textures), music(music), sounds(sounds), fonts(fonts), levels(levels),
-            animations(animations), texts(texts), rectangles(rectangles), circles(circles), sprites(sprites),
-            entitiesByWidget(entitiesByWidget) {}
+            std::map<Widget::Ptr, ex::Entity>* entitiesByWidget,
+            std::set<ex::Entity>* entities
+            ) : assetsDoc(assetsDoc), prefabsDoc(prefabsDoc), levelDoc(levelDoc), textures(textures), 
+            music(music), sounds(sounds), fonts(fonts), levels(levels), animations(animations), 
+            texts(texts), rectangles(rectangles), circles(circles), sprites(sprites), entitiesByWidget(entitiesByWidget),
+            entities(entities) {}
+           
 
+        XMLDocument* assetsDoc;
+        XMLDocument* prefabsDoc;
+        XMLDocument* levelDoc;
         std::set<std::string>* textures;
         std::set<std::string>* music;
         std::set<std::string>* sounds;
@@ -353,5 +362,6 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<RenderableCircle>>* circles;
         std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites;
         std::map<Widget::Ptr, ex::Entity>* entitiesByWidget;
+        std::set<ex::Entity>* entities;
     };
 }

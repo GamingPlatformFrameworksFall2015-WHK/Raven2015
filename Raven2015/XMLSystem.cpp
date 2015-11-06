@@ -5,9 +5,9 @@
 namespace Raven {
 
     XMLSystem::XMLSystem(ex::Entity* editingEntity) : editingEntity(editingEntity),
-        assets(&textureFilePathSet, &musicFilePathSet, &soundFilePathSet, &fontFilePathSet, &levelFilePathSet,
-            &animationMap, &renderableTextMap, &renderableRectangleMap, &renderableCircleMap, &renderableSpriteMap,
-            &widgetEntityMap) {}
+        assets(&assetsDoc, &prefabsDoc, &levelDoc, &textureFilePathSet, &musicFilePathSet, &soundFilePathSet, 
+            &fontFilePathSet, &levelFilePathSet, &animationMap, &renderableTextMap, &renderableRectangleMap, 
+            &renderableCircleMap, &renderableSpriteMap, &widgetEntityMap, &entitySet) {}
 
     XMLSystem::~XMLSystem() {}
 
@@ -644,8 +644,14 @@ namespace Raven {
     }
 
     bool XMLSystem::saveLevel(std::string levelPathName) {
-        levelDoc.Parse(serializeEntitySet().c_str());
-        if (levelDoc.SaveFile(cmn::game->currentLevelPath.c_str()) != XML_NO_ERROR) {
+        std::string s = serializeEntitySet();
+        levelDoc.Print();
+        cout << s << endl;
+        if (levelDoc.Parse(s.c_str()) != XML_NO_ERROR) {
+            cerr << "Problem parsing document" << endl;
+        }
+        levelDoc.Print();
+        if (levelDoc.SaveFile(levelPathName.c_str()) != XML_NO_ERROR) {
             cerr << "WARNING: Level Failed To Save!" << endl;
             return false;
         }

@@ -2,7 +2,6 @@
 
 #include "Common.h"
 #include "entityx/System.h"
-//#include "ComponentLibrary.h"
 #include "EntityLibrary.h"
 #include "EventLibrary.h"
 #include "WidgetLibrary.h"

@@ -296,7 +296,7 @@ namespace Raven {
         std::string layersContent = "";
         for (std::string layer : layers) {
             layersContent +=
-                tab + "    <ayer>" + layer + "</ayer>\r\n";
+                tab + "    <Layer>" + layer + "</Layer>\r\n";
         }
         bool solid = collisionSettings.find("Solid") != collisionSettings.end();
         bool fixed = collisionSettings.find("Fixed") != collisionSettings.end();
@@ -307,9 +307,9 @@ namespace Raven {
             tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
             tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
             tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
-            tab + "  <ayers>\r\n" +
+            tab + "  <Layers>\r\n" +
             layersContent +
-            tab + "  </ayers>\r\n" +
+            tab + "  </Layers>\r\n" +
             tab + "  <Settings>\r\n" +
             tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
             tab + "    <Fixed>" + std::to_string(fixed) + "</Fixed>\r\n" +
@@ -326,9 +326,9 @@ namespace Raven {
         XMLElement* t = node->FirstChildElement("Layer");
         layers.clear();
         while (t) {
-			t = t->NextSiblingElement("Layer");
             layers.insert(t->GetText());
-		};
+            t = t->NextSiblingElement("Layer");
+        } 
 
         t = node->FirstChildElement("Settings");
         collisionSettings.clear();
@@ -449,11 +449,13 @@ namespace Raven {
 
     void MusicMaker::deserialize(XMLNode* node) {
         XMLElement* e = node->FirstChildElement("MusicMakerMusicFilePath");
-        do {
+        while (e) {
             musicMap.insert(std::make_pair(e->GetText(), std::shared_ptr<sf::Music>(new sf::Music())));
             cmn::game->events.emit<AudioEvent>(e->GetText(), this, 
                 cmn::EAudioType::MUSIC, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
-        } while (e = e->NextSiblingElement("MusicMakerMusicFilePath"));
+
+            e = e->NextSiblingElement("MusicMakerMusicFilePath");
+        } 
     }
 
     Box::Ptr MusicMaker::createWidget() {
@@ -519,7 +521,7 @@ namespace Raven {
             tab + "  <Sprites>\r\n" +
             spriteContent +
             tab + "  </Sprites>\r\n" +
-            tab + "</Renderables>\r\n";
+            tab + "</Renderer>\r\n";
     }
 
     void Renderer::deserialize(XMLNode* node) {

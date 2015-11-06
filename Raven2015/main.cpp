@@ -18,6 +18,7 @@
 #include "Common.h"             // For FPS constants
 #include "DataAssetLibrary.h"   // For rvn::Timer
 #include "Game.h"               // For rvn::Game
+#include "ComponentLibrary.h"   // 
 
 using namespace Raven;
 
@@ -113,10 +114,6 @@ int main() {
     */
 
     game.initialize();
-    game.save();
-    cout << "Saved game" << endl;
-
-    cout << "Starting game loop..." << endl;
     sf::Clock mainClock;
     Timer fpsTimer;
     Timer gameTimer;

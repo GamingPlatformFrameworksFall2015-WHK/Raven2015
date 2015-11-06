@@ -27,7 +27,7 @@ namespace Raven {
         systems.add<AudioSystem>();     // No dependencies
         systems.add<CollisionSystem>(); // No dependencies
         systems.add<InputSystem>();     // No dependencies
-        systems.add<GUISystem>(systems.system<InputSystem>(), &editingEntity);  // Required that this comes after InputSystem
+        systems.add<GUISystem>(systems.system<InputSystem>(), assets, &editingEntity);  // Required that this comes after InputSystem
         systems.add<RenderingSystem>(systems.system<GUISystem>(), assets);              // Required that this comes after GUISystem
         systems.add<ex::deps::Dependency<Rigidbody, Transform>>();
         systems.add<ex::deps::Dependency<BoxCollider, Rigidbody, Transform>>();
