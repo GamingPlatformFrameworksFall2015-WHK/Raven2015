@@ -341,7 +341,7 @@ namespace Raven {
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
             bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
             Button* bdelete = (Button*)box->GetChildren()[3].get();
-			bdelete->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyDeleteButtonHandler, cmn::game->systems.system<GUISystem>().get()->entityWidgetMap.at(0), bdelete));
+			bdelete->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierachyDeleteButtonHandler, *("what do I put here"), bdelete));
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
             bmoveup->SetLabel("+");      // For moving the Entity up in the list
