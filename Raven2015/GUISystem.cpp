@@ -479,7 +479,7 @@ namespace Raven {
     void GUISystem::sceneHierachyDeleteButtonHandler(Button::Ptr button) {
 		std::string button_name = button->GetLabel().toAnsiString();
 		cout << button_name << " SH Delete Clicked" << endl;
-		cmn::game->systems.system<XMLSystem>();
+		//cmn::game->systems.system<XMLSystem>();
 		//ex::Entity::Id entityid = cmn::game->systems.system<XMLSystem>()->levelMap[cmn::game->currentLevelName][button_name].get()->id();
 		//cmn::entities->destroy(entityid);
 		removeItemFromSceneHierarchy(button_name);
