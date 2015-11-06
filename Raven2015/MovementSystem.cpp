@@ -38,6 +38,14 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
         
         // Find closest pawn to tracker
         es.each<Pawn>([&](ex::Entity pawnEntity, Pawn &pawn) {
+			if (trackerEntity.component<Rigidbody>()->velocity.x == 0) {
+				trackerEntity.component<Rigidbody>()->velocity.x = (FPS_100_TICK_TIME * 50);
+			}
+
+			if (trackerEntity.component<Rigidbody>()->velocity.y == 0) {
+				trackerEntity.component<Rigidbody>()->velocity.y = (FPS_100_TICK_TIME * 50);
+			}
+
             xDis = pawnEntity.component<Transform>()->transform.x -
                 trackerEntity.component<Transform>()->transform.x;
             yDis = pawnEntity.component<Transform>()->transform.y -
@@ -57,12 +65,14 @@ void MovementSystem::update(ex::EntityManager &es, ex::EventManager &events,
         // If xDis is negative, pawn is to left of tracker
 		if ((xDis < 0.0 && trackerEntity.component<Rigidbody>()->velocity.x > 0) ||
 			(xDis > 0.0 && trackerEntity.component<Rigidbody>()->velocity.x < 0)) {
+			
 			trackerEntity.component<Rigidbody>()->velocity.x *= -1;
 		}
 		
 		// If yDis is negative, pawn is below tracker
 		if ((yDis < 0.0 && trackerEntity.component<Rigidbody>()->velocity.y > 0) ||
 			(yDis > 0.0 && trackerEntity.component<Rigidbody>()->velocity.y < 0)) {
+			
 			trackerEntity.component<Rigidbody>()->velocity.y *= -1;
 		}
 

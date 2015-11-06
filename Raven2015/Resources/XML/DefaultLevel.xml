@@ -83,7 +83,9 @@
             <Height>32.000000</Height>
             <XOffset>0.000000</XOffset>
             <YOffset>0.000000</YOffset>
-            <Layers/>
+            <Layers>
+              <Layer>Layer1</Layer>
+            </Layers>
             <Settings>
                 <Solid>1</Solid>
                 <Fixed>0</Fixed>
@@ -131,7 +133,9 @@
             <Height>32.000000</Height>
             <XOffset>0.000000</XOffset>
             <YOffset>0.000000</YOffset>
-            <Layers/>
+            <Layers>
+              <Layer>Layer1</Layer>
+            </Layers>
             <Settings>
                 <Solid>1</Solid>
                 <Fixed>0</Fixed>
