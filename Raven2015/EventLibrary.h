@@ -177,6 +177,15 @@ namespace Raven {
  //       ComponentType type;
  //   };
 
+    /*template <typename Panel>
+    struct GUIDeleteWidgetEvent : public ex::Event<GUIDeleteWidgetEvent> {
+        GUIDeleteWidgetEvent(std::string parentID, std::string childToDeleteID) :
+            parentID(parentID), childToDeleteID(childToDeleteID) {}
+
+        std::string parentID;
+        std::string childToDeleteID;
+    };*/
+
     struct GUIRegisterTextureEvent : public ex::Event<GUIRegisterTextureEvent> {
 
         GUIRegisterTextureEvent(const std::string& textureFilePath) : textureFilePath(textureFilePath) {}

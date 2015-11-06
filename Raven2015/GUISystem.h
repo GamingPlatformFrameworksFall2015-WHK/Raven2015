@@ -45,8 +45,14 @@ namespace Raven {
 
         // Subscribe to events, if any
         void configure(ex::EventManager &event_manager) {
-
+            //event_manager.subscribe<GUIDeleteWidgetEvent<WidgetLibrary::SceneHierarchyPanel>>(*this);
         }
+
+        std::map<std::string, bool> needToRepopulate;
+        // panelName == official name w/o spaces, i.e. "SceneHierarchy", "AnimationList", "RectangleList"
+        void populateByPanelName(std::string panelName);
+
+        //void receive(const GUIDeleteWidgetEvent<WidgetLibrary::SceneHierarchyPanel>& e);
 
         // Add or remove textures & sprites dynamically, drawing sprites that are within view
         void update(ex::EntityManager &es, ex::EventManager &events, ex::TimeDelta dt) override;
@@ -103,10 +109,12 @@ namespace Raven {
         void addItemToPrefabList(std::string itemName);
         void removeItemFromPrefabList(std::string itemName);
         void updateXMLPrefabName(Entry* entry, std::string previousName);
+        void removeXMLPrefabName(Entry* entry);
         // Scene Hierarchy Manipulation
         void populateSceneHierarchy(std::set<ex::Entity>& entitySet);
         void addItemToSceneHierarchy(std::string itemName);
         void removeItemFromSceneHierarchy(std::string itemName);
+        void removeWidgetMappedToEntity(ex::Entity entity);
         // Asset List Manipulation
         void populateTextureList(std::set<std::string> assetList);
         void populateMusicList(std::set<std::string> assetList);
@@ -121,13 +129,13 @@ namespace Raven {
         template <typename T>
         void populateAssetList(Box::Ptr assetListWidget, std::set<std::string>& assetList);
         template <typename T>
-        void addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr));
+        Box::Ptr addItemToAssetList(Box::Ptr assetListWidget, std::string itemName, void(*formatter)(Box::Ptr));
         template <typename T>
         void removeItemFromAssetList(Box::Ptr assetListWidget, std::string itemName);
         template <typename T, typename Asett>
         void populateComplexAssetList(Box::Ptr assetMapWidget, std::map<std::string, Asett>& assetMap);
         template <typename T, typename Asett>
-        void addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
+        Box::Ptr addItemToComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
         template <typename T, typename Asett>
         void removeItemFromComplexAssetList(Box::Ptr assetMapWidget, std::string itemName);
 
@@ -347,9 +355,10 @@ namespace Raven {
             Entry* e = (Entry*) box->GetChildren()[0].get();
             e->SetRequisition(sf::Vector2f(100.f, 20.f));
             Button* bopen= (Button*)box->GetChildren()[1].get();
-            bopen->SetLabel("Open"); // For selecting the Entity
+            bopen->SetLabel("Select"); // For selecting the Entity
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
             bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
+            bduplicate->Show(false);
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
@@ -376,6 +385,7 @@ namespace Raven {
             bduplicate->Show(false);
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
+            bdelete->Show(false);
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
             bmoveup->SetLabel("+");      // For moving the Entity up in the list
             bmoveup->Show(false);

@@ -527,32 +527,29 @@ namespace Raven {
     void Renderer::deserialize(XMLNode* node) {
         XMLElement* e = node->FirstChildElement("Texts");
         XMLElement* t = e->FirstChildElement("TextName");
-        if (t) {
-            do {
-                texts.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableTextMap[t->GetText()]));
-            } while (t = t->NextSiblingElement("TextName"));
-        }
+        XMLSystem* xml = cmn::game->systems.system<XMLSystem>().get();
+        while (t) {
+            texts.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableText>(new RenderableText(*xml->renderableTextMap[t->GetText()].get()))));
+            t = t->NextSiblingElement("TextName");
+        } 
         e = node->FirstChildElement("Rectangles");
         t = e->FirstChildElement("RectangleName");
-        if (t) {
-            do {
-                rectangles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableRectangleMap[t->GetText()]));
-            } while (t = t->NextSiblingElement("RectangleName"));
-        }
+        while (t) {
+            rectangles.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableRectangle>(new RenderableRectangle(*xml->renderableRectangleMap[t->GetText()].get()))));
+            t = t->NextSiblingElement("RectangleName");
+        } 
         e = node->FirstChildElement("Circles");
         t = e->FirstChildElement("CircleName");
-        if (t) {
-            do {
-                circles.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableCircleMap[t->GetText()]));
-            } while (t = t->NextSiblingElement("CircleName"));
-        }
+        while (t) {
+            circles.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableCircle>(new RenderableCircle(*xml->renderableCircleMap[t->GetText()].get()))));
+            t = t->NextSiblingElement("CircleName");
+        } 
         e = node->FirstChildElement("Sprites");
         t = e->FirstChildElement("SpriteName");
-        if (t) {
-            do {
-                sprites.insert(std::make_pair(t->GetText(), cmn::game->systems.system<XMLSystem>()->renderableSpriteMap[t->GetText()]));
-            } while (t = t->NextSiblingElement("SpriteName"));
-        }
+        while (t) {
+            sprites.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableSprite>(new RenderableSprite(*xml->renderableSpriteMap[t->GetText()].get()))));
+            t = t->NextSiblingElement("SpriteName");
+        } 
     }
 
     Box::Ptr Renderer::createWidget() {
