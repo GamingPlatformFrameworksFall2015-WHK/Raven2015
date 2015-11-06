@@ -242,6 +242,9 @@ namespace Raven {
         prefabSyncButton = Button::Create("Sync");
         prefabDivertButton = Button::Create("Divert");
         prefabRevertButton = Button::Create("Revert");
+        prefabSyncButton->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::prefabSyncButtonHandler, this, prefabSyncButton.get()));
+        prefabDivertButton->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::prefabDivertButtonHandler, this, prefabDivertButton.get()));
+        prefabRevertButton->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::prefabRevertButtonHandler, this, prefabRevertButton.get()));
         prefabOperationsMenuBox->Pack(prefabSyncButton, true, true);
         prefabOperationsMenuBox->Pack(prefabDivertButton, true, true);
         prefabOperationsMenuBox->Pack(prefabRevertButton, true, true);
@@ -250,6 +253,7 @@ namespace Raven {
         entityDesignerBox = WidgetLibrary::WidgetList<WidgetLibrary::EntityDesignerPanel, ED_ASSET_LIST_WIDGET_SEQUENCE>::Create();
 
         entityDesignerSaveChangesButton = Button::Create("Save");
+        entityDesignerSaveChangesButton->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::entityDesignerSaveChangesButtonHandler, this, entityDesignerSaveChangesButton.get()));
         entityDesignerSaveChangesButton->SetRequisition(sf::Vector2f(200.f, 0.f));
 
         Table::Ptr table = Table::Create();
@@ -369,6 +373,7 @@ namespace Raven {
 
             entityNode = entityNode->NextSiblingElement("Entity");
         }
+        configureWidgetList(prefabListBox, formatPrefabListItem);
     }
 
     void GUISystem::addItemToPrefabList(std::string itemName) {
@@ -377,6 +382,23 @@ namespace Raven {
 
     void GUISystem::removeItemFromPrefabList(std::string itemName) {
         WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(prefabListBox, itemName);
+    }
+
+    void GUISystem::updateXMLPrefabName(Entry* entry, std::string previousName) {
+
+        XMLElement* top = assets->prefabsDoc->FirstChildElement("ASSETS");
+        XMLElement* ent = top->FirstChildElement("Entity");
+        while (ent) {
+
+            XMLElement* nameNode = ent->FirstChildElement("Data")->FirstChildElement("Name");
+
+            if (nameNode->GetText() == previousName.c_str()) {
+                nameNode->SetText(entry->GetText().toAnsiString().c_str());
+                return;
+            }
+
+            ent = ent->NextSiblingElement("Entity");
+        }
     }
 
     void GUISystem::populateSceneHierarchy(std::set<ex::Entity>& entitySet) {
@@ -511,41 +533,34 @@ namespace Raven {
     }
 
     void GUISystem::sceneHierarchyEntryHandler(Entry* entry) {
-        //cout << entry->GetText().toAnsiString() << " Entry changed " << endl;
-        ex::Entity e = assets->entitiesByWidget->at(entry->GetParent());
-        cout << "Before: " << e.component<Data>()->name << endl;
-        e.component<Data>()->name = entry->GetText();
-        cout << "After: " << e.component<Data>()->name << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+        assets->entitiesByWidget->at(entry->GetParent()).component<Data>()->name = entry->GetText();
     }
 
     void GUISystem::sceneHierarchyOpenButtonHandler(Button* button) {
         cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    }
+
+    void GUISystem::sceneHierarchyDuplicateButtonHandler(Button* button) {
+        ex::Entity e = assets->entitiesByWidget->at(button->GetParent());
+        ex::Entity e2 = EntityLibrary::Create::Entity();
+        EntityLibrary::copyEntity(e2, e);
+        assets->entities->insert(e2);
+        WidgetLibrary::WidgetList<WidgetLibrary::SceneHierarchyPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+            sceneHierarchyBox, e2.component<Data>()->name, formatSceneHierarchyListItem);
     }
 
     void GUISystem::sceneHierarchyDeleteButtonHandler(Button* button) {
-		std::string button_name = button->GetLabel().toAnsiString();
-		cout << button_name << " SH Delete Clicked" << endl;
-		//cmn::game->systems.system<XMLSystem>();
-		//ex::Entity::Id entityid = cmn::game->systems.system<XMLSystem>()->levelMap[cmn::game->currentLevelName][button_name].get()->id();
-		//cmn::entities->destroy(entityid);
-		removeItemFromSceneHierarchy(button_name);
-    }
-
-    void GUISystem::sceneHierarchyMoveUpButtonHandler(Button* button) {
+        ex::Entity e = assets->entitiesByWidget->at(button->GetParent());
+        assets->entities->erase(e);
+        e.destroy();
 
     }
 
-    void GUISystem::sceneHierarchyMoveDownButtonHandler(Button* button) {
+    void GUISystem::sceneHierarchyMoveUpButtonHandler(Button* button) { //ignored for now
+
+    }
+
+    void GUISystem::sceneHierarchyMoveDownButtonHandler(Button* button) { //ignored for now
 
     }
 
@@ -562,22 +577,16 @@ namespace Raven {
 
     }
 
-    void GUISystem::prefabListMoveUpButtonHandler(Button* button) {
+    void GUISystem::prefabListMoveUpButtonHandler(Button* button) { //ignored for now
 
     }
 
-    void GUISystem::prefabListMoveDownButtonHandler(Button* button) {
+    void GUISystem::prefabListMoveDownButtonHandler(Button* button) { //ignored for now
 
     }
 
-    void GUISystem::prefabListEntryHandler(Entry* entry) {
-
-        cout << entry->GetText().toAnsiString() << " Button Clicked" << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+    void GUISystem::prefabListEntryHandler(Entry* entry, std::string previousName) {
+        updateXMLPrefabName(entry, previousName);
     }
 
     void GUISystem::canvasClickHandler() {
@@ -587,6 +596,8 @@ namespace Raven {
             cmn::game->events.emit<XMLLogEntityEvent>(entity);
             addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
+            configureWidgetListItem(sceneHierarchyBox, sceneHierarchyBox->GetChildren().size() - 1, formatSceneHierarchyListItem);
+            assets->entitiesByWidget->insert(std::make_pair(sceneHierarchyBox, entity));
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
@@ -594,7 +605,7 @@ namespace Raven {
             transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
             cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
-            renderer->sprites["BlueDot"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
+            renderer->sprites["PlayerSprite"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
         }
     }
 
@@ -640,19 +651,20 @@ namespace Raven {
         return (Button*)((Box*)box->GetChildren()[position].get())->GetChildren()[3].get();
     }
 
-    void GUISystem::configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr)) {
-        for (int i = 0; i < verticalBoxForList->GetChildren().size(); ++i) {
+    void GUISystem::configureWidgetListItem(Box::Ptr verticalBoxForList, size_t position, void(*formatter)(Box::Ptr)) {
             if (formatter == formatSceneHierarchyListItem) {
-                Entry* e = getAssetNameEntry(sceneHierarchyBox, i);
+            Entry* e = getAssetNameEntry(sceneHierarchyBox, position);
                 e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::sceneHierarchyEntryHandler, this, e));
-                Button* bopen = getAssetOpenButton(sceneHierarchyBox, i);
-                Button* bduplicate = getAssetDuplicateButton(sceneHierarchyBox, i);
-                Button* bdelete = getAssetDeleteButton(sceneHierarchyBox, i);
-				bdelete->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierarchyDeleteButtonHandler, this, bdelete));
-
+            Button* bopen = getAssetOpenButton(sceneHierarchyBox, position);
+            bopen->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierarchyOpenButtonHandler, this, bopen));
+            Button* bduplicate = getAssetDuplicateButton(sceneHierarchyBox, position);
+            bduplicate->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierarchyDuplicateButtonHandler, this, bduplicate));
+            Button* bdelete = getAssetDeleteButton(sceneHierarchyBox, position);
+            bdelete->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::sceneHierarchyDeleteButtonHandler, this, bdelete));
             }
             else if (formatter == formatPrefabListItem) {
-
+            Entry* e = getAssetNameEntry(prefabListBox, position);
+            //e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::prefabListEntryHandler, this, e, e->GetText()));
             }
             else if (formatter == formatAssetListItem) {
 
@@ -660,6 +672,12 @@ namespace Raven {
             else if (formatter == formatComplexAssetListItem) {
 
             }
+
+    }
+
+    void GUISystem::configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr)) {
+        for (int i = 0; i < verticalBoxForList->GetChildren().size(); ++i) {
+            configureWidgetListItem(verticalBoxForList, i, formatter);
         }
     }
 

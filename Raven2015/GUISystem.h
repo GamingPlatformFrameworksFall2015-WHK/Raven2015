@@ -102,6 +102,7 @@ namespace Raven {
         void populatePrefabList(XMLDocument& prefabsDoc);
         void addItemToPrefabList(std::string itemName);
         void removeItemFromPrefabList(std::string itemName);
+        void updateXMLPrefabName(Entry* entry, std::string previousName);
         // Scene Hierarchy Manipulation
         void populateSceneHierarchy(std::set<ex::Entity>& entitySet);
         void addItemToSceneHierarchy(std::string itemName);
@@ -149,6 +150,9 @@ namespace Raven {
         // Displays the selected Entity's component list in the EntityDesigner panel
         void sceneHierarchyOpenButtonHandler(Button* clickedButton);
 
+        // Creates a copy of the Entity instance
+        void sceneHierarchyDuplicateButtonHandler(Button* clickedButton);
+
         // Destroys the Entity instance and removes its record from the entitySet
         void sceneHierarchyDeleteButtonHandler(Button* clickedButton);
 
@@ -171,7 +175,7 @@ namespace Raven {
         void prefabListMoveDownButtonHandler(Button* clickedButton);
 
         // When modified, updates the name of the given prefab
-        void prefabListEntryHandler(Entry* updatedEntry);
+        void prefabListEntryHandler(Entry* updatedEntry, std::string previousName);
 
         // Performs an operation on the Canvas based on the current brush mode
         void canvasClickHandler();
@@ -198,7 +202,6 @@ namespace Raven {
         // Clears the current component from the entity and assigns a new component deserialized from the widget
         void entityDesignerSaveChangesButtonHandler(Button* clickedButton);
 
-
         //---------------------Member Variables----------------------
 
         // A pointer to the RenderWindow representing the actual window created from SFML
@@ -224,6 +227,11 @@ namespace Raven {
 
         // A collection of pointers to the XMLSystem's assets
         Assets* assets;
+
+        // Stores a given entity's original name and maps it to what its current name is.
+        // The boolean ensures that we only ever "find" the name once by only searching for
+        // The name paired with false, and only inserting it paired with true
+        //std::map<std::pair<std::string, bool>, std::string> prefabNamesToUpdate;
 
         //-------------Top level widget panels and their sub-widget-containers------------------
 
@@ -365,8 +373,8 @@ namespace Raven {
             binstantiate->SetLabel("Instantiate"); // For selecting the Entity
             Button* bduplicate = (Button*)box->GetChildren()[2].get();
             bduplicate->SetLabel("Duplicate"); // For duplicating the Entity
-            Button* bdelete = (Button*)box->GetChildren()[3].get();
             bduplicate->Show(false);
+            Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the Entity
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
             bmoveup->SetLabel("+");      // For moving the Entity up in the list
@@ -430,6 +438,7 @@ namespace Raven {
         Button* getAssetOpenButton(Box::Ptr box, size_t position);
         Button* getAssetDuplicateButton(Box::Ptr box, size_t position);
         Button* getAssetDeleteButton(Box::Ptr box, size_t position);
+        void configureWidgetListItem(Box::Ptr verticalBoxForList, size_t position, void(*formatter)(Box::Ptr));
         void configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr));
 
         //---------------------------Constants---------------------------------------------
