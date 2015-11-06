@@ -283,7 +283,7 @@ namespace Raven {
         int index = 0;
         GET_ENTRY_AND_TAKE_ACTION(textureFileName = s);
         GET_ENTRY_AND_TAKE_ACTION(size = stoi(s));
-        GET_ENTRY_AND_TAKE_ACTION(isLooping = (bool) stoi(s));
+        GET_ENTRY_AND_TAKE_ACTION(isLooping = 0x0001 & stoi(s));
         GET_ENTRY_AND_TAKE_ACTION(animationSpeed = stof(s));
         GET_ENTRY_AND_TAKE_ACTION(frameWidth = stoi(s));
         GET_ENTRY_AND_TAKE_ACTION(frameHeight = stoi(s));

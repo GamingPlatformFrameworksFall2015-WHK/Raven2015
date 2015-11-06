@@ -144,7 +144,7 @@ namespace Raven {
         void brushToolbarButtonHandler(Button::Ptr clickedButton);
 
         // Displays the selected Entity's component list in the EntityDesigner panel
-        void sceneHierachySelectButtonHandler(Button::Ptr clickedButton);
+        void sceneHierachyOpenButtonHandler(Button::Ptr clickedButton);
 
         // Destroys the Entity instance and removes its record from the entitySet
         void sceneHierachyDeleteButtonHandler(Button::Ptr clickedButton);
@@ -159,7 +159,7 @@ namespace Raven {
         void sceneHierachyEntryHandler(Entry::Ptr updatedEntry);
 
         // Displays the selected Entity's component list in the EntityDesigner panel
-        void prefabListSelectButtonHandler(Button::Ptr clickedButton);
+        void prefabListInstantiateButtonHandler(Button::Ptr clickedButton);
 
         // Destroys the Entity instance and removes its record from the entitySet
         void prefabListDeleteButtonHandler(Button::Ptr clickedButton);
@@ -175,6 +175,28 @@ namespace Raven {
 
         // Performs an operation on the Canvas based on the current brush mode
         void canvasClickHandler();
+
+        // Syncs a prefab to an entity.
+        // Serializes the given entity into its prefab, overwriting it.
+        // Cycles through all entities with a PrefabName matching the edited entity's prefab name.
+        // Saves their core components. Creates a whole new entity and assigns the entity ID.
+        // Re-applies their core components.
+        void prefabSyncButtonHandler();
+
+        // Creates a new prefab matching the edited entity.
+        // Serializes the given entity into a new prefab with a default iterative name.
+        void prefabDivertButtonHandler();
+
+        // Makes the entity once again become a copy of the prefab it is associated with IF not "NULL"
+        // Saves core components. Clears components. Creates a whole new entity and assigns the entity ID.
+        // Re-applies their core components.
+        void prefabRevertButtonHandler();
+
+        // Assigns a new widget to the Entity Designer
+        void assignAssetEditorWidget();
+
+        // Clears the current component from the entity and assigns a new component deserialized from the widget
+        void entityDesignerSaveChangesButtonHandler();
 
 
         //---------------------Member Variables----------------------
@@ -277,6 +299,7 @@ namespace Raven {
         Box::Ptr entityDesignerBox;
         Button::Ptr entityDesignerSaveChangesButton;
         ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
+        ComponentType currentComponentType; // The component widget currently being displayed
 
         //  //  // Component Editor //  //  //
         ScrolledWindow::Ptr componentEditor;
@@ -399,6 +422,8 @@ namespace Raven {
             bmovedown->Show(false);
         };
 
+        //---------------------------Widget List Configuration----------------------------
+        void configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr));
 
         //---------------------------Constants---------------------------------------------
 
