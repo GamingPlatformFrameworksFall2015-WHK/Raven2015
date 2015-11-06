@@ -9,7 +9,6 @@
     <Fonts/>
     <Levels>
         <LevelFilePath>Resources/XML/DefaultLevel.xml</LevelFilePath>
-        <LevelFilePath>Resources/XML/anotherLevel.xml</LevelFilePath>
     </Levels>
     <Animations>
         <Animation Name="BlueDot_Idle">

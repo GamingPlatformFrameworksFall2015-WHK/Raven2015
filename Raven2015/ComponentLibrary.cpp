@@ -21,7 +21,7 @@ namespace Raven {
     ComboBox::Ptr fillComboBoxWithComponents(ComboBox::Ptr box, C* c, Components*... components) {
         box->AppendItem(c->getElementName().c_str());
         return fillComboBoxWithComponents<Components...>(box, components...);
-    }
+        }
 
     void(*componentFormatter)(Box::Ptr) = [](Box::Ptr box) {
         Label* varName = (Label*)box->GetChildren()[0].get();
@@ -96,7 +96,7 @@ namespace Raven {
         ((Label*)box->GetChildren()[0].get())->SetText(box->GetName()); // varName
         ((Entry*)box->GetChildren()[1].get())->SetText(value.c_str());  // edited value
         ((Label*)box->GetChildren()[2].get())->SetText(value.c_str());  // current value
-    }
+        }
 
     std::string getHiddenData(Box::Ptr box, size_t position) {
         return ((Label*)((Box*)box->GetChildren()[position].get())->GetChildren()[3].get())->GetText();
@@ -104,17 +104,17 @@ namespace Raven {
 
     int getDropDownValue(Box::Ptr box, size_t position) {
         return ((ComboBox*)((Box*)box->GetChildren()[position].get())->GetChildren()[4].get())->GetSelectedItem();
-    }
+        }
 
     std::string getEntryValue(Box::Ptr box, size_t position) {
         return ((Entry*)((Box*)box->GetChildren()[position].get())->GetChildren()[1].get())->GetText();
-    }
+        }
 
     template <typename C>
     std::string getNameByTypeHelper(ComponentType type, std::string name, C* c) {
         if (c->getType() == type) {
             name = c->getElementName();
-        }
+    }
         return name;
     }
 
@@ -144,14 +144,14 @@ namespace Raven {
 #pragma region Data
 
     std::string Data::serialize(std::string tab) {
-        return
+            return
             tab + "<Data>\r\n" +
             tab + "  <Name>" + this->name + "</Name>\r\n" +
             tab + "  <PrefabName>" + this->prefabName + "</PrefabName>\r\n" +
             tab + "  <Modified>" + std::to_string(this->modified) + "</Modified>\r\n" +
             tab + "  <Persistent>" + std::to_string(this->persistent) + "</Persistent>\r\n" +
             tab + "</Data>\r\n";
-    }
+        }
 
     void Data::deserialize(XMLNode* node) {
         name = node->FirstChildElement("Name")->GetText();
@@ -173,7 +173,7 @@ namespace Raven {
         initEditableAssetListItem(persistentBox, std::to_string(persistent).c_str());
 
         return box;
-    }
+        }
 
     bool Data::deserializeWidget(Box::Ptr box) {
         std::string s;
@@ -185,14 +185,14 @@ namespace Raven {
         b &= (s = getEntryValue(box, 3)).size() ? true : false;
         if (b) persistent = (std::stoi(s) ? true : false);
         return b;
-    }
+        }
 
 #pragma endregion
 
 #pragma region Physics
 
     std::string Transform::serialize(std::string tab) {
-        return
+            return
             tab + "<Transform>\r\n" +
             tab + "  <SubTransform>\r\n" +
             tab + "    <TransformX>" + std::to_string(this->transform.x) + "</TransformX>\r\n" +
@@ -200,14 +200,14 @@ namespace Raven {
             tab + "  </SubTransform>\r\n" +
             tab + "  <Rotation>" + std::to_string(this->rotation) + "</Rotation>\r\n" +
             tab + "</Transform>\r\n";
-    }
+        }
 
     void Transform::deserialize(XMLNode* node) {
         XMLNode* t = node->FirstChild();
         t->FirstChildElement("TransformX")->QueryFloatText(&(this->transform.x));
         t->FirstChildElement("TransformY")->QueryFloatText(&this->transform.y);
         node->FirstChildElement("Rotation")->QueryFloatText(&this->rotation);
-    }
+        }
 
     Box::Ptr Transform::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -232,7 +232,7 @@ namespace Raven {
         b &= (s = getEntryValue(box, 2)).size() ? true : false;
         if (b) rotation = std::stof(s);
         return b;
-    }
+        }
 
     std::string Rigidbody::serialize(std::string tab) {
         return
@@ -247,7 +247,7 @@ namespace Raven {
             tab + "  </Acceleration>\r\n" +
             tab + "  <RadialVelocity>" + std::to_string(this->radialVelocity) + "</RadialVelocity>\r\n" +
             tab + "</Rigidbody>\r\n";
-    }
+        }
 
     void Rigidbody::deserialize(XMLNode* node) {
         XMLNode* t = node->FirstChildElement("Velocity");
@@ -274,7 +274,7 @@ namespace Raven {
         initEditableAssetListItem(radialVelocityBox, std::to_string(radialVelocity).c_str());
 
         return box;
-    }
+            }
 
     bool Rigidbody::deserializeWidget(Box::Ptr box) {
         std::string s;
@@ -290,32 +290,32 @@ namespace Raven {
         b &= (s = getEntryValue(box, 4)).size() ? true : false;
         if (b) radialVelocity = std::stof(s);
         return b;
-    }
+        }
 
     std::string BoxCollider::serialize(std::string tab) {
         std::string layersContent = "";
-        for (std::string layer : layers) {
-            layersContent +=
+            for (std::string layer : layers) {
+                layersContent +=
                 tab + "    <Layer>" + layer + "</Layer>\r\n";
-        }
+            }
         bool solid = collisionSettings.find("Solid") != collisionSettings.end();
         bool fixed = collisionSettings.find("Fixed") != collisionSettings.end();
 
-        return
+            return
             tab + "<BoxCollider>\r\n" +
             tab + "  <Width>" + std::to_string(this->width) + "</Width>\r\n" +
             tab + "  <Height>" + std::to_string(this->height) + "</Height>\r\n" +
             tab + "  <XOffset>" + std::to_string(this->originOffset.x) + "</XOffset>\r\n" +
             tab + "  <YOffset>" + std::to_string(this->originOffset.y) + "</YOffset>\r\n" +
             tab + "  <Layers>\r\n" +
-            layersContent +
+                layersContent +
             tab + "  </Layers>\r\n" +
             tab + "  <Settings>\r\n" +
             tab + "    <Solid>" + std::to_string(solid) + "</Solid>\r\n" +
             tab + "    <Fixed>" + std::to_string(fixed) + "</Fixed>\r\n" +
             tab + "  </Settings>\r\n" +
             tab + "</BoxCollider>\r\n";
-    }
+        }
 
     void BoxCollider::deserialize(XMLNode* node) {
         node->FirstChildElement("Width")->QueryFloatText(&this->width);
@@ -324,20 +324,20 @@ namespace Raven {
         node->FirstChildElement("YOffset")->QueryFloatText(&this->originOffset.y);
 
         XMLElement* t = node->FirstChildElement("Layer");
-        layers.clear();
+            layers.clear();
         while (t) {
-            layers.insert(t->GetText());
+                layers.insert(t->GetText());
             t = t->NextSiblingElement("Layer");
         } 
 
         t = node->FirstChildElement("Settings");
-        collisionSettings.clear();
-        for (std::string setting : cmn::CollisionInformation::settings) {
-            bool val;
-            t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
+            collisionSettings.clear();
+            for (std::string setting : cmn::CollisionInformation::settings) {
+                bool val;
+                t->FirstChildElement(setting.c_str())->QueryBoolText(&val);
             if (val) collisionSettings.insert("" + setting);
+            }
         }
-    }
 
     Box::Ptr BoxCollider::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -349,14 +349,14 @@ namespace Raven {
         for (auto layer : layers) {
             Box::Ptr layerBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Collision Layer", componentFormatter);
             initEditableAssetListItem(layerBox, layer.c_str());
-        }
+            }
         Box::Ptr solidBox = ED_ASSET_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_SOLID, componentFormatter);
         initEditableAssetListItem(solidBox, COLLISION_LAYER_SETTINGS_SOLID);
         Box::Ptr fixedBox = ED_ASSET_WIDGET_LIST::appendWidget(box, COLLISION_LAYER_SETTINGS_FIXED, componentFormatter);
         initEditableAssetListItem(fixedBox, COLLISION_LAYER_SETTINGS_FIXED);
 
         return box;
-    }
+        }
 
     bool BoxCollider::deserializeWidget(Box::Ptr box) {
         std::string s;
@@ -369,7 +369,7 @@ namespace Raven {
         int numLayers = b ? stoi(s) : b;
         for (int i = 0; i < numLayers; ++i) {
             b &= (s = getEntryValue(box, 2 + i)).size() ? true : false;
-        }
+    }
         b &= (s = getEntryValue(box, 2 + numLayers)).size() ? true : false;
         if (b && stoi(s)) {
             collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
@@ -387,13 +387,13 @@ namespace Raven {
 
     std::string SoundMaker::serialize(std::string tab) {
         std::string soundContent = "";
-        for (auto soundFilePath_soundBuffer : soundMap) {
-            soundContent +=
+            for (auto soundFilePath_soundBuffer : soundMap) {
+                soundContent +=
                 tab + "  <SoundMakerSoundFilePath>" + soundFilePath_soundBuffer.first + "</SoundMakerSoundFilePath>\r\n";
-        }
-        return
+            }
+            return
             tab + "<SoundMaker>\r\n" +
-            soundContent +
+                soundContent +
             tab + "</SoundMaker>\r\n";
     }
 
@@ -405,7 +405,7 @@ namespace Raven {
                 cmn::EAudioType::SOUND, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
             e = e->NextSiblingElement("SoundMakerSoundFilePath");
         }
-    }
+            }
 
     Box::Ptr SoundMaker::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -429,7 +429,7 @@ namespace Raven {
             soundMap.insert(std::make_pair(s, std::shared_ptr<sf::SoundBuffer>(new sf::SoundBuffer())));
             if (!soundMap.at(s)->loadFromFile(s)) {
                 cerr << "Warning: Widget-Deserialization: SoundBuffer failed to load sound at path: " + s << endl;
-            }
+        }
         }
         sound.setLoop(false);
         return b;
@@ -437,13 +437,13 @@ namespace Raven {
 
     std::string MusicMaker::serialize(std::string tab) {
         std::string musicContent = "";
-        for (auto musicFilePath_music : musicMap) {
-            musicContent +=
+            for (auto musicFilePath_music : musicMap) {
+                musicContent +=
                 tab + "  <MusicMakerMusicFilePath>" + musicFilePath_music.first + "</MusicMakerMusicFilePath>\r\n";
-        }
-        return
+            }
+            return
             tab + "<MusicMaker>\r\n" +
-            musicContent +
+                musicContent +
             tab + "</MusicMaker>\r\n";
     }
 
@@ -455,8 +455,8 @@ namespace Raven {
                 cmn::EAudioType::MUSIC, cmn::EAudioOperation::AUDIO_LOAD, cmn::EAudioLoop::LOOP_FALSE);
 
             e = e->NextSiblingElement("MusicMakerMusicFilePath");
-        } 
-    }
+        }
+            }
 
     Box::Ptr MusicMaker::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -480,7 +480,7 @@ namespace Raven {
             musicMap.insert(std::make_pair(s, std::shared_ptr<sf::Music>(new sf::Music())));
             if (!musicMap.at(s)->openFromFile(s)) {
                 cerr << "Warning: Widget-Deserialization: SoundBuffer failed to open music at path: " + s << endl;
-            }
+        }
             musicMap[s]->setLoop(true);
         }
         return b;
@@ -495,34 +495,34 @@ namespace Raven {
         std::string rectangleContent = "";
         std::string circleContent = "";
         std::string spriteContent = "";
-        for (auto assetName_renderable : texts) {
+            for (auto assetName_renderable : texts) {
             textContent += tab + "    <TextName>" + assetName_renderable.first + "</TextName>\r\n";
-        }
-        for (auto assetName_renderable : rectangles) {
+            }
+            for (auto assetName_renderable : rectangles) {
             rectangleContent += tab + "    <RectangleName>" + assetName_renderable.first + "</RectangleName>\r\n";
-        }
-        for (auto assetName_renderable : circles) {
+            }
+            for (auto assetName_renderable : circles) {
             circleContent += tab + "    <CircleName>" + assetName_renderable.first + "</CircleName>\r\n";
-        }
-        for (auto assetName_renderable : sprites) {
+            }
+            for (auto assetName_renderable : sprites) {
             spriteContent += tab + "    <SpriteName>" + assetName_renderable.first + "</SpriteName>\r\n";
-        }
-        return
+            }
+            return
             tab + "<Renderer>\r\n" +
             tab + "  <Texts>\r\n" +
-            textContent +
+                textContent +
             tab + "  </Texts>\r\n" +
             tab + "  <Rectangles>\r\n" +
-            rectangleContent +
+                rectangleContent +
             tab + "  </Rectangles>\r\n" +
             tab + "  <Circles>\r\n" +
-            circleContent +
+                circleContent +
             tab + "  </Circles>\r\n" +
             tab + "  <Sprites>\r\n" +
-            spriteContent +
+                spriteContent +
             tab + "  </Sprites>\r\n" +
             tab + "</Renderer>\r\n";
-    }
+            }
 
     void Renderer::deserialize(XMLNode* node) {
         XMLElement* e = node->FirstChildElement("Texts");
@@ -531,25 +531,25 @@ namespace Raven {
         while (t) {
             texts.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableText>(new RenderableText(*xml->renderableTextMap[t->GetText()].get()))));
             t = t->NextSiblingElement("TextName");
-        } 
+            }
         e = node->FirstChildElement("Rectangles");
         t = e->FirstChildElement("RectangleName");
         while (t) {
             rectangles.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableRectangle>(new RenderableRectangle(*xml->renderableRectangleMap[t->GetText()].get()))));
             t = t->NextSiblingElement("RectangleName");
-        } 
+            }
         e = node->FirstChildElement("Circles");
         t = e->FirstChildElement("CircleName");
         while (t) {
             circles.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableCircle>(new RenderableCircle(*xml->renderableCircleMap[t->GetText()].get()))));
             t = t->NextSiblingElement("CircleName");
-        } 
+            }
         e = node->FirstChildElement("Sprites");
         t = e->FirstChildElement("SpriteName");
         while (t) {
             sprites.insert(std::make_pair(t->GetText(), std::shared_ptr<RenderableSprite>(new RenderableSprite(*xml->renderableSpriteMap[t->GetText()].get()))));
             t = t->NextSiblingElement("SpriteName");
-        } 
+        }
     }
 
     Box::Ptr Renderer::createWidget() {
@@ -558,11 +558,11 @@ namespace Raven {
         for (auto name_renderable : texts) {
             Box::Ptr textBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Text", rendererFormatterText);
             initEditableAssetListItem(textBox, name_renderable.first.c_str());
-        }
+            }
         for (auto name_renderable : rectangles) {
             Box::Ptr rectangleBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Rectangle", rendererFormatterRectangle);
             initEditableAssetListItem(rectangleBox, name_renderable.first.c_str());
-        }
+            }
         for (auto name_renderable : circles) {
             Box::Ptr circleBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Circle", rendererFormatterCircle);
             initEditableAssetListItem(circleBox, name_renderable.first.c_str());
@@ -570,10 +570,10 @@ namespace Raven {
         for (auto name_renderable : sprites) {
             Box::Ptr spriteBox = ED_ASSET_WIDGET_LIST::appendWidget(box, "Sprite", rendererFormatterSprite);
             initEditableAssetListItem(spriteBox, name_renderable.first.c_str());
-        }
+            }
 
         return box;
-    }
+            }
 
     bool Renderer::deserializeWidget(Box::Ptr box) {
         std::string s;
@@ -604,10 +604,10 @@ namespace Raven {
 #pragma region Behaviors
 
     std::string Pawn::serialize(std::string tab) {
-        return
+            return
             tab + "<Pawn>\r\n" +
             tab + "</Pawn>\r\n";
-    }
+        }
 
     void Pawn::deserialize(XMLNode* node) {
     }
@@ -620,13 +620,13 @@ namespace Raven {
 
     bool Pawn::deserializeWidget(Box::Ptr box) {
         return true;
-    }
+        }
 
     std::string Villain::serialize(std::string tab) {
-        return
+            return
             tab + "<Villain>\r\n" +
             tab + "</Villain>\r\n";
-    }
+        }
 
     void Villain::deserialize(XMLNode* node) {
 
@@ -641,10 +641,10 @@ namespace Raven {
     bool Villain::deserializeWidget(Box::Ptr box) {
 
         return true;
-    }
+        }
 
     std::string Tracker::serialize(std::string tab) {
-        return
+            return
             tab + "<Tracker>\r\n" +
             tab + "  <Target>" + std::to_string(target) + "</Target>\r\n" +
             tab + "</Tracker>\r\n";
@@ -654,7 +654,7 @@ namespace Raven {
         int i;
         node->FirstChildElement("Target")->QueryIntText(&i);
         target = (ComponentType) i;
-    }
+        }
 
     Box::Ptr Tracker::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -669,10 +669,10 @@ namespace Raven {
     bool Tracker::deserializeWidget(Box::Ptr box) {
         target = (ComponentType)getDropDownValue(box, 0);
         return true;
-    }
+        }
 
     std::string Pacer::serialize(std::string tab) {
-        return
+            return
             tab + "<Pacer>\r\n" +
             tab + "  <PacerDirection>" + std::to_string(direction) + "</PacerDirection>\r\n" +
             tab + "  <PacerVelocity>\r\n" +
@@ -690,7 +690,7 @@ namespace Raven {
     void Pacer::deserialize(XMLNode* node) {
         int i;
         node->FirstChildElement("PacerDirection")->QueryIntText(&i);
-        direction = (Direction)i;
+            direction = (Direction)i;
         XMLElement* vector = node->FirstChildElement("PacerVelocity");
         vector->FirstChildElement("PacerVelocityX")->QueryFloatText(&velocity.x);
         vector->FirstChildElement("PacerVelocityY")->QueryFloatText(&velocity.y);
@@ -698,7 +698,7 @@ namespace Raven {
         vector->FirstChildElement("PacerOriginX")->QueryFloatText(&velocity.x);
         vector->FirstChildElement("PacerOriginY")->QueryFloatText(&velocity.y);
         node->FirstChildElement("PacerRadius")->QueryFloatText(&radius);
-    }
+        }
 
     Box::Ptr Pacer::createWidget() {
         Box::Ptr box = ED_ASSET_WIDGET_LIST::Create();
@@ -720,7 +720,7 @@ namespace Raven {
         initEditableAssetListItem(radiusBox, std::to_string(radius).c_str());
 
         return box;
-    }
+        }
 
     bool Pacer::deserializeWidget(Box::Ptr box) {
         direction = (Direction)getDropDownValue(box, 0);
