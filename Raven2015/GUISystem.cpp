@@ -405,9 +405,14 @@ namespace Raven {
         sceneHierarchyBox->RemoveAll();
         assets->entitiesByWidget->clear();
         for (auto entity : entitySet) {
-            Box::Ptr box = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
-                sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
-            assets->entitiesByWidget->insert(std::make_pair(box,entity));
+            if (entity.valid()) {
+                if (entity.has_component<Data>()) {
+                    auto data = entity.component<Data>();
+                    Box::Ptr box = WidgetLibrary::WidgetList<WidgetLibrary::PrefabListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
+                        sceneHierarchyBox, data->name, formatSceneHierarchyListItem);
+                    assets->entitiesByWidget->insert(std::make_pair(box,entity));
+                }
+            }
         }
         configureWidgetList(sceneHierarchyBox, formatSceneHierarchyListItem);
     }
@@ -522,6 +527,15 @@ namespace Raven {
         WidgetLibrary::WidgetList<T, ASSET_LIST_WIDGET_SEQUENCE>::removeWidget(assetMapWidget, itemName);
     }
 
+    void GUISystem::removeWidgetMappedToEntity(ex::Entity entity) {
+        for (auto widget_entity : *assets->entitiesByWidget) {
+            if (widget_entity.second == entity) {
+                widget_entity.first->GetParent()->Remove(widget_entity.first);
+                assets->entitiesByWidget->erase(widget_entity.first);
+            }
+        }
+    }
+
 
 #pragma endregion
 
@@ -551,8 +565,11 @@ namespace Raven {
 
     void GUISystem::sceneHierarchyDeleteButtonHandler(Button* button) {
         ex::Entity e = assets->entitiesByWidget->at(button->GetParent());
-        assets->entities->erase(e);
-        e.destroy();
+        if (e.valid()) {
+            e.destroy();
+            assets->entities->erase(e);
+            populateSceneHierarchy(*assets->entities);
+        }
     }
 
     void GUISystem::sceneHierarchyMoveUpButtonHandler(Button* button) { //ignored for now
