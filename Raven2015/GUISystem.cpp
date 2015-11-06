@@ -553,7 +553,7 @@ namespace Raven {
         ex::Entity e = assets->entitiesByWidget->at(button->GetParent());
         assets->entities->erase(e);
         e.destroy();
-
+		//removeItemFromSceneHierarchy(button->GetName());
     }
 
     void GUISystem::sceneHierarchyMoveUpButtonHandler(Button* button) { //ignored for now
