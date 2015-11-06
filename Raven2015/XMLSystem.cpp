@@ -667,6 +667,7 @@ namespace Raven {
             return false;
         }
         else {
+            assetsDoc.Print();
             cout << getNameFromFilePath(assetsFileName, true) + " successfully loaded. Deserializing..." << endl;
             deserializeAssets(assetsDoc.FirstChildElement(assetsFirstChildElement.c_str()));
             return true;
@@ -731,7 +732,7 @@ namespace Raven {
         XMLElement* path = node->FirstChildElement((prefix + "FilePath").c_str());
         while (path) {
             filePathSet.insert(path->GetText());
-            path = node->NextSiblingElement((prefix + "FilePath").c_str());
+            path = path->NextSiblingElement((prefix + "FilePath").c_str());
         }
     }
 

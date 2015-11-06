@@ -344,7 +344,8 @@ namespace Raven {
         //-----------------------Toolbar Member Variables----------------------------------
 
         // The label for the specific brush currently in use
-        Label::Ptr currentBrush = Label::Create("Create");
+        Label::Ptr currentBrush = Label::Create("Brush Mode: Create");
+        Label::Ptr currentEntityLabel;
 
         //--------------------------Formatters---------------------------------------------
 
@@ -375,7 +376,7 @@ namespace Raven {
             // Using shared pointers with addresses retrieved from GetChildren will result in system crashes!
             Entry* e = (Entry*) box->GetChildren()[0].get();
             std::string temp = e->GetText();
-            temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
+            //temp = temp.substr(0, temp.size() - (temp.size() - temp.find_last_of(' ')));
             e->SetText(temp.c_str());
             e->SetRequisition(sf::Vector2f(100.f, 20.f));
             Button* binstantiate = (Button*)box->GetChildren()[1].get();
@@ -429,10 +430,10 @@ namespace Raven {
             e->SetText(temp.c_str());
             e->SetRequisition(sf::Vector2f(350.f, 20.f));
             Button* bselect = (Button*)box->GetChildren()[1].get();
-            bselect->SetLabel("Select"); // For selecting the asset
+            bselect->SetLabel("Open"); // For selecting the asset
             Button* bopen = (Button*)box->GetChildren()[2].get();
-            bselect->Show(false);
             bopen->SetLabel("Open"); // For selecting the asset
+            bopen->Show(false);
             Button* bdelete = (Button*)box->GetChildren()[3].get();
             bdelete->SetLabel("X");      // For deleting the asset
             Button* bmoveup = (Button*)box->GetChildren()[4].get();
@@ -450,6 +451,9 @@ namespace Raven {
         Button* getAssetDeleteButton(Box::Ptr box, size_t position);
         void configureWidgetListItem(Box::Ptr verticalBoxForList, size_t position, void(*formatter)(Box::Ptr));
         void configureWidgetList(Box::Ptr verticalBoxForList, void(*formatter)(Box::Ptr));
+
+        void openLevelButtonHandler(Button* bopen);
+        void removeLevelWidget(Entry* e, Button* bdelete, Assets* assets);
 
         //---------------------------Constants---------------------------------------------
 

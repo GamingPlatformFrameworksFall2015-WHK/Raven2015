@@ -51,23 +51,27 @@ namespace Raven {
         auto gui = systems.system<GUISystem>();
         gui->populatePrefabList(xml->prefabsDoc);
         gui->populateSceneHierarchy(xml->entitySet);
-        gui->populateTextureList(xml->textureFilePathSet);
-        gui->populateMusicList(xml->musicFilePathSet);
-        gui->populateSoundList(xml->soundFilePathSet);
-        gui->populateFontList(xml->fontFilePathSet);
+        //gui->populateTextureList(xml->textureFilePathSet);
+        //gui->populateMusicList(xml->musicFilePathSet);
+        //gui->populateSoundList(xml->soundFilePathSet);
+        //gui->populateFontList(xml->fontFilePathSet);
         gui->populateLevelList(xml->levelFilePathSet);
-        gui->populateAnimationList(xml->animationMap);
-        gui->populateTextList(xml->renderableTextMap);
-        gui->populateRectangleList(xml->renderableRectangleMap);
-        gui->populateCircleList(xml->renderableCircleMap);
-        gui->populateSpriteList(xml->renderableSpriteMap);
+        //gui->populateAnimationList(xml->animationMap);
+        //gui->populateTextList(xml->renderableTextMap);
+        //gui->populateRectangleList(xml->renderableRectangleMap);
+        //gui->populateCircleList(xml->renderableCircleMap);
+        //gui->populateSpriteList(xml->renderableSpriteMap);
     }
 
-    void Game::loadLevel(std::string levelFilePath = "", sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = false) {
+    void Game::loadLevel(std::string levelFilePath = "", sf::Vector2f levelOffset = sf::Vector2f(), bool clearEntitiesBeforehand = true) {
         if (levelFilePath == "") {
             levelFilePath = currentLevelPath;
         }
+        else {
+            currentLevelPath = levelFilePath;
+        }
         systems.system<XMLSystem>()->loadLevel(levelFilePath, levelOffset, clearEntitiesBeforehand);
+        if (clearEntitiesBeforehand) systems.system<GUISystem>()->sceneHierarchyBox->RemoveAll();
         systems.system<GUISystem>()->populateSceneHierarchy(getEntitySet());
     }
 

@@ -75,7 +75,7 @@ namespace Raven {
         //leftBox->Pack(lowerBox, true, true);
 
         Box::Ptr rightBox = Box::Create(Box::Orientation::HORIZONTAL);
-        rightBox->Pack(content, true, true);
+        //rightBox->Pack(content, true, true);
         rightBox->Pack(toolbar, true, true);
 
         // Add all of the various windows to the table, assigning dimensions and settings to the table
@@ -261,26 +261,26 @@ namespace Raven {
 
     // Format the Content widget
     CONTENT_WTYPE_SPTR GUISystem::formatContent(CONTENT_WTYPE_SPTR c) {
-        formatTextureList(ScrolledWindow::Create());
-        formatMusicList(ScrolledWindow::Create());
-        formatSoundList(ScrolledWindow::Create());
-        formatFontList(ScrolledWindow::Create());
+        //formatTextureList(ScrolledWindow::Create());
+        //formatMusicList(ScrolledWindow::Create());
+        //formatSoundList(ScrolledWindow::Create());
+        //formatFontList(ScrolledWindow::Create());
         formatLevelList(ScrolledWindow::Create());
-        formatAnimationList(ScrolledWindow::Create());
-        formatTextList(ScrolledWindow::Create());
-        formatRectangleList(ScrolledWindow::Create());
-        formatCircleList(ScrolledWindow::Create());
-        formatSpriteList(ScrolledWindow::Create());
-        c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));
-        c->AppendPage(musicList, Label::Create(MUSIC_LIST_NAME));
-        c->AppendPage(soundList, Label::Create(SOUND_LIST_NAME));
-        c->AppendPage(fontList, Label::Create(FONT_LIST_NAME));
+        //formatAnimationList(ScrolledWindow::Create());
+        //formatTextList(ScrolledWindow::Create());
+        //formatRectangleList(ScrolledWindow::Create());
+        //formatCircleList(ScrolledWindow::Create());
+        //formatSpriteList(ScrolledWindow::Create());
+        //c->AppendPage(textureList, Label::Create(TEXTURE_LIST_NAME));
+        //c->AppendPage(musicList, Label::Create(MUSIC_LIST_NAME));
+        //c->AppendPage(soundList, Label::Create(SOUND_LIST_NAME));
+        //c->AppendPage(fontList, Label::Create(FONT_LIST_NAME));
         c->AppendPage(levelList, Label::Create(LEVEL_LIST_NAME));
-        c->AppendPage(animationList, Label::Create(ANIMATION_LIST_NAME));
-        c->AppendPage(textList, Label::Create(TEXT_LIST_NAME));
-        c->AppendPage(rectangleList, Label::Create(RECTANGLE_LIST_NAME));
-        c->AppendPage(circleList, Label::Create(CIRCLE_LIST_NAME));
-        c->AppendPage(spriteList, Label::Create(SPRITE_LIST_NAME));
+        //c->AppendPage(animationList, Label::Create(ANIMATION_LIST_NAME));
+        //c->AppendPage(textList, Label::Create(TEXT_LIST_NAME));
+        //c->AppendPage(rectangleList, Label::Create(RECTANGLE_LIST_NAME));
+        //c->AppendPage(circleList, Label::Create(CIRCLE_LIST_NAME));
+        //c->AppendPage(spriteList, Label::Create(SPRITE_LIST_NAME));
 
         return c;
     }
@@ -402,15 +402,21 @@ namespace Raven {
         // Create the various Brush modes we will enter into
         auto createBrush = Button::Create("Create");
         createBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, createBrush.get()));
-        auto deleteBrush = Button::Create("Delete");
-        deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, deleteBrush.get()));
+        //auto deleteBrush = Button::Create("Delete");
+        //deleteBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, deleteBrush.get()));
         auto moveBrush = Button::Create("Move");
         moveBrush->GetSignal(Widget::OnLeftClick).Connect(std::bind(&GUISystem::brushToolbarButtonHandler, this, moveBrush.get()));
         // Add those brushes to our list of brushes
         brushList->Pack(createBrush, true, true);
-        brushList->Pack(deleteBrush, true, true);
+        //brushList->Pack(deleteBrush, true, true);
         brushList->Pack(moveBrush, true, true);
-        t->Pack(currentBrush);
+        Box::Ptr hbox = Box::Create(Box::Orientation::HORIZONTAL);
+        currentBrush->SetRequisition(sf::Vector2f(120.f, 20.f));
+        hbox->Pack(currentBrush);
+        currentEntityLabel = Label::Create("No Entity Selected");
+        currentEntityLabel->SetRequisition(sf::Vector2f(120.f, 20.f));
+        hbox->Pack(currentEntityLabel);
+        t->Pack(hbox);
         t->Pack(brushList);
 
         return t;
@@ -443,7 +449,7 @@ namespace Raven {
 
     void GUISystem::updateXMLPrefabName(Entry* entry, std::string previousName) {
 
-        XMLElement* top = assets->prefabsDoc->FirstChildElement("ASSETS");
+        XMLElement* top = assets->prefabsDoc->FirstChildElement("PREFABS");
         XMLElement* ent = top->FirstChildElement("Entity");
         while (ent) {
 
@@ -459,7 +465,7 @@ namespace Raven {
     }
 
     void GUISystem::removeXMLPrefabName(Entry* entry) {
-        XMLElement* top = assets->prefabsDoc->FirstChildElement("ASSETS");
+        XMLElement* top = assets->prefabsDoc->FirstChildElement("PREFABS");
         XMLElement* ent = top->FirstChildElement("Entity");
         while (ent) {
 
@@ -522,6 +528,7 @@ namespace Raven {
             WidgetLibrary::WidgetList<WidgetLibrary::AnimationListPanel, ASSET_LIST_WIDGET_SEQUENCE>::appendWidget(
                 levelListBox, level, formatComplexAssetListItem);
         }
+        configureWidgetList(levelListBox, formatComplexAssetListItem);
     }
 
     void GUISystem::populateAnimationList(std::map<std::string, std::shared_ptr<Animation>>& map) {
@@ -618,7 +625,7 @@ namespace Raven {
 
     void GUISystem::brushToolbarButtonHandler(Button* button) {
         cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
-        currentBrush->SetText(button->GetLabel().toAnsiString());
+        currentBrush->SetText("Brush Mode: " + button->GetLabel().toAnsiString());
     }
 
     void GUISystem::sceneHierarchyEntryHandler(Entry* entry) {
@@ -627,6 +634,7 @@ namespace Raven {
 
     void GUISystem::sceneHierarchyOpenButtonHandler(Button* button) {  // Currently a "Select" button
         *editingEntity = assets->entitiesByWidget->at(button->GetParent());
+        currentEntityLabel->SetText(("Selected Entity: " + editingEntity->component<Data>()->name).c_str());
     }
 
     void GUISystem::sceneHierarchyDuplicateButtonHandler(Button* button) {
@@ -643,7 +651,7 @@ namespace Raven {
         if (e.valid()) {
             e.destroy();
             assets->entities->erase(e);
-            needToRepopulate["SceneHierarchy"] = true;
+            button->GetParent()->Show(false);
         }
     }
 
@@ -656,12 +664,17 @@ namespace Raven {
     }
 
     void GUISystem::prefabListInstantiateButtonHandler(Button* button) {
-        cout << button->GetLabel().toAnsiString() << " Button Clicked" << endl;
-        /*for (auto child : getEntityDesigner()->GetChildren()) {
-            cout << child->GetName() << endl;
-        }*/
-        //change things in the entity designer and display things according to the
-        //clickedButton->GetLabel().toAnsiString() which is the name that is display to user
+
+        // Grab the text from the entry that will be the first child of this button's parent
+        std::string prefabName = ((Entry*)button->GetParent()->GetChildren()[0].get())->GetText();
+
+        Box::Ptr box = addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
+            sceneHierarchyBox, prefabName, formatSceneHierarchyListItem);
+
+        ex::Entity entity = cmn::game->instantiatePrefab(prefabName, prefabName);
+        cmn::game->events.emit<XMLLogEntityEvent>(entity);
+        assets->entitiesByWidget->insert(std::make_pair(box, entity));
+        configureWidgetListItem(sceneHierarchyBox, sceneHierarchyBox->GetChildren().size() - 1, formatSceneHierarchyListItem);
     }
 
     void GUISystem::prefabListDeleteButtonHandler(Button* button) {
@@ -683,13 +696,28 @@ namespace Raven {
     void GUISystem::canvasClickHandler() {
         sf::Vector2i position = sf::Mouse::getPosition();
         cout << canvas->GetAbsolutePosition().x << " " << canvas->GetAbsolutePosition().y << endl;
-        if (currentBrush->GetText().toAnsiString() == "Create") {
-            ex::Entity entity = EntityLibrary::Create::Entity("Spawned Tracker");
+        if (currentBrush->GetText().toAnsiString() == "Brush Mode: Create") {
+            ex::Entity entity = EntityLibrary::Create::Entity(editingEntity->component<Data>()->name);
+            Data data = *entity.component<Data>().get();
+            Transform transform = *entity.component<Transform>().get();
+            Rigidbody rigidbody = *entity.component<Rigidbody>().get();
+            EntityLibrary::copyEntity(entity, *editingEntity);
+            entity.remove<Data>();
+            entity.remove<Transform>();
+            entity.remove<Rigidbody>();
+            entity.assign_from_copy<Data>(data);
+            entity.assign_from_copy<Transform>(transform);
+            entity.assign_from_copy<Rigidbody>(rigidbody);
+            auto THEtransform = entity.component<Transform>();
+            THEtransform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
+            THEtransform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
+
             cmn::game->events.emit<XMLLogEntityEvent>(entity);
             Box::Ptr box = addItemToAssetList<WidgetLibrary::SceneHierarchyPanel>(
                 sceneHierarchyBox, entity.component<Data>()->name, formatSceneHierarchyListItem);
             configureWidgetListItem(sceneHierarchyBox, sceneHierarchyBox->GetChildren().size() - 1, formatSceneHierarchyListItem);
             assets->entitiesByWidget->insert(std::make_pair(sceneHierarchyBox, entity));
+            /*
             entity.assign<Tracker>();
             entity.assign<BoxCollider>()->collisionSettings.insert(COLLISION_LAYER_SETTINGS_SOLID);
             auto transform = entity.component<Transform>();
@@ -698,6 +726,12 @@ namespace Raven {
             cout << "Created entity @ (" + std::to_string(transform->transform.x) + ", " + std::to_string(transform->transform.y) + ")" << endl;
             ex::ComponentHandle<rvn::Renderer> renderer = entity.assign<rvn::Renderer>();
             renderer->sprites["PlayerSprite"] = std::shared_ptr<RenderableSprite>(new RenderableSprite(*cmn::game->getAssets()->sprites->at("PlayerSprite")));
+            */
+        }
+        else if (currentBrush->GetText().toAnsiString() == "Brush Mode: Move") {
+            auto transform = editingEntity->component<Transform>();
+            transform->transform.x = (float)position.x - canvas->GetAbsolutePosition().x;
+            transform->transform.y = (float)position.y - canvas->GetAbsolutePosition().y;
         }
     }
 
@@ -743,6 +777,15 @@ namespace Raven {
         return (Button*)((Box*)box->GetChildren()[position].get())->GetChildren()[3].get();
     }
 
+    void GUISystem::removeLevelWidget(Entry* e, Button* bdelete, Assets* assets) {
+        bdelete->GetParent()->Show(false);
+        assets->levels->erase(e->GetText());
+    }
+
+    void GUISystem::openLevelButtonHandler(Button* bopen) {
+        cmn::game->loadLevel(bopen->GetLabel().toAnsiString(), sf::Vector2f(), true);
+    }
+
     void GUISystem::configureWidgetListItem(Box::Ptr verticalBoxForList, size_t position, void(*formatter)(Box::Ptr)) {
         if (formatter == formatSceneHierarchyListItem) {
             Entry* e = getAssetNameEntry(sceneHierarchyBox, position);
@@ -764,7 +807,13 @@ namespace Raven {
 
         }
         else if (formatter == formatComplexAssetListItem) {
-
+            Entry* e = getAssetNameEntry(verticalBoxForList, position);
+            // SceneHierarchyEntryHandler is just as good for our purposes here, implying the need for a name change.
+            e->GetSignal(Entry::OnTextChanged).Connect(std::bind(&GUISystem::sceneHierarchyEntryHandler, this, e));
+            Button* bopen = getAssetOpenButton(verticalBoxForList, position);
+            bopen->GetSignal(Button::OnLeftClick).Connect(std::bind(&GUISystem::openLevelButtonHandler, this, bopen));
+            Button* bdelete = getAssetDeleteButton(verticalBoxForList, position);
+            bdelete->GetSignal(Button::OnLeftClick).Connect( std::bind(&GUISystem::removeLevelWidget, this, e, bdelete, assets));
         }
 
     }

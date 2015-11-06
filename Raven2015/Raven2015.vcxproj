@@ -231,6 +231,7 @@
     <Image Include="Resources\Textures\YellowGreenBorderBox.png" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="Resources\XML\anotherLevel.xml" />
     <Xml Include="Resources\XML\assets.xml" />
     <Xml Include="Resources\XML\DefaultLevel.xml" />
     <Xml Include="Resources\XML\prefabs.xml" />

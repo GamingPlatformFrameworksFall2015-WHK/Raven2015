@@ -253,5 +253,8 @@
     <Xml Include="Resources\XML\prefabs.xml">
       <Filter>Resource Files\XML</Filter>
     </Xml>
+    <Xml Include="Resources\XML\anotherLevel.xml">
+      <Filter>Resource Files\XML</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
