@@ -45,9 +45,7 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
     });
 }
 
-void CollisionSystem::receive(const CollisionEvent &event) {
-
-	
+void CollisionSystem::receive(const CollisionEvent &event) {	
 	ex::Entity entityA = event.leftEntity;
 	ex::Entity entityB = event.rightEntity;
 	cout << entityA.component<Rigidbody>()->velocity.x << "," << entityB.component<Rigidbody>()->velocity.y << endl;
@@ -62,13 +60,13 @@ void CollisionSystem::receive(const CollisionEvent &event) {
 		j /= (2 / STANDARD_MASS);
 
 		sf::Vector2f newVel((event.collisionPoint.x * j), (event.collisionPoint.y * j));
-		if (!(entityA.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
-			!= entityA.component<BoxCollider>()->collisionSettings.end())) {
+		if (entityA.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+			== entityA.component<BoxCollider>()->collisionSettings.end()) {
 			entityA.component<Rigidbody>()->velocity.x += (1.0 / STANDARD_MASS) * newVel.x;
 			entityA.component<Rigidbody>()->velocity.y += (1.0 / STANDARD_MASS) * newVel.y;
 		}
-		if (!(entityB.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
-			!= entityB.component<BoxCollider>()->collisionSettings.end())) {
+		if (entityB.component<BoxCollider>()->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) 
+			== entityB.component<BoxCollider>()->collisionSettings.end()) {
 			entityB.component<Rigidbody>()->velocity.x -= (1.0 / STANDARD_MASS) * newVel.x;
 			entityB.component<Rigidbody>()->velocity.y -= (1.0 / STANDARD_MASS) * newVel.y;
 		}
@@ -78,11 +76,6 @@ void CollisionSystem::receive(const CollisionEvent &event) {
 
 void CollisionSystem::collisionResolution
 	(ex::Entity &entityA, ex::Entity &entityB, sf::Vector2f collisionNormal) {
-
-	
-	cout << entityA.component<Rigidbody>()->velocity.x << ", "
-		 << entityA.component<Rigidbody>()->velocity.y << endl;
-
 	sf::Vector2f leftVelocity = entityA.component<Rigidbody>()->velocity;
 	sf::Vector2f rightVelocity = entityB.component<Rigidbody>()->velocity;
 	sf::Vector2f relVel = rightVelocity - leftVelocity;
@@ -159,20 +152,16 @@ std::shared_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEnti
 
 					// Return whether the distance between objects is less than their reach towards each other on BOTH axes
 					if (xDiff <= xReach) {
-
 						if (xDiff <= yDiff) {
 							collisionNormal->x = 1.0f;
 						}
 					}
-
 					if (yDiff <= yReach) {
-
 						if (yDiff <= xDiff) {
 							collisionNormal->y = 1.0f;
 						}
 					}
-
-						// Notify all of those listening for collisions that a collision has occurred
+					// Notify all of those listening for collisions that a collision has occurred
 					return collisionNormal;
 					
 				}
