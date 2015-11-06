@@ -58,6 +58,10 @@ namespace Raven {
 
 #define NUM_REQUIRED_COMPONENTS 3
 
+    int getDropDownValue(Box::Ptr box, size_t position);
+
+    std::string getEntryValue(Box::Ptr box, size_t position);
+
 #pragma region Data
 
     struct Data : public ex::Component<Data>, public cmn::Serializable {
@@ -302,49 +306,10 @@ namespace Raven {
     // An abstract component used to classify player objects
     struct Pawn : public ex::Component<Pawn>, public cmn::Serializable {
         // Creates new instance of Pawn with an assumed ID
-        Pawn() : playerId(getId()) {
-            if (playerId == -1) {
-                cerr << "WARNING: Pawn component generated with automatic invalid player ID."
-                    " This Pawn will not respond to input." << endl;
-            }
-            else {
-                Pawn::ids.set(playerId);
-            }
-        }
-
-        // Creates a new instance of Pawn and attempts to assign a given ID
-        Pawn(int playerId) {
-            if (!ids.test(playerId)) {
-                this->playerId = playerId;
-                ids.set(playerId);
-            }
-            else {
-                cerr << "WARNING: Could not assign playerID " + std::to_string(playerId) +
-                    " to the given entity." << endl;
-                int i = getId();
-                if (i == -1) {
-                    cerr << "WARNING: Could not assign a default ID to the given entity" << endl;
-                }
-                else {
-                    playerId = i;
-                    Pawn::ids.set(i);
-                }
-            }
-        }
+        Pawn() {}
 
         // Copy Constructor
-        Pawn(const Pawn& other)  {}
-
-        ~Pawn() { ids.reset(playerId); }
-
-        // The distinct id associated with the Pawn
-        int playerId;
-
-        // The total set of possible IDs available for Pawns
-        static std::bitset<4> ids;
-
-        // Acquires the next available ID
-        static int getId() { return ids.test(0) ? 0 : ids.test(1) ? 1 : ids.test(2) ? 2 : ids.test(3) ? 3 : -1; }
+        Pawn(const Pawn& other) {}
 
         //Serialization and deserialization for edit/play mode
         ADD_COMPONENT_DEFAULTS(Pawn);
@@ -354,6 +319,8 @@ namespace Raven {
     struct Villain : public ex::Component<Villain>, public cmn::Serializable {
 
         Villain() {}
+
+        Villain(const Villain& other) {}
 
         ADD_COMPONENT_DEFAULTS(Villain);
     };

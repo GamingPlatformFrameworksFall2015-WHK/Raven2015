@@ -42,8 +42,7 @@
         <!ELEMENT CircleName (#PCDATA)>
       <!ELEMENT Sprites (SpriteName*)>
         <!ELEMENT SpriteName (#PCDATA)>
-    <!ELEMENT Pawn (PlayerID)>
-      <!ELEMENT PlayerID (#PCDATA)>
+    <!ELEMENT Pawn EMPTY>
     <!ELEMENT Villain EMPTY>
     <!ELEMENT Tracker (Target)>
       <!ELEMENT Target (#PCDATA)>

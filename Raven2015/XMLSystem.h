@@ -101,6 +101,9 @@ namespace Raven {
 
         ex::Entity* editingEntity; // The entity instance currently being edited (DO NOT DELETE)
 
+        // A mapping between widgets and entity objects
+        std::map<Widget::Ptr, ex::Entity> widgetEntityMap;
+
         Assets assets;
 
     private:
