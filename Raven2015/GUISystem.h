@@ -107,6 +107,7 @@ namespace Raven {
         void populateSceneHierarchy(std::set<ex::Entity>& entitySet);
         void addItemToSceneHierarchy(std::string itemName);
         void removeItemFromSceneHierarchy(std::string itemName);
+        void removeWidgetMappedToEntity(ex::Entity entity);
         // Asset List Manipulation
         void populateTextureList(std::set<std::string> assetList);
         void populateMusicList(std::set<std::string> assetList);
