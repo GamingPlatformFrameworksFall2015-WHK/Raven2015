@@ -47,7 +47,8 @@ void CollisionSystem::update(ex::EntityManager &es, ex::EventManager &events,
 
 void CollisionSystem::receive(const CollisionEvent &event) {
 
-    //cout << "Collision occurred" << endl;
+    cout << "Collision occurred" << endl;
+	
 	ex::ComponentHandle<Rigidbody> leftRigidbody = event.leftRigidbody;
 	ex::ComponentHandle<Rigidbody> rightRigidbody = event.rightRigidbody;
     sf::Vector2f leftVelocity = event.leftRigidbody->velocity;
@@ -56,13 +57,18 @@ void CollisionSystem::receive(const CollisionEvent &event) {
 	double dotProduct = (relVel.x * event.collisionPoint.x) + (relVel.y * event.collisionPoint.y);
 
 	if (dotProduct <= 0) {
-		double j = -(1 - E) * dotProduct;
+		double j = -(1 - RESTITUTION) * dotProduct;
 		j /= (2 / STANDARD_MASS);
 
 		sf::Vector2f newVel((event.collisionPoint.x * j), (event.collisionPoint.y * j));
-		leftRigidbody->velocity -= 1 / STANDARD_MASS * newVel;
-		rightRigidbody->velocity += 1 / STANDARD_MASS * newVel;
+		if (!(event.leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.leftBoxCollider->collisionSettings.end())) {
+			leftRigidbody->velocity -= 1 / STANDARD_MASS * newVel;
+		}
+		if (!(event.rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != event.rightBoxCollider->collisionSettings.end())) {
+			rightRigidbody->velocity += 1 / STANDARD_MASS * newVel;
+		}
 	}
+	
 }
 
 /*
@@ -88,7 +94,7 @@ std::shared_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEnti
         // TODO
     }
 
-	// If both objects are fixed, do not need to do send collision event
+	// If both objects are fixed, do not need to send collision event
 	if (!(leftBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != leftBoxCollider->collisionSettings.end() &&
 		rightBoxCollider->collisionSettings.find(COLLISION_LAYER_SETTINGS_FIXED) != rightBoxCollider->collisionSettings.end())) {
 
@@ -117,23 +123,24 @@ std::shared_ptr<sf::Vector2f> CollisionSystem::testCollision(ex::Entity leftEnti
 					std::shared_ptr<sf::Vector2f> collisionNormal(new sf::Vector2f(0.0f, 0.0f));
 					bool collision = false;
 
+					// Return whether the distance between objects is less than their reach towards each other on BOTH axes
 					if (xDiff <= xReach) {
+
 						if (xDiff <= yDiff) {
 							collisionNormal->x = 1.0f;
-							collision = true;
 						}
 					}
 
 					if (yDiff <= yReach) {
+
 						if (yDiff <= xDiff) {
 							collisionNormal->y = 1.0f;
-							collision = true;
 						}
 					}
 
-					if (collision) {
-						return collisionNormal;
-					}
+						// Notify all of those listening for collisions that a collision has occurred
+					return collisionNormal;
+					
 				}
 			}
 

@@ -120,36 +120,49 @@ int main() {
     sf::Clock mainClock;
     Timer fpsTimer;
     Timer gameTimer;
-    double currentTime = 0.0;
-    double accumulator = 0.0;
+
+	double currentTime = gameTimer.getElapsedTime();
+	double accumulator = 0.0;
     int fps = 0;
     while (game.isMainWindowOpen()) {
 
-        // Calculate FPS based on iterations game loop has updated in 1 second
-        if (fpsTimer.getElapsedTime() >= 1.0) {
-            //efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
-			cout << fps << endl;
-            fpsTimer.restart();
-            fps = 0;
-        }
-
         double newTime = gameTimer.getElapsedTime();
         double frameTime = newTime - currentTime;
+
         currentTime = newTime;
         accumulator += frameTime;
 
+		
         //If we have reached delta time value, update game systems, increment FPS counter,
         //subtract delta time from accumulator so we don't lose any leftover time,
         //and clear window to prepare for next display.
-        while (accumulator > FPS_100_TICK_TIME) {
+
+        while (accumulator >= FPS_100_TICK_TIME) {
             game.pollEvents();
             game.clearWindow();
             //game.editMode ? game.updateEditMode(frameTime) : game.updateGameMode(frameTime);
             game.updateGameMode(frameTime);
-            fps++;
             accumulator -= FPS_100_TICK_TIME;
+			fps++;
         }
+		
+		// Calculate FPS based on iterations game loop has updated in 1 second
+		if (fpsTimer.getElapsedTime() >= 1.0) {
+			//efps_renderer->texts["FPS"]->text.setString(sf::String(std::to_string(fps)));
 
+			if (fps > 100) {
+				int temp = fps - 100;
+				fps = (1 / FPS_100_TICK_TIME) - temp;
+
+				if (fps < 0) {
+					fps = 0;
+				}
+			}
+
+			cout << fps << endl;
+			fps = 0;
+			fpsTimer.restart();
+		}
         game.displayWindow();
     }
 

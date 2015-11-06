@@ -322,9 +322,10 @@ namespace Raven {
 
         XMLElement* t = node->FirstChildElement("Layer");
         layers.clear();
-        do {
+		while (t){
             layers.insert(t->GetText());
-        } while (t = t->NextSiblingElement("Layer"));
+			t = t->NextSiblingElement("Layer");
+        }
 
         t = node->FirstChildElement("Settings");
         collisionSettings.clear();
@@ -377,21 +378,7 @@ namespace Raven {
         return b;
     }
 
-	std::string Tracker::serialize(std::string) {
-		return "";
-	}
 
-	void Tracker::deserialize(XMLNode*) {
-
-	}
-
-	std::string Pacer::serialize(std::string) {
-		return "";
-	}
-
-	void Pacer::deserialize(XMLNode*) {
-
-	}
 
 #pragma endregion
 
