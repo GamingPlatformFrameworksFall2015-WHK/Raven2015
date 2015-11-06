@@ -352,6 +352,6 @@ namespace Raven {
         std::map<std::string, std::shared_ptr<RenderableRectangle>>* rectangles;
         std::map<std::string, std::shared_ptr<RenderableCircle>>* circles;
         std::map<std::string, std::shared_ptr<RenderableSprite>>* sprites;
-		std::map<Widget::Ptr, ex::Entity>* entitiesByWidget;
+        std::map<Widget::Ptr, ex::Entity>* entitiesByWidget;
     };
 }
