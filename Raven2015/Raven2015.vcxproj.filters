@@ -226,6 +226,9 @@
     <None Include="Resources\XML\prefabs.dtd">
       <Filter>Resource Files\XML</Filter>
     </None>
+    <None Include="config.cfg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Fonts\black_jack.ttf">

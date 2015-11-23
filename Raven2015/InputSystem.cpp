@@ -20,11 +20,12 @@ using namespace Raven;
 
 void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
     ex::TimeDelta dt) {
-    
+
     es.each<Pawn>([&](ex::Entity entity, Pawn &pawn) {
         entity.component<Rigidbody>()->velocity.x = movementThresX;
         entity.component<Rigidbody>()->velocity.y = movementThresY;
-    }); 
+        //events.emit<AudioEvent>(...);
+    });
 }
 
 /// <summary>
@@ -32,16 +33,16 @@ void InputSystem::update(ex::EntityManager &es, ex::EventManager &events,
 /// </summary>
 /// <param name="event">The event.</param>
 void InputSystem::receive(const KeyboardEvent &event) {
-    cout << "Key was pressed : " + 
+    cout << "Key was pressed : " +
         (event.action == "" ? NO_ACTION_STR : event.action) << endl;
 }
 
-int InputSystem::handleEvent(sf::Event event) {	
+int InputSystem::handleEvent(sf::Event event) {
     switch (event.type) {
         case sf::Event::KeyPressed: {
 
             key = getAction(event.key.code);
-        
+
             if (key == "switch_mode"){
                 cout << "Edit Mode = " << editMode << endl;
                 if (editMode == true) editMode = false;
@@ -63,10 +64,13 @@ int InputSystem::handleEvent(sf::Event event) {
                 if (key == "move_up" && movementThresY > -1.0) {
                     movementThresY -= (FPS_100_TICK_TIME * 100);
                 }
+                if (key == "play_sound") {
+                    //cmn::game->events.emit<AudioEvent>();
+                }
             }
             break;
         }
-        case sf::Event::KeyReleased: {			
+        case sf::Event::KeyReleased: {
             key = getAction(event.key.code);
 
             if (key == "move_right" || key == "move_left") {
